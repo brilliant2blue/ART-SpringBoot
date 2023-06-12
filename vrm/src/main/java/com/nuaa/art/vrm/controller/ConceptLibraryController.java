@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -96,7 +93,7 @@ public class ConceptLibraryController {
     @GetMapping("vrm/{id}/modeclasses")
     @Operation(summary = "获取项目下所有模式集")
     @Parameter(name = "id", description = "项目号")
-    public HttpResult<List<ModeClass>> getAll(int id) {
+    public HttpResult<List<ModeClass>> getAll(@PathVariable("id")int id) {
         List<ModeClass> mc = daoHandler.getDaoService(ModeClassService.class).listModeClassBySystemId(id);
         if (mc != null) {
             return new HttpResult<>(HttpCodeEnum.SUCCESS, mc);
@@ -211,7 +208,7 @@ public class ConceptLibraryController {
     @DeleteMapping("vrm/{id}/modeclasses")
     @Operation(summary = "删除项目下所有模式集")
     @Parameter(name = "id", description = "项目号")
-    public HttpResult<Integer> delAll(int id) {
+    public HttpResult<Integer> delAll(@PathVariable("id")int id) {
         List<ModeClass> data = daoHandler.getDaoService(ModeClassService.class).listModeClassBySystemId(id);
         if(data != null){
             if(daoHandler.getDaoService(ModeClassService.class).deleteModeClassById(id)){
@@ -242,7 +239,7 @@ public class ConceptLibraryController {
 
     @GetMapping("vrm/{id}/req/standards")
     @Operation(summary = "获取项目下所有规范化需求")
-    public HttpResult<List<StandardRequirement>> getAllStandard(Integer id){
+    public HttpResult<List<StandardRequirement>> getAllStandard(@PathVariable("id")Integer id){
         List<StandardRequirement> sReq = daoHandler.getDaoService(StandardRequirementService.class).listStandardRequirementBySystemId(id);
         if(sReq != null){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,sReq);
@@ -253,7 +250,7 @@ public class ConceptLibraryController {
 
     @DeleteMapping("vrm/{id}/req/standards")
     @Operation(summary = "删除项目下所有规范化需求")
-    public HttpResult<Integer> delStandards(Integer id){
+    public HttpResult<Integer> delStandards(@PathVariable("id")Integer id){
         if(daoHandler.getDaoService(StandardRequirementService.class)
                 .listStandardRequirementBySystemId(id) == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
@@ -268,7 +265,7 @@ public class ConceptLibraryController {
 
     @GetMapping("vrm/{id}/req")
     @Operation(summary = "获取项目下所有原始需求")
-    public HttpResult<List<NaturalLanguageRequirement>> getAllNatural(Integer id){
+    public HttpResult<List<NaturalLanguageRequirement>> getAllNatural(@PathVariable("id") Integer id){
         List<NaturalLanguageRequirement> sReq = daoHandler.getDaoService(NaturalLanguageRequirementService.class).listNaturalLanguageRequirementBySystemId(id);
         if(sReq != null){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,sReq);

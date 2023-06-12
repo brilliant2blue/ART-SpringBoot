@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ProjectDataHandlerImpl implements ProjectDataHandler {
@@ -51,8 +48,9 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
         try {
             LogUtils.info("原始需求导入");
             List<Element> requirementList = requirements.elements("requirement");
+            NaturalLanguageRequirement requirement = new NaturalLanguageRequirement();
             for (Element requirementNode : requirementList) {
-                NaturalLanguageRequirement requirement = new NaturalLanguageRequirement();
+                requirement.setReqId(null);
                 requirement.setSystemId(systemId);
                 requirement.setReqExcelId(
                         Integer.valueOf(requirementNode.elementText("reqExcelId")));
@@ -64,8 +62,9 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
 
             LogUtils.info("数据类型导入");
             List<Element> typeList = types.elements("type");
+            Type type = new Type();
             for (Element typeNode : typeList) {
-                Type type = new Type();
+                type.setTypeId(null);
                 type.setTypeName(typeNode.elementText("typeName"));
                 type.setDataType(typeNode.elementText("dataType"));
                 type.setTypeRange(typeNode.elementText("typeRange"));
@@ -78,8 +77,9 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
 
             LogUtils.info("专有名词导入");
             List<Element> propList = props.elements("prop");
+            ProperNoun prop = new ProperNoun();
             for (Element propNode : propList) {
-                ProperNoun prop = new ProperNoun();
+                prop.setProperNounId(null);
                 prop.setProperNounName(propNode.elementText("properNounName"));
                 prop.setProperNounDescription(propNode.elementText("properNounDescription"));
                 prop.setSystemId(systemId);
@@ -90,8 +90,9 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
 
             LogUtils.info("变量导入");
             List<Element> variableList = variables.elements("variable");
+            ConceptLibrary variable = new ConceptLibrary();
             for (Element variableNode : variableList) {
-                ConceptLibrary variable = new ConceptLibrary();
+                variable.setConceptId(null);
                 variable.setConceptName(variableNode.elementText("conceptName"));
                 variable.setConceptDatatype(variableNode.elementText("conceptDataType"));
                 variable.setConceptValue(variableNode.elementText("conceptValue"));
@@ -106,7 +107,11 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
                 if(reqID.equals("null")){
                     variable.setSourceReqId( null);
                 } else {
-                    variable.setSourceReqId(Integer.valueOf(reqID));
+                    for (String s : Collections.singletonList(reqID)){
+                        if(s!=""){
+                            variable.getSourceReqId().add(Integer.valueOf(s));
+                        }
+                    }
                 }
                 daoHandler.getDaoService(ConceptLibraryService.class).insertConcept(variable);
             }
@@ -156,8 +161,9 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
 
             LogUtils.info("规范化需求导入");
             List<Element> standardList = standards.elements("standard");
+            StandardRequirement standard = new StandardRequirement();
             for (Element standardNode : standardList) {
-                StandardRequirement standard = new StandardRequirement();
+                standard.setStandardRequirementId(null);
                 //这里现在修改为了对应的需求excelId
                 standard.setNaturalLanguageReqId(Integer.valueOf(standardNode.elementText("naturalLanguageReqId")));
                 standard.setStandardReqVariable(

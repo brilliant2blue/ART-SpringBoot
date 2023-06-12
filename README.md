@@ -1,5 +1,5 @@
 #ART-SpringBoot
-API DOC： http://localhost:10287/swagger-ui/index.html
+API DOC： http://localhost:10287/doc.html
 ## 包名规范
 1. 项目基本包：com.nuaa.art.{模块名}
 2. config：配置类
@@ -12,11 +12,13 @@ API DOC： http://localhost:10287/swagger-ui/index.html
 
 ## 模块功能
 1. main 主模块，启动类和项目配置
-2. common 公共模块，放置所有模块都会用到的组件常量等
-3. user 用户模块，与用户业务相关的实现
-4. vrm 需求工程模块，实现VRM相关业务
-5. atg 测试用例自动生成模块，实现ATG相关业务
-> 业务模块负责各自模块的service层及更底层的实现
+2. common 公共工具模块，放置所有模块都会用到的工具（如日志工具，文件读写工具）。
+3. user 用户模块，与用户业务相关的实现。
+4. vrm 需求工程模块，实现领域概念库相关功能与VRM模型构建。
+5. vrmCheck 模型分析模块，实现VRM模型的一致性完整性静态分析。
+6. vrmVerify需求工程模块，实现VRM动态模型验证。
+7. atg 测试用例自动生成模块，实现ATG相关业务
+> 业务模块负责各自模块的功能实现
 
 ## 怎么新增模块？
 1. 创建新模块，模块的包名形如 `com.nuaa.art.xxx`, 

@@ -11,11 +11,14 @@ import com.nuaa.art.vrm.service.handler.RequirementDataHandler;
 import jakarta.annotation.Resource;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.io.IOException;
 import java.util.List;
 
+@Service
 public class RequirementDataHandlerImpl implements RequirementDataHandler {
     @Resource
     DaoHandler daoHandler;
@@ -27,34 +30,36 @@ public class RequirementDataHandlerImpl implements RequirementDataHandler {
      * @return int 返回导入条目号
      */
     @Override
+    @Transactional
     public int importFromFile(int systemId, String fileUrl) {
         Workbook workbook = FileUtils.readExcel(fileUrl);
         if(workbook == null){
             return -1;
         }
-        Sheet sheetAt = workbook.getSheetAt(0);
-        int count = 0;
-        for (Row row : sheetAt) {
-            if(row.getCell(0)==null)
-                continue;
-            int reqNum = (int) row.getCell(0).getNumericCellValue();
-            if (reqNum == 0)
-                continue;
-            String content = row.getCell(1).getStringCellValue();
-            NaturalLanguageRequirement requirement = new NaturalLanguageRequirement();
-            requirement.setReqContent(content);
-            requirement.setSystemId(systemId);
-            requirement.setReqExcelId(reqNum);
-            daoHandler.getDaoService(NaturalLanguageRequirementService.class).insertNLR(requirement);
-            count++;
-        }
-        // 5、关闭流
-        try {
+        try{
+            Sheet sheetAt = workbook.getSheetAt(0);
+            int count = 0;
+            for (Row row : sheetAt) {
+                if(row.getCell(0)==null)
+                    continue;
+                int reqNum = (int) row.getCell(0).getNumericCellValue();
+                if (reqNum == 0)
+                    continue;
+                String content = row.getCell(1).getStringCellValue();
+                NaturalLanguageRequirement requirement = new NaturalLanguageRequirement();
+                requirement.setReqContent(content);
+                requirement.setSystemId(systemId);
+                requirement.setReqExcelId(reqNum);
+                daoHandler.getDaoService(NaturalLanguageRequirementService.class).insertNLR(requirement);
+                count++;
+            }
+            // 5、关闭流
             workbook.close();
-        } catch (IOException e) {
+            return count;
+        } catch (Exception e){
             LogUtils.error(e.getMessage());
+            throw new RuntimeException(e);
         }
-        return count;
     }
 
     /**

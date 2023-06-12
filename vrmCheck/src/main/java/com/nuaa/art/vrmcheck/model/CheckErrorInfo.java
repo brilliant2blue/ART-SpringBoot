@@ -9,11 +9,11 @@ public class CheckErrorInfo {
     /**
      * 错误条目序号
      */
-    int id;
+    Integer id;
     /**
      * 错误类型枚举序号
      */
-    int errorTypeId;
+    Integer errorTypeId;
 
     /**
      * 错误类型
@@ -101,7 +101,7 @@ public class CheckErrorInfo {
         this.details = details;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

@@ -5,12 +5,11 @@ import com.nuaa.art.vrm.model.ConditionTable;
 import com.nuaa.art.vrm.model.EventTable;
 import com.nuaa.art.vrm.service.handler.ConditionTableHandler;
 import com.nuaa.art.vrm.service.handler.EventTableHandler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 表格控制层
@@ -31,7 +30,7 @@ public class TableConvertController {
     }
 
     @PostMapping("tool/condition/string")
-    public ConditionTable tsc(@RequestBody String s){
+    public ConditionTable tsc(@Parameter(required = true)@RequestBody String s){
         LogUtils.info("condition:" + s);
         return conditionTableHandler.ConvertStringToTable(s);
     }
@@ -46,7 +45,7 @@ public class TableConvertController {
     }
 
     @PostMapping("tool/event/string")
-    public EventTable tse(@RequestBody String s){
+    public EventTable tse(@Parameter(required = true)@RequestBody String s){
         LogUtils.info("event:" + s);
         return eventTableHandler.ConvertStringToTable(s);
     }

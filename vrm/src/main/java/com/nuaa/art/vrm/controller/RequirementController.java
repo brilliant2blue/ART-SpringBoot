@@ -6,10 +6,8 @@ import com.nuaa.art.common.model.HttpResult;
 import com.nuaa.art.vrm.entity.ConceptLibrary;
 import com.nuaa.art.vrm.entity.NaturalLanguageRequirement;
 import com.nuaa.art.vrm.entity.StandardRequirement;
-import com.nuaa.art.vrm.service.dao.ConceptLibraryService;
-import com.nuaa.art.vrm.service.dao.DaoHandler;
-import com.nuaa.art.vrm.service.dao.NaturalLanguageRequirementService;
-import com.nuaa.art.vrm.service.dao.StandardRequirementService;
+import com.nuaa.art.vrm.service.dao.*;
+import com.nuaa.art.vrm.service.handler.RequirementDataHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,7 +44,8 @@ public class RequirementController {
 
     @PostMapping("vrm/{id}/req/{reqid}/standard")
     @Operation(summary = "新建一个规范化需求")
-    public HttpResult<Integer> newStandardOfReq(@RequestBody StandardRequirement standard, Integer id, Integer reqid){
+    @Parameter(name = "reqid",description = "是自然语言需求的excelId")
+    public HttpResult<Integer> newStandardOfReq(@RequestBody StandardRequirement standard, @PathVariable("id") Integer id, @PathVariable("reqid") Integer reqid){
         standard.setStandardRequirementId(null);
         standard.setSystemId(id);
         standard.setNaturalLanguageReqId(reqid);
@@ -60,7 +59,7 @@ public class RequirementController {
 
     @PutMapping("vrm/{id}/req/{reqid}/standard/{standardid}")
     @Operation(summary = "更新一个规范化需求")
-    public HttpResult<Integer> updateStandardOfReq(@RequestBody StandardRequirement standard, Integer standardid){
+    public HttpResult<Integer> updateStandardOfReq(@RequestBody StandardRequirement standard, @PathVariable("standardid")Integer standardid){
         if(daoHandler.getDaoService(StandardRequirementService.class)
                 .getStandardRequirementById(standard.getStandardRequirementId()) == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
@@ -74,7 +73,7 @@ public class RequirementController {
 
     @DeleteMapping("vrm/{id}/req/{reqid}/standard/{standardid}")
     @Operation(summary = "删除一个规范化需求")
-    public HttpResult<Integer> delStandard(Integer reqid,Integer standardid){
+    public HttpResult<Integer> delStandard(@PathVariable("reqid")Integer reqid, @PathVariable("standardid")Integer standardid){
         if(daoHandler.getDaoService(StandardRequirementService.class)
                 .getStandardRequirementById(standardid) == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
@@ -89,7 +88,7 @@ public class RequirementController {
 
     @DeleteMapping("vrm/{id}/req/{reqid}/standards")
     @Operation(summary = "删除自然语言需求下的所有规范化需求")
-    public HttpResult<Integer> delStandardOfReq(Integer reqid){
+    public HttpResult<Integer> delStandardOfReq(@PathVariable("reqid")Integer reqid){
         if(daoHandler.getDaoService(StandardRequirementService.class)
                 .listStandardRequirementByReqId(reqid) == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
@@ -106,9 +105,9 @@ public class RequirementController {
 
     @GetMapping("vrm/{id}/req/{reqid}")
     @Operation(summary = "获取一个原始需求的内容")
-    public HttpResult<NaturalLanguageRequirement> getOneReq(int id, int reqid){
+    public HttpResult<NaturalLanguageRequirement> getOneReq(@PathVariable("id") int id, @PathVariable("reqid") int excelid){
         NaturalLanguageRequirement requirement = daoHandler.getDaoService(NaturalLanguageRequirementService.class)
-                .getNaturalLanguageRequirementByExcelId(id, reqid);
+                .getNaturalLanguageRequirementByExcelId(id, excelid);
         if(requirement != null){
             return new HttpResult<>(HttpCodeEnum.SUCCESS, requirement);
         } else {
@@ -130,7 +129,7 @@ public class RequirementController {
 
     @PutMapping("vrm/{id}/req/{reqid}")
     @Operation(summary = "更新一个原始需求的内容")
-    public HttpResult<Integer> updateOneReq(@RequestBody NaturalLanguageRequirement requirement, int id, int reqid){
+    public HttpResult<Integer> updateOneReq(@RequestBody NaturalLanguageRequirement requirement, @PathVariable("id")int id, @PathVariable("reqid")int reqid){
         NaturalLanguageRequirement req =  daoHandler.getDaoService(NaturalLanguageRequirementService.class)
                 .getNaturalLanguageRequirementByExcelId(id, reqid);
         if(req == null){
@@ -147,8 +146,8 @@ public class RequirementController {
     }
 
     @DeleteMapping("vrm/{id}/req/{reqid}")
-    @Operation(summary = "更新一个原始需求的内容")
-    public HttpResult<Integer> delOneReq(int id, int reqid){
+    @Operation(summary = "删除一个原始需求的内容")
+    public HttpResult<Integer> delOneReq(@PathVariable("id")int id, @PathVariable("reqid")int reqid){
         NaturalLanguageRequirement req =  daoHandler.getDaoService(NaturalLanguageRequirementService.class)
                 .getNaturalLanguageRequirementByExcelId(id, reqid);
         if(req == null){
@@ -171,5 +170,37 @@ public class RequirementController {
             return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
         }
     }
+
+    @Resource
+    RequirementDataHandler requirementDataHandler;
+
+    @PostMapping("vrm/{id}/req")
+    @Operation(summary = "从文件导入原始需求")
+    public HttpResult<Integer> importReqs(@PathVariable("id")int id, @RequestParam("file")String fileUrl){
+        if(daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(id) == null){
+            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"系统不存在，请重新选择！",-1);
+        }
+
+        int count = requirementDataHandler.importFromFile(id, fileUrl);
+        if (count > 0)
+            return new HttpResult<>(HttpCodeEnum.SUCCESS, count);
+        else
+            return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
+    }
+
+    @PutMapping("vrm/{id}/req")
+    @Operation(summary = "导出规范化需求为Excel")
+    public HttpResult<String> exportReqs(@PathVariable("id")int id, @RequestParam("file")String fileUrl){
+        if(daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(id) == null){
+            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"系统不存在，请重新选择！",null);
+        }
+
+        int count = requirementDataHandler.exportToFile(id, fileUrl);
+        if (count > 0)
+            return new HttpResult<>(HttpCodeEnum.SUCCESS, fileUrl);
+        else
+            return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, null);
+    }
+
 
 }

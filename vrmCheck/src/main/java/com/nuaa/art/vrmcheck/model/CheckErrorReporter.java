@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckErrorReporter {
-    public
-    int errorCount = 0;
+    public String ModelName = "";
+    public Integer errorCount = 0;
 
     /**
      * 基本范式正确
@@ -30,7 +30,19 @@ public class CheckErrorReporter {
 
     List<CheckErrorInfo> errorList = new ArrayList<>();
 
-    public int getErrorCount() {
+    public String getModelName() {
+        return ModelName;
+    }
+
+    public void setModelName(String modelName) {
+        ModelName = modelName;
+    }
+
+    public void setErrorCount(Integer errorCount) {
+        this.errorCount = errorCount;
+    }
+
+    public Integer getErrorCount() {
         return errorCount;
     }
 
