@@ -11,7 +11,7 @@ API DOC： http://localhost:10287/swagger-ui/index.html
 8. mapper：数据库, 简单的查询，要套在service中执行
 
 ## 模块功能
-1. main 主模块，项目配置与controller实现
+1. main 主模块，启动类和项目配置
 2. common 公共模块，放置所有模块都会用到的组件常量等
 3. user 用户模块，与用户业务相关的实现
 4. vrm 需求工程模块，实现VRM相关业务

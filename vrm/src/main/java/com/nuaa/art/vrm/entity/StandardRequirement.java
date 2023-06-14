@@ -19,12 +19,12 @@ public class StandardRequirement implements Serializable {
      * 
      */
     @TableId(type = IdType.AUTO)
-    private Integer standardrequirementId;
+    private Integer standardRequirementId;
 
     /**
      * 
      */
-    private Integer naturalLangugeReqId;
+    private Integer naturalLanguageReqId;
 
     /**
      * 
@@ -86,8 +86,8 @@ public class StandardRequirement implements Serializable {
             return false;
         }
         StandardRequirement other = (StandardRequirement) that;
-        return (this.getStandardrequirementId() == null ? other.getStandardrequirementId() == null : this.getStandardrequirementId().equals(other.getStandardrequirementId()))
-            && (this.getNaturalLangugeReqId() == null ? other.getNaturalLangugeReqId() == null : this.getNaturalLangugeReqId().equals(other.getNaturalLangugeReqId()))
+        return (this.getStandardRequirementId() == null ? other.getStandardRequirementId() == null : this.getStandardRequirementId().equals(other.getStandardRequirementId()))
+            && (this.getNaturalLanguageReqId() == null ? other.getNaturalLanguageReqId() == null : this.getNaturalLanguageReqId().equals(other.getNaturalLanguageReqId()))
             && (this.getStandardReqVariable() == null ? other.getStandardReqVariable() == null : this.getStandardReqVariable().equals(other.getStandardReqVariable()))
             && (this.getStandardReqFunction() == null ? other.getStandardReqFunction() == null : this.getStandardReqFunction().equals(other.getStandardReqFunction()))
             && (this.getStandardReqValue() == null ? other.getStandardReqValue() == null : this.getStandardReqValue().equals(other.getStandardReqValue()))
@@ -103,8 +103,8 @@ public class StandardRequirement implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((getStandardrequirementId() == null) ? 0 : getStandardrequirementId().hashCode());
-        result = prime * result + ((getNaturalLangugeReqId() == null) ? 0 : getNaturalLangugeReqId().hashCode());
+        result = prime * result + ((getStandardRequirementId() == null) ? 0 : getStandardRequirementId().hashCode());
+        result = prime * result + ((getNaturalLanguageReqId() == null) ? 0 : getNaturalLanguageReqId().hashCode());
         result = prime * result + ((getStandardReqVariable() == null) ? 0 : getStandardReqVariable().hashCode());
         result = prime * result + ((getStandardReqFunction() == null) ? 0 : getStandardReqFunction().hashCode());
         result = prime * result + ((getStandardReqValue() == null) ? 0 : getStandardReqValue().hashCode());
@@ -123,8 +123,8 @@ public class StandardRequirement implements Serializable {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
-        sb.append(", standardrequirementId=").append(standardrequirementId);
-        sb.append(", naturalLangugeReqId=").append(naturalLangugeReqId);
+        sb.append(", standardRequirementId=").append(standardRequirementId);
+        sb.append(", naturalLanguageReqId=").append(naturalLanguageReqId);
         sb.append(", standardReqVariable=").append(standardReqVariable);
         sb.append(", standardReqFunction=").append(standardReqFunction);
         sb.append(", standardReqValue=").append(standardReqValue);

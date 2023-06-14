@@ -6,6 +6,7 @@ import com.nuaa.art.vrm.entity.StateMachine;
 import com.nuaa.art.vrm.mapper.StateMachineMapper;
 import com.nuaa.art.vrm.service.dao.StateMachineService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:11
 */
 @Service
+@Transactional
 public class StateMachineServiceImpl extends ServiceImpl<StateMachineMapper, StateMachine>
     implements StateMachineService {
 

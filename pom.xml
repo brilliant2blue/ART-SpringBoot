@@ -87,7 +87,12 @@
             <artifactId>velocity-engine-core</artifactId>
             <version>2.3</version>
         </dependency> -->
-
+        <!--处理xml-->
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.1</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>

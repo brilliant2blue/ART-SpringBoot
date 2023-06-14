@@ -6,6 +6,7 @@ import com.nuaa.art.vrm.entity.Mode;
 import com.nuaa.art.vrm.mapper.ModeMapper;
 import com.nuaa.art.vrm.service.dao.ModeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:55
 */
 @Service
+@Transactional
 public class ModeServiceImpl extends ServiceImpl<ModeMapper, Mode>
     implements ModeService{
 

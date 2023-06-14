@@ -6,6 +6,7 @@ import com.nuaa.art.vrm.entity.Type;
 import com.nuaa.art.vrm.mapper.TypeMapper;
 import com.nuaa.art.vrm.service.dao.TypeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:01:41
 */
 @Service
+@Transactional
 public class TypeServiceImpl extends ServiceImpl<TypeMapper, Type>
     implements TypeService{
     @Override

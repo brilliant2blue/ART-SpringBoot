@@ -6,6 +6,7 @@ import com.nuaa.art.vrm.entity.StandardRequirement;
 import com.nuaa.art.vrm.mapper.StandardRequirementMapper;
 import com.nuaa.art.vrm.service.dao.StandardRequirementService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:25
 */
 @Service
+@Transactional
 public class StandardRequirementServiceImpl extends ServiceImpl<StandardRequirementMapper, StandardRequirement>
     implements StandardRequirementService {
 
@@ -25,12 +27,12 @@ public class StandardRequirementServiceImpl extends ServiceImpl<StandardRequirem
 
     @Override
     public List<StandardRequirement> listStandardRequirementByReqId(Integer id) {
-        return list(new QueryWrapper<StandardRequirement>().eq("naturalLangugeReqId",id));
+        return list(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId",id));
     }
 
     @Override
     public StandardRequirement getStandardRequirementById(Integer id) {
-        return getOne(new QueryWrapper<StandardRequirement>().eq("standardrequirementId",id));
+        return getOne(new QueryWrapper<StandardRequirement>().eq("standardRequirementId",id));
     }
 
     @Override
@@ -45,14 +47,14 @@ public class StandardRequirementServiceImpl extends ServiceImpl<StandardRequirem
 
     @Override
     public void deleteStandardRequirement(Integer id) {
-        remove(new QueryWrapper<StandardRequirement>().eq("naturalLangugeReqId", id));
+        remove(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId", id));
     }
 
     @Override
     public void deleteOneStandardRequirement(Integer nid, Integer sid) {
         remove(new QueryWrapper<StandardRequirement>()
-                .eq("naturalLangugeReqId",nid)
-                .eq("standardrequirementId", sid));
+                .eq("naturalLanguageReqId",nid)
+                .eq("standardRequirementId", sid));
     }
 
     @Override

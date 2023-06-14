@@ -9,6 +9,7 @@ import com.nuaa.art.vrm.service.dao.ProperNounService;
 import com.nuaa.art.vrm.service.dao.StandardRequirementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:31
 */
 @Service
+@Transactional
 public class ProperNounServiceImpl extends ServiceImpl<ProperNounMapper, ProperNoun>
     implements ProperNounService {
     @Autowired

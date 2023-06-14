@@ -7,6 +7,7 @@ import com.nuaa.art.vrm.mapper.ModeClassMapper;
 import com.nuaa.art.vrm.service.dao.ModeClassService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:50
 */
 @Service
+@Transactional
 public class ModeClassServiceImpl extends ServiceImpl<ModeClassMapper, ModeClass>
     implements ModeClassService {
     @Override

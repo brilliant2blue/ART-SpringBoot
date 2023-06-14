@@ -9,6 +9,7 @@ import com.nuaa.art.vrm.service.dao.ConceptLibraryService;
 import com.nuaa.art.vrm.service.dao.StandardRequirementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:05:02
 */
 @Service
+@Transactional
 public class ConceptLibraryServiceImpl extends ServiceImpl<ConceptLibraryMapper, ConceptLibrary>
     implements ConceptLibraryService {
     @Autowired

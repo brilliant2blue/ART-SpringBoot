@@ -6,6 +6,7 @@ import com.nuaa.art.vrm.entity.SystemProject;
 import com.nuaa.art.vrm.mapper.SystemProjectMapper;
 import com.nuaa.art.vrm.service.dao.SystemProjectService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:02
 */
 @Service
+@Transactional
 public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, SystemProject>
     implements SystemProjectService {
 

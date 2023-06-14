@@ -4,7 +4,7 @@ import com.nuaa.art.user.common.RoleConstant;
 import com.nuaa.art.user.entity.RoleAccess;
 import com.nuaa.art.user.entity.User;
 import com.nuaa.art.user.model.UserResult;
-import com.nuaa.art.user.service.handler.UserHandlerService;
+import com.nuaa.art.user.service.handler.UserHandler;
 import com.nuaa.art.user.service.dao.AccessService;
 import com.nuaa.art.user.service.dao.RoleAccessService;
 import com.nuaa.art.user.service.dao.UserService;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 
 @Service
-public class UserHandlerServiceImpl implements UserHandlerService {
+public class UserHandlerImpl implements UserHandler {
     @Autowired
     UserService userService;
 

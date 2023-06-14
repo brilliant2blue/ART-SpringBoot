@@ -6,6 +6,7 @@ import com.nuaa.art.vrm.entity.NaturalLanguageRequirement;
 import com.nuaa.art.vrm.mapper.NaturalLanguageRequirementMapper;
 import com.nuaa.art.vrm.service.dao.NaturalLanguageRequirementService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:37
 */
 @Service
+@Transactional
 public class NaturalLanguageRequirementServiceImpl extends ServiceImpl<NaturalLanguageRequirementMapper, NaturalLanguageRequirement>
     implements NaturalLanguageRequirementService {
     @Override
