@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
  * @date 2023/06/13
  */
 @Service("modelCreateToXml")
-public class ModelCreateToXml implements ModelCreateHandler {
+public class ModelCreateToXML implements ModelCreateHandler {
     @Resource
     DaoHandler daoHandler;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @Resource
     DaoHandler daoHandler;
-    @Resource
+    @Resource(name = "modelCreateToXml")
     ModelCreateHandler modelCreateHandler;
     @GetMapping("/test")
     public String test(){

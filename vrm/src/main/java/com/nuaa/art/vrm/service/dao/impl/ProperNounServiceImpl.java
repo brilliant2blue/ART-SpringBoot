@@ -15,9 +15,9 @@ import java.util.List;
 
 /**
 * @author konsin
-* @description 针对表【vrm_propernoun】的数据库操作Service实现
-* @createDate 2023-06-10 19:04:31
-*/
+* {@code @description} 针对表【vrm_propernoun】的数据库操作Service实现
+* {@code @createDate} 2023-06-10 19:04:31
+ */
 @Service
 @Transactional
 public class ProperNounServiceImpl extends ServiceImpl<ProperNounMapper, ProperNoun>

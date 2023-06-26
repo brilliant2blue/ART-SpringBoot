@@ -13,6 +13,7 @@
         <module>common</module>
         <module>user</module>
         <module>vrm</module>
+        <module>vrmCheck</module>
         <module>atg</module>
     </modules>
 
@@ -123,8 +124,8 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.nuaa.art.ArtApplication</mainClass>
-                    <skip>true</skip>
+<!--                    <mainClass>com.nuaa.art.main.MainApplication</mainClass>-->
+<!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>

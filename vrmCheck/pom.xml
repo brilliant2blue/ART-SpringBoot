@@ -3,22 +3,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
     <parent>
         <groupId>com.nuaa.art</groupId>
         <artifactId>ART</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>vrm</artifactId>
+    <artifactId>vrmCheck</artifactId>
 <!--    <version>${project.parent.version}</version>-->
-    <name>vrm</name>
-    <description>vrm</description>
+    <name>vrmCheck</name>
+    <description>vrmCheck</description>
     <packaging>jar</packaging>
+
 
     <dependencies>
         <dependency>
             <groupId>com.nuaa.art</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>vrm</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
         </dependency>

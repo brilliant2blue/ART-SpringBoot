@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>main</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+<!--    <version>${project.parent.version}</version>-->
     <name>main</name>
     <description>main</description>
     <packaging>jar</packaging>
@@ -29,6 +29,11 @@
         <dependency>
             <groupId>com.nuaa.art</groupId>
             <artifactId>user</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nuaa.art</groupId>
+            <artifactId>vrmCheck</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
@@ -52,7 +57,7 @@
                 <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.nuaa.art.main.MainApplication</mainClass>
-                    <skip>true</skip>
+<!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
                     <execution>
