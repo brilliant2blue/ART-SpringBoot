@@ -2,6 +2,7 @@ package com.nuaa.art.vrmcheck.service.Impl;
 
 import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrmcheck.common.utils.OutputUtils;
 import com.nuaa.art.vrmcheck.model.*;
 import com.nuaa.art.vrmcheck.service.ConditionHandler;
 import com.nuaa.art.vrmcheck.service.ModelCheckConditionHandler;
@@ -74,8 +75,8 @@ public class ModelCheckConditionOfXML implements ModelCheckConditionHandler {
 
                     Condition rcp = new Condition(
                             vrmModel, conditionForEachRow, behaviorForEachRow, outputRanges);
-                    rcp.parseConditionIntoStates();
-                    String variableSet = rcp.getVariableSet();
+                    rcp.parseConditionIntoScenarios();
+                    String variableSet = OutputUtils.getVariableSetHeader(rcp.continualVariables, rcp.discreteVariables);;
 
                     ArrayList<ConditionConsistencyError> cceList = conditionHandler.findConsistencyError(rcp);
 
@@ -93,7 +94,7 @@ public class ModelCheckConditionOfXML implements ModelCheckConditionHandler {
                                 CheckErrorType.ConditionIntegrityOnFalse,
                                 table.attributeValue("name"),
                                 wrongRowReqID, modeClass, outputString));
-                    } else if (cie.lostStates.size() != 0) {
+                    } else if (cie.lostScenarios.size() != 0) {
                         ConditionErrorRefresh(errorReporter);
                         String outputString = "";// 输出文本
                         outputString = "错误定位：表格" + table.attributeValue("name") + "\n错误内容：";
@@ -105,9 +106,9 @@ public class ModelCheckConditionOfXML implements ModelCheckConditionHandler {
                         else
                             outputString += "中间变量";
                         outputString += "无值\n" + variableSet;
-                        for (ConcreteState cs : cie.lostStates) {
+                        for (ConcreteScenario cs : cie.lostScenarios) {
                             outputString += "|";
-                            for (String value : cs.concreteState) {
+                            for (String value : cs.concreteScenario) {
                                 outputString += String.format("%-15s", value) + "|";
                             }
                             outputString += "\n";
@@ -150,9 +151,9 @@ public class ModelCheckConditionOfXML implements ModelCheckConditionHandler {
                                 outputString += "中间变量";
                             outputString += "同时取每行后方的多个不同赋值" + "\n" + variableSet;
                             for (ConditionConsistencyError cce : cceList) {// 遍历每一组冲突
-                                ConcreteState cs = cce.obeyStates;
+                                ConcreteScenario cs = cce.obeyScenarios;
                                 outputString += "|";
-                                for (String value : cs.concreteState) {
+                                for (String value : cs.concreteScenario) {
                                     outputString += String.format("%-15s", value) + "|";
                                 }
                                 outputString += "--->";

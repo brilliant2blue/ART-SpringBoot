@@ -19,5 +19,14 @@ public class PathUtils {
         return "".concat(System.getProperty("user.dir"));
     }
 
+    /**
+     * 默认路径
+     *
+     * @return {@link String}
+     */
+    public static String DefaultPath(){
+        return PathUtils.ProjectPath()+ File.separator+"cache"+File.separator;
+    }
+
 
 }

@@ -12,6 +12,6 @@ public class ConditionIntegrityError {
     public int id;
     //		boolean isError = false;
     public boolean isTrueNotExist = false;
-    public ArrayList<ConcreteState> lostStates = new ArrayList<ConcreteState>();
+    public ArrayList<ConcreteScenario> lostScenarios = new ArrayList<ConcreteScenario>();
 
 }

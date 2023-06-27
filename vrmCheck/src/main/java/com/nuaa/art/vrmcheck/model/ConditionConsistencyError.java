@@ -11,6 +11,6 @@ import java.util.HashSet;
 public class ConditionConsistencyError {
         public HashSet<String> assignment = new HashSet<String>();
         public boolean isTrueTooMuch = false;
-        public ConcreteState obeyStates;
+        public ConcreteScenario obeyScenarios;
 
 }

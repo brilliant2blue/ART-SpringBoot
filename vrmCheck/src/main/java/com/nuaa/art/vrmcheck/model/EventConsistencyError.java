@@ -11,10 +11,10 @@ import java.util.ArrayList;
     public class EventConsistencyError {
         public int id;
         public String[] assignment = new String[2];
-        public ArrayList<ConcreteState>[] obeyStates = new ArrayList[2];
+        public ArrayList<ConcreteScenario>[] obeyScenarios = new ArrayList[2];
 
         public EventConsistencyError() {
-            obeyStates[0] = new ArrayList<ConcreteState>();
-            obeyStates[1] = new ArrayList<ConcreteState>();
+            obeyScenarios[0] = new ArrayList<ConcreteScenario>();
+            obeyScenarios[1] = new ArrayList<ConcreteScenario>();
         }
     }

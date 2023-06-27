@@ -1,11 +1,10 @@
 package com.nuaa.art.vrmcheck.model;
 
 import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrmcheck.common.utils.VariableUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import static com.nuaa.art.vrmcheck.common.utils.SortContinualValues.sortContinualValues;
 
 /**
  * 事件
@@ -23,8 +22,8 @@ public class Event {
     public ArrayList<ArrayList<String>> continualValues;// 每个数值型变量在各条件中比较的值
     public ArrayList<ArrayList<String>> discreteRanges;// 每个枚举型变量的值域
     public ArrayList<String> behaviorForEachRow;// 每行的赋值
-    public ArrayList<ArrayList<ArrayList<Long>[]>> timeStates;// 每行事件的每个AND事件的两个条件对应的场景集合
-    public ArrayList<ArrayList<Long>[]> states;// 每行事件对应两个前后场景集合
+    public ArrayList<ArrayList<ArrayList<Long>[]>> timeScenarios;// 每行事件的每个AND事件的两个条件对应的场景集合
+    public ArrayList<ArrayList<Long>[]> scenarios;// 每行事件对应两个前后场景集合
     public int[] variableRanges;
     public Coder coder;// 编码器
 
@@ -37,10 +36,10 @@ public class Event {
         discreteVariables = new ArrayList<String>();
         continualValues = new ArrayList<ArrayList<String>>();
         discreteRanges = new ArrayList<ArrayList<String>>();
-        states = new ArrayList<ArrayList<Long>[]>();
+        scenarios = new ArrayList<ArrayList<Long>[]>();
         continualRanges = new ArrayList<ContinualRange>();
         eventOperatorsForEachRow = new ArrayList<ArrayList<String[]>>();
-        timeStates = new ArrayList<ArrayList<ArrayList<Long>[]>>();
+        timeScenarios = new ArrayList<ArrayList<ArrayList<Long>[]>>();
 
         for (String event : eventsForEachRow) {
             String[] andEvents = event.replace(" ", "").split("\\}\\{");// 分离AND事件
@@ -96,7 +95,7 @@ public class Event {
                     else
                         twoConditions[1] = twoConditions[1].substring(1, twoConditions[1].length() - 1);// 剥离条件2的括号
                     andEtagsForEachRow.add(etags);// 将此AND事件的事件类型存入上层集合
-                    SubConditionOfEvent cp = new SubConditionOfEvent(vrmModel, twoConditions);
+                    SubConditionOfEvent cp = new SubConditionOfEvent(vrmModel, twoConditions);  // 来获取事件子条件中的关键量和值域
                     for (int i = 0; i < 2; i++) {
                         twoNuclearTreesForThisAndEvnet[i] = cp.nuclearTreeForEachRow.get(i);
                     }
@@ -137,17 +136,12 @@ public class Event {
                 eventOperatorsForEachRow.add(andEtagsForEachRow);
             }
         }
-        sortContinualValues(continualValues);
+        VariableUtils.sortContinualValues(continualValues);
         handleAtCEvent();
         int variableNumber = continualVariables.size() + discreteVariables.size();
-        variableRanges = new int[variableNumber];
-        for (int i = 0; i < variableNumber; i++) {
-            if (i < continualVariables.size()) {
-                variableRanges[i] = 2 * continualValues.get(i).size() + 1;
-            } else {
-                variableRanges[i] = discreteRanges.get(i - continualVariables.size()).size();
-            }
-        }
+        // 生成全体关键变量的离散化值域
+        variableRanges = VariableUtils.rangeDiscretization(continualVariables.size(), discreteVariables.size(), continualValues, discreteRanges);
+        //生成场景编码器
         coder = new Coder(variableNumber, variableRanges);
     }
 
@@ -212,33 +206,33 @@ public class Event {
     // 将事件转换为时序场景集对（1.将每个AND事件的两个条件转换为场景集对 2.将场景集对按照事件的逻辑语义进行集合运算，转换为时序场景集对）
     public void parseEventIntoStates() {
         if (continualVariables.size() + discreteVariables.size() != 0) {
-            buildTimeStates();
-            buildStates();
+            buildTimeScenarios();
+            buildScenarios();
             //outputStates();
         }
     }
 
     // 将每个AND事件的两个条件转换为场景集对，此处调用了条件转化器的构造方法2和将条件转换为场景集的方法，复用那部分代码直接获取条件的场景集
-    public void buildTimeStates() {
+    public void buildTimeScenarios() {
         for (ArrayList<ArrayList<ArrayList<NuclearCondition>>[]> nuclearTreeForThisRow : nuclearTreeForEachRow) {
             ArrayList<ArrayList<Long>[]> timeStatesForThisRow = new ArrayList<ArrayList<Long>[]>();
             for (ArrayList<ArrayList<NuclearCondition>>[] nuclearTreeForThisAnd : nuclearTreeForThisRow) {
                 SubConditionOfEvent cp = new SubConditionOfEvent(vrmModel, nuclearTreeForThisAnd, continualVariables,
                         discreteVariables, continualRanges, continualValues, discreteRanges, coder);
-                cp.parseConditionIntoStates();
+                cp.parseConditionIntoScenarios();
                 ArrayList<Long>[] timeStatesForThisAnd = new ArrayList[2];
-                timeStatesForThisAnd[0] = cp.statesCode.get(0);
-                timeStatesForThisAnd[1] = cp.statesCode.get(1);
+                timeStatesForThisAnd[0] = cp.scenariosCode.get(0);
+                timeStatesForThisAnd[1] = cp.scenariosCode.get(1);
                 timeStatesForThisRow.add(timeStatesForThisAnd);
             }
-            timeStates.add(timeStatesForThisRow);
+            timeScenarios.add(timeStatesForThisRow);
         }
     }
 
     // 将每个合取式转换为一个未确定所有取值的场景
-    public void buildStates() {
-        for (int i = 0; i < timeStates.size(); i++) {
-            ArrayList<ArrayList<Long>[]> timeStatesForThisRow = timeStates.get(i);
+    public void buildScenarios() {
+        for (int i = 0; i < timeScenarios.size(); i++) {
+            ArrayList<ArrayList<Long>[]> timeStatesForThisRow = timeScenarios.get(i);
             ArrayList<ArrayList<Long>[]> statesForThisRow = new ArrayList<ArrayList<Long>[]>();
             for (int j = 0; j < timeStatesForThisRow.size(); j++) {
                 ArrayList<Long>[] timeStatesForThisAnd = timeStatesForThisRow.get(j);
@@ -253,9 +247,9 @@ public class Event {
                 ArrayList<Long> complementaryOfCollectionOne = new ArrayList<Long>();
                 for (long l = 0; l < coder.codeLimit; l++) {
                     boolean isZeroIn = false;
-                    State thisState = coder.decode(l);
-                    for (int k = 0; k < thisState.variableNumber; k++) {
-                        if (thisState.state[k] == 0)
+                    Scenario thisScenario = coder.decode(l);
+                    for (int k = 0; k < thisScenario.variableNumber; k++) {
+                        if (thisScenario.scenario[k] == 0)
                             isZeroIn = true;
                     }
                     if (isZeroIn) {
@@ -330,141 +324,68 @@ public class Event {
                 stateCollectionForThisRow[0].retainAll(statesForThisRow.get(k)[0]);
                 stateCollectionForThisRow[1].retainAll(statesForThisRow.get(k)[1]);
             }
-            states.add(stateCollectionForThisRow);
+            scenarios.add(stateCollectionForThisRow);
         }
     }
 
-    // 生成违反范式的场景集合的表头（变量的列表），提供给分析的输出信息
-    public String getVariableSet() {
-        int maximum = 0;
-        for (String continual : continualVariables) {
-            if (continual.length() / 15 > maximum)
-                maximum = continual.length() / 15;
-        }
-        for (String discrete : discreteVariables) {
-            if (discrete.length() / 15 > maximum)
-                maximum = discrete.length() / 15;
-        }
-        String variableSet = "";
-        for (int i = 0; i <= maximum; i++) {
-            variableSet += "|";
-            for (String continual : continualVariables) {
-                if (continual.length() > 15 + i * 15)
-                    variableSet += String.format("%-15s", continual.substring(0 + i * 15, 15 + i * 15)) + "|";
-                else if (continual.length() > 0 + i * 15)
-                    variableSet += String.format("%-15s", continual.substring(0 + i * 15)) + "|";
-                else
-                    variableSet += String.format("%-15s", "") + "|";
+     //输出场景集到Eclipse的Console，调试用
+    public void outputStates() {
+        for (int i = 0; i < nuclearTreeForEachRow.size(); i++) {
+            ArrayList<ArrayList<ArrayList<NuclearCondition>>[]> thisRow = nuclearTreeForEachRow.get(i);
+            String event = "";
+            for (ArrayList<ArrayList<NuclearCondition>>[] twoNuclearTrees : thisRow) {
+                event += eventOperatorsForEachRow.get(i).get(thisRow.indexOf(twoNuclearTrees))[0];
+                event += "(";
+                for (ArrayList<NuclearCondition> andTree : twoNuclearTrees[0]) {
+                    event += "(";
+                    for (NuclearCondition nuclear : andTree) {
+                        event += nuclear.variable + nuclear.operator + nuclear.value + "&&";
+                    }
+                    event = event.substring(0, event.length() - 2);
+                    event += ")||";
+                }
+                event = event.substring(0, event.length() - 2);
+                event += ")";
+                event += eventOperatorsForEachRow.get(i).get(thisRow.indexOf(twoNuclearTrees))[1];
+                event += "(";
+                for (ArrayList<NuclearCondition> andTree : twoNuclearTrees[1]) {
+                    event += "(";
+                    for (NuclearCondition nuclear : andTree) {
+                        event += nuclear.variable + nuclear.operator + nuclear.value + "&&";
+                    }
+                    event = event.substring(0, event.length() - 2);
+                    event += ")||";
+                }
+                event = event.substring(0, event.length() - 2);
+                event += ")";
+                event += " AND ";
             }
-            for (String discrete : discreteVariables) {
-                if (discrete.length() > 15 + i * 15)
-                    variableSet += String.format("%-15s", discrete.substring(0 + i * 15, 15 + i * 15)) + "|";
-                else if (discrete.length() > 0 + i * 15)
-                    variableSet += String.format("%-15s", discrete.substring(0 + i * 15)) + "|";
-                else
-                    variableSet += String.format("%-15s", "") + "|";
+            event = event.substring(0, event.length() - 5);
+            System.out.println("Event:" + event);
+            ArrayList<Long>[] stateCollection = scenarios.get(i);
+            String variables = "variables:";
+            for (String variableName : continualVariables) {
+                variables += variableName + ",";
             }
-            variableSet += "\n";
+            for (String variableName : discreteVariables) {
+                variables += variableName + ",";
+            }
+            variables = variables.substring(0, variables.length() - 1);
+            System.out.println(variables);
+            for (Long thisState : stateCollection[0]) {
+                System.out.print(thisState + "\t");
+
+            }
+            System.out.println();
+            System.out.println(variables);
+            for (Long thisState : stateCollection[1]) {
+                System.out.print(thisState + "\t");
+
+            }
+            System.out.println();
         }
-        variableSet += "|";
-        for (int i = 0; i < continualVariables.size() + discreteVariables.size(); i++) {
-            variableSet += "---------------|";
-        }
-        variableSet += "\n";
-        return variableSet;
+
     }
-
-    // 确定单条条件场景中的未确定取值，直接复制了条件转换器中的同一个方法，在此处仅用来构建场景全集
-//    public ArrayList<State> appendInconsidered(ArrayList<State> stateCollection) {
-//        ArrayList<State> stateCollectionSingle = new ArrayList<State>();
-//        for (int j = 0; j < stateCollection.size(); j++) {
-//            State thisState = stateCollection.get(j);
-//            for (int k = 0; k < thisState.variableNumber; k++) {
-//                if (thisState.state[k] == 0) {
-//                    thisState.state[k] = 1;
-//                    if (k < continualVariables.size()) {
-//                        for (int value = 2; value < continualValues.get(k).size() * 2 + 2; value++) {
-//                            State newState = new State(thisState);
-//                            newState.state[k] = value;
-//                            stateCollection.add(newState);
-//                        }
-//                    } else {
-//                        for (int value = 2; value < discreteRanges.get(k - continualVariables.size()).size()
-//                                + 1; value++) {
-//                            State newState = new State(thisState);
-//                            newState.state[k] = value;
-//                            stateCollection.add(newState);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        for (State thisState : stateCollection) {
-//            if (!stateCollectionSingle.contains(thisState)) {
-//                stateCollectionSingle.add(thisState);
-//            }
-//        }
-//        return stateCollectionSingle;
-//    }
-
-    // 输出场景集到Eclipse的Console，调试用
-//    public void outputStates() {
-//        for (int i = 0; i < nuclearTreeForEachRow.size(); i++) {
-//            ArrayList<ArrayList<ArrayList<NuclearCondition>>[]> thisRow = nuclearTreeForEachRow.get(i);
-//            String event = "";
-//            for (ArrayList<ArrayList<NuclearCondition>>[] twoNuclearTrees : thisRow) {
-//                event += eventOperatorsForEachRow.get(i).get(thisRow.indexOf(twoNuclearTrees))[0];
-//                event += "(";
-//                for (ArrayList<NuclearCondition> andTree : twoNuclearTrees[0]) {
-//                    event += "(";
-//                    for (NuclearCondition nuclear : andTree) {
-//                        event += nuclear.variable + nuclear.operator + nuclear.value + "&&";
-//                    }
-//                    event = event.substring(0, event.length() - 2);
-//                    event += ")||";
-//                }
-//                event = event.substring(0, event.length() - 2);
-//                event += ")";
-//                event += eventOperatorsForEachRow.get(i).get(thisRow.indexOf(twoNuclearTrees))[1];
-//                event += "(";
-//                for (ArrayList<NuclearCondition> andTree : twoNuclearTrees[1]) {
-//                    event += "(";
-//                    for (NuclearCondition nuclear : andTree) {
-//                        event += nuclear.variable + nuclear.operator + nuclear.value + "&&";
-//                    }
-//                    event = event.substring(0, event.length() - 2);
-//                    event += ")||";
-//                }
-//                event = event.substring(0, event.length() - 2);
-//                event += ")";
-//                event += " AND ";
-//            }
-//            event = event.substring(0, event.length() - 5);
-//            System.out.println("Event:" + event);
-//            ArrayList<Long>[] stateCollection = states.get(i);
-//            String variables = "variables:";
-//            for (String variableName : continualVariables) {
-//                variables += variableName + ",";
-//            }
-//            for (String variableName : discreteVariables) {
-//                variables += variableName + ",";
-//            }
-//            variables = variables.substring(0, variables.length() - 1);
-//            System.out.println(variables);
-//            for (Long thisState : stateCollection[0]) {
-//                System.out.print(thisState + "\t");
-//
-//            }
-//            System.out.println();
-//            System.out.println(variables);
-//            for (Long thisState : stateCollection[1]) {
-//                System.out.print(thisState + "\t");
-//
-//            }
-//            System.out.println();
-//        }
-//
-//    }
 
 }
 

@@ -30,24 +30,44 @@ public class Coder {
         codeLimit = weight;
     }
 
-    public long encode(State s) {
+    /**
+     * 编码
+     *
+     * @param s 场景
+     * @return long
+     */
+    public long encode(Scenario s) {
         long code = 0;
         for (int i = 0; i < variableNumber; i++) {
-            code += (weights[i] * (s.state[i]));
+            code += (weights[i] * (s.scenario[i]));
         }
         return code;
     }
 
-    public State decode(long code) {
-        State s = new State(variableNumber);
+    /**
+     * 解码
+     *
+     * @param code 场景码
+     * @return {@link Scenario}
+     */
+    public Scenario decode(long code) {
+        Scenario s = new Scenario(variableNumber);
         for (int i = 0; i < variableNumber; i++) {
-            s.state[i] = (int) (code / weights[i]);
+            s.scenario[i] = (int) (code / weights[i]);
             code = code % weights[i];
         }
         return s;
     }
 
-    public ArrayList<Long> appendInconsidered(ArrayList<Long> stateCollection, long code,
+    /**
+     * 场景抽象 过程， 采用了附加的方式而不是重新生成一个完整的编码器
+     *
+     * @param scenarioCollection 状态集合
+     * @param code            场景代码
+     * @param inconsidered    未考虑的变量
+     * @return {@link ArrayList}<{@link Long}>
+     */
+    public ArrayList<Long> appendInconsidered(ArrayList<Long> scenarioCollection, long code,
                                               ArrayList<Integer> inconsidered) {
         int[] inconsideredRanges = new int[inconsidered.size()];
         for (int i = 0; i < inconsidered.size(); i++) {
@@ -55,15 +75,15 @@ public class Coder {
         }
         Coder c = new Coder(inconsidered.size(), inconsideredRanges);
         for (long l = 0; l < c.codeLimit; l++) {
-            State s = c.decode(l);
+            Scenario s = c.decode(l);
             long newCode = code;
             for (int i = 0; i < inconsidered.size(); i++) {
-                newCode += weights[inconsidered.get(i)] * (s.state[i] + 1);
+                newCode += weights[inconsidered.get(i)] * (s.scenario[i] + 1);
             }
-            System.out.println("newState:" + newCode);
-            if (!stateCollection.contains(newCode))
-                stateCollection.add(newCode);
+            //System.out.println("newState:" + newCode);
+            if (!scenarioCollection.contains(newCode))
+                scenarioCollection.add(newCode);
         }
-        return stateCollection;
+        return scenarioCollection;
     }
 }

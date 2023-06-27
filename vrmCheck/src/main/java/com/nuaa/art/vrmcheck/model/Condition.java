@@ -1,17 +1,17 @@
 package com.nuaa.art.vrmcheck.model;
 
 import com.nuaa.art.vrm.model.model.VRMOfXML;
-import org.dom4j.Element;
+import com.nuaa.art.vrmcheck.common.utils.VariableUtils;
 
 import java.util.*;
 
-import static com.nuaa.art.vrmcheck.common.utils.SortContinualValues.sortContinualValues;
+import static com.nuaa.art.vrmcheck.common.utils.VariableUtils.sortContinualValues;
 
 /**
  * 条件
  *
  * @author konsin
- * @date 2023/06/21
+ * {@code @date} 2023/06/21
  */
 public class Condition {
     public VRMOfXML vrmModel; //所属模型
@@ -21,7 +21,7 @@ public class Condition {
     public ArrayList<ContinualRange> continualRanges;
     public ArrayList<ArrayList<String>> continualValues;// 每个数值型变量在各条件中比较的值
     public ArrayList<ArrayList<String>> discreteRanges;// 每个枚举型变量的值域
-    public ArrayList<String> behaviorForEachRow;// 每行的赋值
+    public ArrayList<String> assignmentForEachRow;// 每行的赋值
     public ArrayList<String> outputRanges;// 关联变量的值域
     public ArrayList<HashSet<Integer>> outputForEachState;// 每个场景对应的输出值号
     public int[] variableRanges;
@@ -33,7 +33,19 @@ public class Condition {
     public Condition(VRMOfXML vrmModel, ArrayList<String> conditionsForEachRow, ArrayList<String> assignmentForEachRow,
                      ArrayList<String> outputRanges) {
         this.vrmModel = vrmModel;
-        getConditionTableInformation(conditionsForEachRow, assignmentForEachRow, outputRanges);
+
+        getConditionInformation(conditionsForEachRow, assignmentForEachRow);
+        this.coder = new Coder(this.continualVariables.size() + this.discreteVariables.size(), this.variableRanges);
+
+        this.outputForEachState = new ArrayList<HashSet<Integer>>();
+        for (long l = 0; l < coder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
+            if (!coder.decode(l).containsZero())
+                this.outputForEachState.add(new HashSet<Integer>());
+            else
+                this.outputForEachState.add(null);
+        }
+
+        this.outputRanges = new ArrayList<String>();
     }
 
     // 构造方法2.0
@@ -45,74 +57,59 @@ public class Condition {
             conditionsForEachRow.add(condition);
         }
         this.vrmModel = vrmModel;
-        getConditionTableInformation(conditionsForEachRow, assignmentForEachRow, new ArrayList<String>());
+
+
+        getConditionInformation(conditionsForEachRow, assignmentForEachRow);
+
+        this.coder = new Coder(this.continualVariables.size() + this.discreteVariables.size(), this.variableRanges);
+
+        this.outputForEachState = new ArrayList<HashSet<Integer>>();
+        for (long l = 0; l < coder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
+            if (!coder.decode(l).containsZero())
+                this.outputForEachState.add(new HashSet<Integer>());
+            else
+                this.outputForEachState.add(null);
+        }
+
+        this.outputRanges = new ArrayList<String>();
     }
 
     public Condition() {
         super();
     }
 
-    // 将条件转换为场景集与行号的映射关系（1.将每个合取式转换为一个或多个含0场景 2.将每行的行号根据其含0场景集填入outputForEachState）
-    public void parseConditionIntoStates() {
+    /**
+     * 构建条件的等价场景集
+     * 将条件转换为场景集与行号的映射关系
+     * 1.将每个合取式转换为一个或多个含0场景
+     * 2.将每行的行号根据其含0场景集填入outputForEachState）
+     */
+    public void parseConditionIntoScenarios() {
         if (continualVariables.size() + discreteVariables.size() != 0) {
-            buildStates();// 步骤1+2
+            buildScenarios();// 步骤1+2
         }
     }
 
 
-    // 生成违反范式的场景集合的表头（变量的列表），提供给分析的输出信息
-    public String getVariableSet() {
-        int maximum = 0;
-        for (String continual : continualVariables) {
-            if (continual.length() / 15 > maximum)
-                maximum = continual.length() / 15;
-        }
-        for (String discrete : discreteVariables) {
-            if (discrete.length() / 15 > maximum)
-                maximum = discrete.length() / 15;
-        }
-        String variableSet = "";
-        for (int i = 0; i <= maximum; i++) {
-            variableSet += "|";
-            for (String continual : continualVariables) {
-                if (continual.length() > 15 + i * 15)
-                    variableSet += String.format("%-15s", continual.substring(0 + i * 15, 15 + i * 15)) + "|";
-                else if (continual.length() > 0 + i * 15)
-                    variableSet += String.format("%-15s", continual.substring(0 + i * 15)) + "|";
-                else
-                    variableSet += String.format("%-15s", "") + "|";
-            }
-            for (String discrete : discreteVariables) {
-                if (discrete.length() > 15 + i * 15)
-                    variableSet += String.format("%-15s", discrete.substring(0 + i * 15, 15 + i * 15)) + "|";
-                else if (discrete.length() > 0 + i * 15)
-                    variableSet += String.format("%-15s", discrete.substring(0 + i * 15)) + "|";
-                else
-                    variableSet += String.format("%-15s", "") + "|";
-            }
-            variableSet += "\n";
-        }
-        variableSet += "|";
-        for (int i = 0; i < continualVariables.size() + discreteVariables.size(); i++) {
-            variableSet += "---------------|";
-        }
-        variableSet += "\n";
-        return variableSet;
-    }
+    /**
+     * 获取条件的基本信息
+     * 1.所给条件集中每个条件的条件树， 指派值
+     * 2.条件中涉及的变量， 变量的值域，连续型变量的关键值
+     * 3.返回
+     *
+     * @param conditionsForEachRow 每行条件
+     * @param assignmentForEachRow 每行的输出
+     */// 根据条件列表和各条件的输出值，获取条件转换器的各种属性
+    public void getConditionInformation(ArrayList<String> conditionsForEachRow, ArrayList<String> assignmentForEachRow) {
 
-    // 根据条件列表和各条件的输出值，获取条件转换器的各种属性
-    public void getConditionTableInformation(ArrayList<String> conditionsForEachRow,
-                                             ArrayList<String> assignmentForEachRow, ArrayList<String> outputRanges) {
-        behaviorForEachRow = new ArrayList<String>(assignmentForEachRow);
+        this.assignmentForEachRow = new ArrayList<String>(assignmentForEachRow);
         nuclearTreeForEachRow = new ArrayList<ArrayList<ArrayList<NuclearCondition>>>();
         continualVariables = new ArrayList<String>();
         discreteVariables = new ArrayList<String>();
         continualValues = new ArrayList<ArrayList<String>>();
         discreteRanges = new ArrayList<ArrayList<String>>();
         continualRanges = new ArrayList<ContinualRange>();
-        outputForEachState = new ArrayList<HashSet<Integer>>();
-        this.outputRanges = outputRanges;
-        //TODO: 将解析条件事件生成coder的部分提取出来。
+
         for (String condition : conditionsForEachRow) {
             ArrayList<ArrayList<NuclearCondition>> orTree = new ArrayList<ArrayList<NuclearCondition>>();
             String[] orConditions = condition.split("\\|\\|");// 分离“或”条件
@@ -128,226 +125,93 @@ public class Condition {
                 } // 剥离“或”条件的括号
                 String[] andConditions = orCondition.split("&");// 分离“与”条件
                 ArrayList<NuclearCondition> andTree = new ArrayList<NuclearCondition>();
+
                 for (int k = 0; k < andConditions.length; k++) {// 解析“与”条件
                     NuclearCondition nuclear = new NuclearCondition();
                     String content = andConditions[k];// “与”条件即原子条件
-                    if (content.equals("()") || content.equals(""))
-                        content = "";
-                    else {
-                        if (content.indexOf('(') == 0)
-                            content = content.substring(1);
-                        if (content.lastIndexOf(')') == content.length() - 1)
-                            content = content.substring(0, content.length() - 1);
-                    } // 剥离原子条件的括号
-                    if (content.contains("="))
-                        nuclear.operator = "=";
-                    else if (content.contains("<"))
-                        nuclear.operator = "<";
-                    else if (content.contains(">"))
-                        nuclear.operator = ">";
-                    else if (content.equalsIgnoreCase("true"))
-                        nuclear.isTrue = true;
-                    else
-                        nuclear.isFalse = true;
-                    if (!nuclear.isTrue && !nuclear.isFalse) {// 忽略true或false条件，因为其中无变量
-                        nuclear.variable = content.substring(0, content.indexOf(nuclear.operator));// 该原子条件变量名
-                        nuclear.value = content.substring(content.indexOf(nuclear.operator) + 1);
-                        if (nuclear.variable.charAt(0) == '!') {
-                            nuclear.variable = nuclear.variable.substring(1);
-                            if (nuclear.operator.equals("<"))
-                                nuclear.operator = ">=";
-                            else if (nuclear.operator.equals(">"))
-                                nuclear.operator = "<=";
-                            else
-                                nuclear.operator = "!=";
-                        }
-                        Iterator inputIterator_T = vrmModel.inputsNode.elementIterator();
-                        Iterator tableIterator_T = vrmModel.tablesNode.elementIterator();
-                        Iterator stateMachineIterator_T = vrmModel.stateMachinesNode.elementIterator();
-                        while (inputIterator_T.hasNext()) {// 判断变量名是否为输入变量
-                            Element input_T = (Element) inputIterator_T.next();
-                            String name = input_T.attributeValue("name");
-                            if (nuclear.variable.equals(name)) {// 变量名是输入变量
-                                if (input_T.element("range").getText().contains("..")) {// 变量连续
-                                    if (continualVariables.contains(nuclear.variable)) {// 变量已存储
-                                        if (!continualValues.get(continualVariables.indexOf(nuclear.variable))
-                                                .contains(nuclear.value)) {// 值未存储
-                                            ArrayList<String> thisContinualValues = continualValues
-                                                    .get(continualVariables.indexOf(nuclear.variable));
-                                            thisContinualValues.add(nuclear.value);
-                                            continualValues.set(continualVariables.indexOf(nuclear.variable),
-                                                    thisContinualValues);
-                                        }
-                                    } else {// 变量未存储
-                                        continualVariables.add(nuclear.variable);
-                                        ContinualRange cr = new ContinualRange();
-                                        String[] limits = input_T.element("range").getText().split("\\.\\.");
-                                        cr.lowLimit = limits[0];
-                                        cr.highLimit = limits[1];
-                                        ArrayList<String> thisContinualValues = new ArrayList<String>();
-                                        thisContinualValues.add(nuclear.value);
-                                        continualRanges.add(cr);
-                                        continualValues.add(thisContinualValues);
-                                    }
-                                } else {// 变量离散
-                                    if (!discreteVariables.contains(nuclear.variable)) {// 变量未存储
-                                        discreteVariables.add(nuclear.variable);
-                                        ArrayList<String> thisDiscreteRanges = new ArrayList<String>();
-                                        String[] thisRanges = input_T.element("range").getText().replace(" ", "")
-                                                .split(",");
-                                        for (String thisRange : thisRanges) {
-                                            if (thisRange.contains("="))
-                                                thisDiscreteRanges
-                                                        .add(thisRange.substring(0, thisRange.indexOf("=")));
-                                            else
-                                                thisDiscreteRanges.add(thisRange);
-                                        }
-                                        discreteRanges.add(thisDiscreteRanges);
-                                    }
-                                }
-                            }
-                        }
-                        while (tableIterator_T.hasNext()) {// 判断是否为中间、输出变量
-                            Element table_T = (Element) tableIterator_T.next();
-                            String name = table_T.attributeValue("name");
-                            if (nuclear.variable.equals(name)) {// 变量名是中间、输出变量
-                                if (table_T.element("range").getText().contains("\\.\\.")) {// 变量连续
-                                    if (continualVariables.contains(nuclear.variable)) {// 变量已存储
-                                        if (!continualValues.get(continualVariables.indexOf(nuclear.variable))
-                                                .contains(nuclear.value)) {// 值未存储
-                                            ArrayList<String> thisContinualValues = continualValues
-                                                    .get(continualVariables.indexOf(nuclear.variable));
-                                            thisContinualValues.add(nuclear.value);
-                                            continualValues.set(continualVariables.indexOf(nuclear.variable),
-                                                    thisContinualValues);
-                                        }
-                                    } else {// 变量未存储
-                                        continualVariables.add(nuclear.variable);
-                                        ArrayList<String> thisContinualValues = new ArrayList<String>();
-                                        thisContinualValues.add(nuclear.value);
-                                        continualValues.add(thisContinualValues);
-                                    }
-                                } else {// 变量离散
-                                    if (!discreteVariables.contains(nuclear.variable)) {// 变量未存储
-                                        discreteVariables.add(nuclear.variable);
-                                        ArrayList<String> thisDiscreteRanges = new ArrayList<String>();
-                                        String[] thisRanges = table_T.element("range").getText().replace(" ", "")
-                                                .split(",");
-                                        for (String thisRange : thisRanges) {
-                                            if (thisRange.contains("="))
-                                                thisDiscreteRanges
-                                                        .add(thisRange.substring(0, thisRange.indexOf("=")));
-                                            else
-                                                thisDiscreteRanges.add(thisRange);
-                                        }
-                                        discreteRanges.add(thisDiscreteRanges);
-                                    }
-                                }
-                            }
-                        }
-                        while (stateMachineIterator_T.hasNext()) {// 判断是否为模式集
-                            Element stateMachine_T = (Element) stateMachineIterator_T.next();
-                            String name = stateMachine_T.attributeValue("name");
-                            if (nuclear.variable.equals(name)) {
-                                if (!discreteVariables.contains(nuclear.variable)) {// 变量未存储
-                                    discreteVariables.add(nuclear.variable);
-                                    ArrayList<String> thisDiscreteRanges = new ArrayList<String>();
-                                    Element stateListNode = stateMachine_T.element("stateList");
-                                    Iterator statesIterator = stateListNode.elementIterator();
-                                    while (statesIterator.hasNext()) {
-                                        Element state = (Element) statesIterator.next();
-                                        thisDiscreteRanges.add(state.attributeValue("name") + "");
-                                    }
-                                    discreteRanges.add(thisDiscreteRanges);
-                                }
-                            }
-                        }
+
+                    nuclear.syntacticParser(content); // 原子条件语句解析为原子条件
+
+                    if(!nuclear.isTrue && !nuclear.isFalse){
+                        nuclear.findCriticalVariableAndKeyValues(vrmModel.inputsNode, vrmModel.tablesNode, vrmModel.stateMachinesNode,
+                                continualVariables, continualRanges,continualValues, discreteVariables, discreteRanges);
                     }
+
                     andTree.add(nuclear);
                 }
                 orTree.add(andTree);
             }
             nuclearTreeForEachRow.add(orTree);
         }
-        sortContinualValues(continualValues);
-        int variableNumber = continualVariables.size() + discreteVariables.size();
-        variableRanges = new int[variableNumber];
-        for (int i = 0; i < variableNumber; i++) {
-            if (i < continualVariables.size()) {
-                variableRanges[i] = 2 * continualValues.get(i).size() + 1;
-            } else {
-                variableRanges[i] = discreteRanges.get(i - continualVariables.size()).size();
-            }
-        }
-        coder = new Coder(variableNumber, variableRanges);
-        for (long l = 0; l < coder.codeLimit; l++) {
-            if (!coder.decode(l).containsZero())
-                outputForEachState.add(new HashSet<Integer>());
-            else
-                outputForEachState.add(null);
-        }
+
+        VariableUtils.sortContinualValues(continualValues); // 整理连续型值域的关键值
+
+        // 基于关键值的值域离散化
+        variableRanges = VariableUtils.rangeDiscretization(continualVariables.size(), discreteVariables.size(), continualValues, discreteRanges);
     }
 
 
-
-    public void buildStates() {
+    /**
+     * 构建场景抽象后的场景
+     */
+    public void buildScenarios() {
         for (ArrayList<ArrayList<NuclearCondition>> orTree : nuclearTreeForEachRow) {// 遍历每行的析取范式树
             if (orTree.get(0).get(0).isTrue) {// 如果第一个合取式的第一个原子条件为true，则整个条件就是true
                 for (Set<Integer> outputForThisState : outputForEachState) {
                     outputForThisState.add(
-                            outputRanges.indexOf(behaviorForEachRow.get(nuclearTreeForEachRow.indexOf(orTree))));
+                            outputRanges.indexOf(assignmentForEachRow.get(nuclearTreeForEachRow.indexOf(orTree))));
                 }
                 continue;
             } else if (orTree.get(0).get(0).isFalse) {// 如果第一个合取式的第一个原子条件为false，则整个条件就是false
                 continue;
             }
-            ArrayList<State> stateCollection = new ArrayList<State>();// 每行的析取范式树新建一个状态集合
+            ArrayList<Scenario> scenarioCollection = new ArrayList<Scenario>();// 每行的析取范式树新建一个状态集合
             for (ArrayList<NuclearCondition> andTree : orTree) {// 遍历析取范式树的每个合取式
-                ArrayList<State> thisAndTreeStates = new ArrayList<State>();// 对于每个合取式，先新建一个临时列表存储要加入该行条件的状态集合的状态
+                ArrayList<Scenario> thisAndTreeScenarios = new ArrayList<Scenario>();// 对于每个合取式，先新建一个临时列表存储要加入该行条件的状态集合的状态
                 ArrayList<Integer>[] valuesForEachVariable = new ArrayList[continualVariables.size()
                         + discreteVariables.size()];
                 boolean[] isSetForEachVariable = new boolean[continualVariables.size() + discreteVariables.size()];
 
-                buildAndTreeStates(andTree,valuesForEachVariable,isSetForEachVariable); //解析and树
+                buildAndTreeScenarios(andTree,valuesForEachVariable,isSetForEachVariable); //解析and树
 
-                thisAndTreeStates.add(new State(continualVariables.size() + discreteVariables.size()));
+                thisAndTreeScenarios.add(new Scenario(continualVariables.size() + discreteVariables.size()));
                 for (int i = 0; i < continualVariables.size() + discreteVariables.size(); i++) {
                     if (isSetForEachVariable[i]) {
-                        int previousCount = thisAndTreeStates.size();
+                        int previousCount = thisAndTreeScenarios.size();
                         for (int j = 0; j < previousCount; j++) {
-                            State thisState = thisAndTreeStates.get(j);
+                            Scenario thisScenario = thisAndTreeScenarios.get(j);
                             boolean isFirstSet = false;
                             for (Integer value : valuesForEachVariable[i]) {
                                 if (!isFirstSet) {
-                                    thisState.state[i] = value.intValue();
+                                    thisScenario.scenario[i] = value.intValue();
                                     isFirstSet = true;
-                                    thisAndTreeStates.set(j, thisState);
+                                    thisAndTreeScenarios.set(j, thisScenario);
                                 } else {
-                                    State newState = new State(thisState);
-                                    newState.state[i] = value.intValue();
-                                    thisAndTreeStates.add(newState);
+                                    Scenario newScenario = new Scenario(thisScenario);
+                                    newScenario.scenario[i] = value.intValue();
+                                    thisAndTreeScenarios.add(newScenario);
                                 }
                             }
                         }
                     }
                 }
-                for (State thisState : thisAndTreeStates) {
-                    if (!stateCollection.contains(thisState))
-                        stateCollection.add(thisState);
+                for (Scenario thisScenario : thisAndTreeScenarios) {
+                    if (!scenarioCollection.contains(thisScenario))
+                        scenarioCollection.add(thisScenario);
                 }
             }
-            for (State thisState : stateCollection) {
+            for (Scenario thisScenario : scenarioCollection) {
                 for (long l = 0; l < coder.codeLimit; l++) {
-                    State s = coder.decode(l);
-                    if (!s.containsZero() && s.almostEquals(thisState))
+                    Scenario s = coder.decode(l);
+                    if (!s.containsZero() && s.almostEquals(thisScenario))
                         outputForEachState.get((int) l).add(outputRanges
-                                .indexOf(behaviorForEachRow.get(nuclearTreeForEachRow.indexOf(orTree))));
+                                .indexOf(assignmentForEachRow.get(nuclearTreeForEachRow.indexOf(orTree))));
                 }
             }
         }
     }
 
-    public void buildAndTreeStates(ArrayList<NuclearCondition> andTree, ArrayList<Integer>[] valuesForEachVariable, boolean[] isSetForEachVariable){
+    public void buildAndTreeScenarios(ArrayList<NuclearCondition> andTree, ArrayList<Integer>[] valuesForEachVariable, boolean[] isSetForEachVariable){
         for (NuclearCondition nuclear : andTree) {// 遍历合取式的每个原子条件
             ArrayList<Integer> thisVariableValues = new ArrayList<Integer>();
             int variableIndexInState;
@@ -384,10 +248,9 @@ public class Condition {
                             thisVariableValues.add(Integer.valueOf(value));
                     }
                 }
-                for (Integer value : thisVariableValues) {
-
-                }
-
+//                for (Integer value : thisVariableValues) {
+//
+//                }
             } else {// 该原子条件为离散型变量
                 int variableIndex = discreteVariables.indexOf(nuclear.variable);// 得到变量在离散变量集合里的索引值
                 variableIndexInState = variableIndex + continualVariables.size();// 变量在状态中的索引值，因为连续变量和离散变量共同组成状态，所以该索引值应该在离散变量索引的基础上加上连续变量的个数

@@ -17,3 +17,15 @@ API DOC： http://localhost:10287/swagger-ui/index.html
 4. vrm 需求工程模块，实现VRM相关业务
 5. atg 测试用例自动生成模块，实现ATG相关业务
 > 业务模块负责各自模块的service层及更底层的实现
+
+## 怎么新增模块？
+1. 创建新模块，模块的包名形如 `com.nuaa.art.xxx`, 
+2. 删除模块目录下的.git文件夹
+3. 文件 > 设置 > 版本控制 > 目录映射; 删除模块目录的路径映射，
+> 以上操作是为了避免生成多个git仓库
+4. 删除模块的主文件。
+5. 在ART父模块的pom.xml中的<modules>增加模块名。
+6. 复制VRM模块下的pom文件到模块文件中，并修改<artifactId>、<name>、<description>为模块对应的属性。
+7. 在main的pom.xml中添加对新模块的<dependency>
+
+## 如何

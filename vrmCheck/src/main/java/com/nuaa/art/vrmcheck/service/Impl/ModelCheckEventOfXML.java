@@ -1,7 +1,8 @@
 package com.nuaa.art.vrmcheck.service.Impl;
 
-import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrmcheck.common.CheckErrorType;
+import com.nuaa.art.vrmcheck.common.utils.OutputUtils;
 import com.nuaa.art.vrmcheck.model.*;
 import com.nuaa.art.vrmcheck.service.EventHandler;
 import com.nuaa.art.vrmcheck.service.ModelCheckEventHandler;
@@ -63,7 +64,7 @@ public class ModelCheckEventOfXML implements ModelCheckEventHandler {
                     Event ep = new Event(vrmModel, eventForEachRow, behaviorForEachRow);
                     ep.parseEventIntoStates();
                     ArrayList<EventConsistencyError> eces = eventHandler.findConsistencyError(ep);
-                    String variableSet = ep.getVariableSet();
+                    String variableSet = OutputUtils.getVariableSetHeader(ep.continualVariables, ep.discreteVariables);
 
                     // 输出出错信息
                     if (!eces.isEmpty()) {
@@ -83,18 +84,18 @@ public class ModelCheckEventOfXML implements ModelCheckEventHandler {
                                 outputString += "中间变量";
                             outputString += "同时取" + ece.assignment[0] + "和"
                                     + ece.assignment[1] + "\n" + variableSet;
-                            for (ConcreteState cs : ece.obeyStates[0]) {
+                            for (ConcreteScenario cs : ece.obeyScenarios[0]) {
                                 outputString += "|";
-                                for (String value : cs.concreteState) {
+                                for (String value : cs.concreteScenario) {
                                     outputString += String.format("%-15s", value) + "|";
                                 }
                                 outputString += "\n";
                             }
                             outputString += "\n";
                             outputString += variableSet;
-                            for (ConcreteState cs : ece.obeyStates[1]) {
+                            for (ConcreteScenario cs : ece.obeyScenarios[1]) {
                                 outputString += "|";
-                                for (String value : cs.concreteState) {
+                                for (String value : cs.concreteScenario) {
                                     outputString += String.format("%-15s", value) + "|";
                                 }
                                 outputString += "\n";

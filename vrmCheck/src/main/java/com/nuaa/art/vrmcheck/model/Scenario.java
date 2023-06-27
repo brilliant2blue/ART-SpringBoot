@@ -8,45 +8,45 @@ import java.util.Arrays;
  * @author konsin
  * @date 2023/06/12
  */
-public class State {
-    public int[] state;
+public class Scenario {
+    public int[] scenario;
     public int variableNumber;
 
     public boolean containsZero() {
         for (int i = 0; i < variableNumber; i++)
-            if (state[i] == 0)
+            if (scenario[i] == 0)
                 return true;
         return false;
     }
 
-    public State(int variableNumber) {
+    public Scenario(int variableNumber) {
         this.variableNumber = variableNumber;
-        state = new int[variableNumber];
+        scenario = new int[variableNumber];
     }
 
-    public State(State otherState) {
-        this.variableNumber = otherState.variableNumber;
-        state = new int[variableNumber];
+    public Scenario(Scenario otherScenario) {
+        this.variableNumber = otherScenario.variableNumber;
+        scenario = new int[variableNumber];
         for (int i = 0; i < this.variableNumber; i++)
-            this.state[i] = otherState.state[i];
+            this.scenario[i] = otherScenario.scenario[i];
     }
 
-    public State(int[] state) {
-        this.variableNumber = state.length;
-        this.state = Arrays.copyOf(state, variableNumber);
+    public Scenario(int[] scenario) {
+        this.variableNumber = scenario.length;
+        this.scenario = Arrays.copyOf(scenario, variableNumber);
 
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof State) {
-            State otherState = (State) obj;
-            if (this.variableNumber != otherState.variableNumber)
+        if (obj instanceof Scenario) {
+            Scenario otherScenario = (Scenario) obj;
+            if (this.variableNumber != otherScenario.variableNumber)
                 return false;
             else {
                 boolean isEquals = true;
                 for (int i = 0; i < this.variableNumber; i++) {
-                    if (this.state[i] != otherState.state[i])
+                    if (this.scenario[i] != otherScenario.scenario[i])
                         isEquals = false;
                 }
                 return isEquals;
@@ -57,19 +57,19 @@ public class State {
 
     @Override
     public String toString() {
-        return "State [state=" + Arrays.toString(state) + "]";
+        return "State [scenario=" + Arrays.toString(scenario) + "]";
     }
 
     // 场景的相似（除目标场景中的0外，数组每一位都与本场景相同）
     public boolean almostEquals(Object obj) {
-        if (obj instanceof State) {
-            State otherState = (State) obj;
-            if (this.variableNumber != otherState.variableNumber)
+        if (obj instanceof Scenario) {
+            Scenario otherScenario = (Scenario) obj;
+            if (this.variableNumber != otherScenario.variableNumber)
                 return false;
             else {
                 boolean isEquals = true;
                 for (int i = 0; i < this.variableNumber; i++) {
-                    if (otherState.state[i] != 0 && this.state[i] != otherState.state[i])
+                    if (otherScenario.scenario[i] != 0 && this.scenario[i] != otherScenario.scenario[i])
                         isEquals = false;
                 }
                 return isEquals;

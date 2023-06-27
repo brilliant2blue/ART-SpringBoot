@@ -452,7 +452,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
 
         String url = "";
 
-        url = PathUtils.ProjectPath()+ File.separator+"cache"+File.separator;
+        url = PathUtils.DefaultPath();
 
 
         String fileName = "";
@@ -485,6 +485,13 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //System.out.println(fileName);
     }
 
+    /**
+     * 导出模型
+     *
+     * @param systemId 系统标识
+     * @param fileName 文件名称
+     */
+    //todo: 并不完善，后面还是需要考虑导出地址的方式，是web的下载方式，还是客户端的保存方式
     @Override
     public void exportModel(Integer systemId, String fileName) {
         Document vrmDocument = DocumentHelper.createDocument();

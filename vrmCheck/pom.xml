@@ -36,6 +36,7 @@
                     <source>17</source>
                     <target>17</target>
                     <encoding>UTF-8</encoding>
+<!--                    <compilerArgument>-Xlint:unchecked</compilerArgument>-->
                 </configuration>
             </plugin>
             <plugin>

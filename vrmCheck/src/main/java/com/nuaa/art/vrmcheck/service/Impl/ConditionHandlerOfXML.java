@@ -13,35 +13,35 @@ public class ConditionHandlerOfXML implements ConditionHandler {
         ArrayList<ConditionConsistencyError> consistencyErrors = new ArrayList<ConditionConsistencyError>();
         if (c.continualVariables.size() + c.discreteVariables.size() != 0) {
             for (int i = 0; i < c.coder.codeLimit; i++) {
-                State s = c.coder.decode(i);
+                Scenario s = c.coder.decode(i);
                 if (!s.containsZero() && c.outputForEachState.get(i).size() > 1) {
                     ConditionConsistencyError cce = new ConditionConsistencyError();
-                    ConcreteState thisConcreteState = new ConcreteState(
+                    ConcreteScenario thisConcreteScenario = new ConcreteScenario(
                             c.continualVariables.size() + c.discreteVariables.size());
                     for (int k = 0; k < s.variableNumber; k++) {
                         if (k < c.continualVariables.size()) {
-                            int value = s.state[k];
+                            int value = s.scenario[k];
                             if (value == 1) {
-                                thisConcreteState.concreteState[k] = "(" + c.continualRanges.get(k).lowLimit + ","
+                                thisConcreteScenario.concreteScenario[k] = "(" + c.continualRanges.get(k).lowLimit + ","
                                         + c.continualValues.get(k).get((value + 1) / 2 - 1) + ")";
                             } else if (value == c.continualValues.get(k).size() * 2 + 1) {
-                                thisConcreteState.concreteState[k] = "("
+                                thisConcreteScenario.concreteScenario[k] = "("
                                         + c.continualValues.get(k).get((value - 1) / 2 - 1) + ","
                                         + c.continualRanges.get(k).highLimit + ")";
                             } else if (value % 2 == 0) {
-                                thisConcreteState.concreteState[k] = c.continualValues.get(k).get(value / 2 - 1);
+                                thisConcreteScenario.concreteScenario[k] = c.continualValues.get(k).get(value / 2 - 1);
                             } else {
-                                thisConcreteState.concreteState[k] = "("
+                                thisConcreteScenario.concreteScenario[k] = "("
                                         + c.continualValues.get(k).get((value - 1) / 2 - 1) + ","
                                         + c.continualValues.get(k).get((value + 1) / 2 - 1) + ")";
                             }
                         } else {
-                            int value = s.state[k];
-                            thisConcreteState.concreteState[k] = c.discreteRanges.get(k - c.continualVariables.size())
+                            int value = s.scenario[k];
+                            thisConcreteScenario.concreteScenario[k] = c.discreteRanges.get(k - c.continualVariables.size())
                                     .get(value - 1);
                         }
                     }
-                    cce.obeyStates = thisConcreteState;
+                    cce.obeyScenarios = thisConcreteScenario;
                     HashSet<String> assignments = new HashSet<String>();
                     for (Integer line : c.outputForEachState.get(i))
                         assignments.add(c.outputRanges.get(line));
@@ -69,34 +69,34 @@ public class ConditionHandlerOfXML implements ConditionHandler {
         ConditionIntegrityError cie = new ConditionIntegrityError();
         if (c.continualVariables.size() + c.discreteVariables.size() != 0) {
             for (int i = 0; i < c.coder.codeLimit; i++) {
-                State s = c.coder.decode(i);
+                Scenario s = c.coder.decode(i);
                 if (!s.containsZero() && c.outputForEachState.get(i).size() == 0) {
-                    ConcreteState thisConcreteState = new ConcreteState(
+                    ConcreteScenario thisConcreteScenario = new ConcreteScenario(
                             c.continualVariables.size() + c.discreteVariables.size());
                     for (int k = 0; k < s.variableNumber; k++) {
                         if (k < c.continualVariables.size()) {
-                            int value = s.state[k];
+                            int value = s.scenario[k];
                             if (value == 1) {
-                                thisConcreteState.concreteState[k] = "(" + c.continualRanges.get(k).lowLimit + ","
+                                thisConcreteScenario.concreteScenario[k] = "(" + c.continualRanges.get(k).lowLimit + ","
                                         + c.continualValues.get(k).get((value + 1) / 2 - 1) + ")";
                             } else if (value == c.continualValues.get(k).size() * 2 + 1) {
-                                thisConcreteState.concreteState[k] = "("
+                                thisConcreteScenario.concreteScenario[k] = "("
                                         + c.continualValues.get(k).get((value - 1) / 2 - 1) + ","
                                         + c.continualRanges.get(k).highLimit + ")";
                             } else if (value % 2 == 0) {
-                                thisConcreteState.concreteState[k] = c.continualValues.get(k).get(value / 2 - 1);
+                                thisConcreteScenario.concreteScenario[k] = c.continualValues.get(k).get(value / 2 - 1);
                             } else {
-                                thisConcreteState.concreteState[k] = "("
+                                thisConcreteScenario.concreteScenario[k] = "("
                                         + c.continualValues.get(k).get((value - 1) / 2 - 1) + ","
                                         + c.continualValues.get(k).get((value + 1) / 2 - 1) + ")";
                             }
                         } else {
-                            int value = s.state[k];
-                            thisConcreteState.concreteState[k] = c.discreteRanges.get(k - c.continualVariables.size())
+                            int value = s.scenario[k];
+                            thisConcreteScenario.concreteScenario[k] = c.discreteRanges.get(k - c.continualVariables.size())
                                     .get(value - 1);
                         }
                     }
-                    cie.lostStates.add(thisConcreteState);
+                    cie.lostScenarios.add(thisConcreteScenario);
                 }
             }
         } else {

@@ -42,7 +42,7 @@ public class ModelCheck {
     @Parameter(name = "id", description = "系统工程编号")
     public CheckErrorReporter Check(@RequestParam(value = "id") Integer systemId){
         String url = "";
-        url = PathUtils.ProjectPath()+ File.separator+"cache"+File.separator;
+        url = PathUtils.DefaultPath();
         String fileName = "";
         if (null != daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId)) {
             fileName = url + daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId).getSystemName() + "model.xml";
@@ -69,8 +69,11 @@ public class ModelCheck {
 
             if(reporter.isInputIntegrityRight()){
                 // 表函数分析
+                System.out.println("事件一致性检查");
                 eventHandler.checkEvent(vrmModel, reporter);
+                System.out.println("条件一致性完整性检查");
                 conditionHandler.checkCondition(vrmModel, reporter);
+                System.out.println("模式转换一致性检查");
                 modeTransHandler.checkModeTrans(vrmModel,reporter);
 
             }

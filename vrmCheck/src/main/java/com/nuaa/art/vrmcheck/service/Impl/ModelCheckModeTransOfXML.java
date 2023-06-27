@@ -2,6 +2,7 @@ package com.nuaa.art.vrmcheck.service.Impl;
 
 import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrmcheck.common.utils.OutputUtils;
 import com.nuaa.art.vrmcheck.model.*;
 import com.nuaa.art.vrmcheck.service.EventHandler;
 import com.nuaa.art.vrmcheck.service.ModelCheckModeTransHandler;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import static com.nuaa.art.vrmcheck.common.utils.OutputUtils.getVariableSetHeader;
 
 @Service
 public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
@@ -24,16 +27,25 @@ public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
         while (stateMachineIterator.hasNext()) {// 遍历所有模式集
             ArrayList<String> modesInTable = new ArrayList<String>();
             Element stateMachine = (Element) stateMachineIterator.next();
-            Element stateTransition = stateMachine.element("stateTransition");
-            Iterator<String> modesInTableIterator = modesInTable.iterator();
-            while (modesInTableIterator.hasNext()) {// 对同源模式的转换进行一致性判断
-                String modeInTable = modesInTableIterator.next();// 获取下一个出现在表中的不同源模式
 
+            Element stateTransition = stateMachine.element("stateTransition");
+
+            Iterator rowIterator = stateTransition.elementIterator();
+            while (rowIterator.hasNext()) {// 获取表格中不同的源模式
+                String mode = ((Element) rowIterator.next()).element("source").getText();
+                if (!modesInTable.contains(mode))
+                    modesInTable.add(mode);
+            }
+            Iterator<String> modesInTableIterator = modesInTable.iterator();
+            //System.out.println(modesInTable.toString());
+            while (modesInTableIterator.hasNext()) {// 对同源模式的转换进行一致性判断
+
+                String modeInTable = modesInTableIterator.next();// 获取下一个出现在表中的不同源模式
                 ArrayList<String> eventForEachRow = new ArrayList<String>();// 每行的事件集合
                 ArrayList<String> behaviorForEachRow = new ArrayList<String>();// 每行的目标模式
 
+                rowIterator = stateTransition.elementIterator();
                 // 解析每一行事件，包括解析变量与取值、保存每一行源模式、目标模式、事件、事件类型、两个条件
-                Iterator rowIterator = stateTransition.elementIterator();
                 while (rowIterator.hasNext()) {
                     Element row = (Element) rowIterator.next();
                     String mode = row.element("source").getText();
@@ -47,7 +59,7 @@ public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
                 Event ep = new Event(vrmModel, eventForEachRow, behaviorForEachRow);
                 ep.parseEventIntoStates();
 
-                String variableSet = ep.getVariableSet();
+                String variableSet = OutputUtils.getVariableSetHeader(ep.continualVariables, ep.discreteVariables);
 
                 ArrayList<EventConsistencyError> eces = eventHandler.findConsistencyError(ep);
 //                for (EventConsistencyError ece : eces) {
@@ -55,15 +67,15 @@ public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
 //                    System.out.println("variables:" + ep.continualVariables.toString()
 //                            + ep.discreteVariables.toString());
 //                    System.out.println("pre:");
-//                    for (ConcreteState cs : ece.obeyStates[0]) {
-//                        for (String value : cs.concreteState) {
+//                    for (ConcreteScenario cs : ece.obeyScenarios[0]) {
+//                        for (String value : cs.concreteScenario) {
 //                            System.out.print(value + "");
 //                        }
 //                        System.out.println();
 //                    }
 //                    System.out.println("post:");
-//                    for (ConcreteState cs : ece.obeyStates[1]) {
-//                        for (String value : cs.concreteState) {
+//                    for (ConcreteScenario cs : ece.obeyScenarios[1]) {
+//                        for (String value : cs.concreteScenario) {
 //                            System.out.print(value + "");
 //                        }
 //                        System.out.println();
@@ -80,18 +92,18 @@ public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
                                 + "\n错误内容：当变量取值从下列两表中前者任意一行的组合变换为后者任意一行的组合时，\n会同时从源模式"
                                 + modeInTable + "转换到不同的目标模式" + ece.assignment[0] + "和"
                                 + ece.assignment[1] + "\n" + variableSet;
-                        for (ConcreteState cs : ece.obeyStates[0]) {
+                        for (ConcreteScenario cs : ece.obeyScenarios[0]) {
                             outputString += "|";
-                            for (String value : cs.concreteState) {
+                            for (String value : cs.concreteScenario) {
                                 outputString += String.format("%-15s", value) + "|";
                             }
                             outputString += "\n";
                         }
                         outputString += "\n";
                         outputString += variableSet;
-                        for (ConcreteState cs : ece.obeyStates[1]) {
+                        for (ConcreteScenario cs : ece.obeyScenarios[1]) {
                             outputString += "|";
-                            for (String value : cs.concreteState) {
+                            for (String value : cs.concreteScenario) {
                                 outputString += String.format("%-15s", value) + "|";
                             }
                             outputString += "\n";
