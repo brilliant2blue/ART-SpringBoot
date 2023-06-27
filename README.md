@@ -27,5 +27,3 @@ API DOC： http://localhost:10287/swagger-ui/index.html
 5. 在ART父模块的pom.xml中的<modules>增加模块名。
 6. 复制VRM模块下的pom文件到模块文件中，并修改<artifactId>、<name>、<description>为模块对应的属性。
 7. 在main的pom.xml中添加对新模块的<dependency>
-
-## 如何
