@@ -1,4 +1,4 @@
-package com.nuaa.art.vrmcheck.service.Impl;
+package com.nuaa.art.vrmcheck.service.impl;
 
 import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrmcheck.model.CheckErrorInfo;
@@ -433,6 +433,7 @@ public class ModelCheckBasicOfXML implements ModelCheckBasicHandler {
                     Element row = (Element) rowIterator.next();
                     String wholeEvent = row.element("event").getText().replace(" ", "");
                     int flag = isEventOrConditionWrong(variables, values, wholeEvent); //此步会同时生成variables列表
+                    System.out.println(variables);
                     if (flag == 1) {
                         isEventWrong = true;
                         if (!eventWrongRowNumbers.contains(Integer.valueOf(currentRowIndex))) {
@@ -802,10 +803,11 @@ public class ModelCheckBasicOfXML implements ModelCheckBasicHandler {
                 if (andCondition.equals("()") || andCondition.equals(""))
                     content = "";
                 else {
-                    if (andCondition.indexOf('(') == 0)
-                        content = content.substring(1);
-                    if (andCondition.lastIndexOf(')') == andCondition.length() - 1)
-                        content = content.substring(0, content.length() - 1);
+//                    if (andCondition.indexOf('(') == 0)
+//                        content = content.substring(1);
+//                    if (andCondition.lastIndexOf(')') == andCondition.length() - 1)
+//                        content = content.substring(0, content.length() - 1);
+                    content = content.replace("(","").replace(")","");
                 }
                 if (content.split("<=").length != 2 && content.split(">=").length != 2 && content.split("=").length != 2
                         && content.split("<").length != 2 && content.split(">").length != 2

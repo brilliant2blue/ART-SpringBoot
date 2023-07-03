@@ -36,30 +36,30 @@ public class StandardRequirementServiceImpl extends ServiceImpl<StandardRequirem
     }
 
     @Override
-    public void insertStandardRequirement(StandardRequirement standardRequirement) {
-        save(standardRequirement);
+    public boolean insertStandardRequirement(StandardRequirement standardRequirement) {
+        return save(standardRequirement);
     }
 
     @Override
-    public void updateStandardRequirement(StandardRequirement standardRequirement) {
-        updateById(standardRequirement);
+    public boolean updateStandardRequirement(StandardRequirement standardRequirement) {
+        return updateById(standardRequirement);
     }
 
     @Override
-    public void deleteStandardRequirement(Integer id) {
-        remove(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId", id));
+    public boolean deleteStandardRequirement(Integer id) {
+        return remove(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId", id));
     }
 
     @Override
-    public void deleteOneStandardRequirement(Integer nid, Integer sid) {
-        remove(new QueryWrapper<StandardRequirement>()
+    public boolean deleteOneStandardRequirement(Integer nid, Integer sid) {
+        return remove(new QueryWrapper<StandardRequirement>()
                 .eq("naturalLanguageReqId",nid)
                 .eq("standardRequirementId", sid));
     }
 
     @Override
-    public void deleteStandardRequirementBySystemId(Integer sid) {
-        remove(new QueryWrapper<StandardRequirement>().eq("systemId",sid));
+    public boolean deleteStandardRequirementBySystemId(Integer sid) {
+        return remove(new QueryWrapper<StandardRequirement>().eq("systemId",sid));
     }
 }
 

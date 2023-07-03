@@ -43,28 +43,28 @@ public class ModeClassServiceImpl extends ServiceImpl<ModeClassMapper, ModeClass
     }
 
     @Override
-    public void insertModeClass(ModeClass modeClass) {
-        save(modeClass);
+    public boolean insertModeClass(ModeClass modeClass) {
+        return save(modeClass);
     }
 
     @Override
-    public void updateModeClass(ModeClass modeClass) {
-        updateById(modeClass);
+    public boolean updateModeClass(ModeClass modeClass) {
+        return updateById(modeClass);
     }
 
     @Override
-    public void deleteModeClass(ModeClass modeClass) {
-        removeById(modeClass);
+    public boolean deleteModeClass(ModeClass modeClass) {
+        return removeById(modeClass);
     }
 
     @Override
-    public void deleteModeClassById(Integer systemId) {
-        remove(new QueryWrapper<ModeClass>().eq("systemId",systemId));
+    public boolean deleteModeClassById(Integer systemId) {
+        return remove(new QueryWrapper<ModeClass>().eq("systemId",systemId));
     }
 
     @Override
-    public void deleteModeClassByProId(Integer proId) {
-        removeById(proId);
+    public boolean deleteModeClassByProId(Integer proId) {
+        return removeById(proId);
     }
 }
 

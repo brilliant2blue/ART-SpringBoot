@@ -12,12 +12,12 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:31
 */
 public interface ProperNounService extends IService<ProperNoun> {
-    public ProperNoun getProperNounById(Integer id);
-    public List<ProperNoun> listProperNounBySystemId(Integer systemId);
-    public ProperNoun getProperNounByNameandId(@Param("properNounName")String name, @Param("systemId")Integer systemId);
-    public void insertProperNoun(ProperNoun properNoun);
-    public void updateProperNoun(ProperNoun properNoun);
-    public void deleteProperNoun(ProperNoun properNoun);
-    public void deleteProperNounById(Integer systemId);
-    public void deleteProperNounByProId(Integer proId);
+    ProperNoun getProperNounById(Integer id);
+    List<ProperNoun> listProperNounBySystemId(Integer systemId);
+    ProperNoun getProperNounByNameandId(@Param("properNounName")String name, @Param("systemId")Integer systemId);
+    boolean insertProperNoun(ProperNoun properNoun);
+    boolean updateProperNoun(ProperNoun properNoun);
+    boolean deleteProperNoun(ProperNoun properNoun);
+    boolean deleteProperNounById(Integer systemId);
+    boolean deleteProperNounByProId(Integer proId);
 }

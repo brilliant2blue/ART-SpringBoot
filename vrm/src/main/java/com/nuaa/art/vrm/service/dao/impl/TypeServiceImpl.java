@@ -42,28 +42,28 @@ public class TypeServiceImpl extends ServiceImpl<TypeMapper, Type>
     }
 
     @Override
-    public void insertType(Type type) {
-        save(type);
+    public boolean insertType(Type type) {
+        return save(type);
     }
 
     @Override
-    public void updateType(Type type) {
-        updateById(type);
+    public boolean updateType(Type type) {
+        return updateById(type);
     }
 
     @Override
-    public void deleteType(Type type) {
-        removeById(type);
+    public boolean deleteType(Type type) {
+        return removeById(type);
     }
 
     @Override
-    public void deleteTypeById(Integer systemId) {
-        remove(new QueryWrapper<Type>().eq("systemId",systemId));
+    public boolean deleteTypeById(Integer systemId) {
+        return remove(new QueryWrapper<Type>().eq("systemId",systemId));
     }
 
     @Override
-    public void deleteTypeByProId(Integer proId) {
-        removeById(proId);
+    public boolean deleteTypeByProId(Integer proId) {
+        return removeById(proId);
     }
 }
 

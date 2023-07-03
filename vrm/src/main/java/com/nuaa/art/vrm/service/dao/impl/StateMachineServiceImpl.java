@@ -43,33 +43,33 @@ public class StateMachineServiceImpl extends ServiceImpl<StateMachineMapper, Sta
     }
 
     @Override
-    public void insertStateMachine(StateMachine stateMachine) {
-        save(stateMachine);
+    public boolean insertStateMachine(StateMachine stateMachine) {
+        return save(stateMachine);
     }
 
     @Override
-    public void insertStateMachineList(List<StateMachine> stateMachineList) {
-        saveBatch(stateMachineList);
+    public boolean insertStateMachineList(List<StateMachine> stateMachineList) {
+        return saveBatch(stateMachineList);
     }
 
     @Override
-    public void updateStateMachine(StateMachine stateMachine) {
-        updateById(stateMachine);
+    public boolean updateStateMachine(StateMachine stateMachine) {
+        return updateById(stateMachine);
     }
 
     @Override
-    public void deleteStateMachine(StateMachine stateMachine) {
-        removeById(stateMachine);
+    public boolean deleteStateMachine(StateMachine stateMachine) {
+        return removeById(stateMachine);
     }
 
     @Override
-    public void deleteStateMachineById(Integer systemId) {
-        remove(new QueryWrapper<StateMachine>().eq("systemId",systemId));
+    public boolean deleteStateMachineById(Integer systemId) {
+        return remove(new QueryWrapper<StateMachine>().eq("systemId",systemId));
     }
 
     @Override
-    public void deleteStateMachineListByModeClassId(Integer modeClassId) {
-        remove(new QueryWrapper<StateMachine>().eq("dependencyModeClassId",modeClassId));
+    public boolean deleteStateMachineListByModeClassId(Integer modeClassId) {
+        return remove(new QueryWrapper<StateMachine>().eq("dependencyModeClassId",modeClassId));
     }
 }
 

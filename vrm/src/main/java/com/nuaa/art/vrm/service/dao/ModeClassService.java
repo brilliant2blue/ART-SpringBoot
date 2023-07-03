@@ -12,13 +12,13 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:50
 */
 public interface ModeClassService extends IService<ModeClass> {
-    public List<ModeClass> listModeClass();
-    public ModeClass getModeClassById(Integer id);
-    public List<ModeClass> listModeClassBySystemId(Integer systemId);
-    public ModeClass getModeClassByNameandId(@Param("modeClassName")String name, @Param("systemId")Integer systemId);
-    public void insertModeClass(ModeClass modeClass);
-    public void updateModeClass(ModeClass modeClass);
-    public void deleteModeClass(ModeClass modeClass);
-    public void deleteModeClassById(Integer systemId);
-    public void deleteModeClassByProId(Integer proId);
+    List<ModeClass> listModeClass();
+    ModeClass getModeClassById(Integer id);
+    List<ModeClass> listModeClassBySystemId(Integer systemId);
+    ModeClass getModeClassByNameandId(@Param("modeClassName")String name, @Param("systemId")Integer systemId);
+    boolean insertModeClass(ModeClass modeClass);
+    boolean updateModeClass(ModeClass modeClass);
+    boolean deleteModeClass(ModeClass modeClass);
+    boolean deleteModeClassById(Integer systemId);
+    boolean deleteModeClassByProId(Integer proId);
 }

@@ -1,11 +1,11 @@
-package com.nuaa.art.vrm.service.handler.Impl;
+package com.nuaa.art.vrm.service.handler.impl;
 
 
 import com.nuaa.art.common.utils.LogicSymbolToString;
 import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.vrm.entity.*;
 import com.nuaa.art.vrm.service.dao.*;
-import com.nuaa.art.vrm.service.handler.DaoHandler;
+import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
 
 import jakarta.annotation.Resource;

@@ -1,7 +1,7 @@
 package com.nuaa.art.vrmcheck.controller;
 
 import com.nuaa.art.common.utils.PathUtils;
-import com.nuaa.art.vrm.service.handler.DaoHandler;
+import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
 import com.nuaa.art.vrm.model.model.VRMOfXML;
 import com.nuaa.art.vrm.service.dao.SystemProjectService;
@@ -12,8 +12,6 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.File;
 
 @RestController
 public class ModelCheck {

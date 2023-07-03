@@ -12,18 +12,18 @@ import java.util.List;
 * @createDate 2023-06-10 19:05:02
 */
 public interface ConceptLibraryService extends IService<ConceptLibrary> {
-    public List<ConceptLibrary> listAllConceptBySystemId(Integer systemId);
-    public List<ConceptLibrary> listConceptByLikeNameAndSystemId(@Param("likeName")String likeName, @Param("systemId")Integer systemId);
-    public ConceptLibrary getConceptById(Integer id);
-    public List<ConceptLibrary> listInputVariableBySystemId(Integer systemId);
-    public List<ConceptLibrary> listOutputVariableBySystemId(Integer systemId);
-    public List<ConceptLibrary> listTermVariableBySystemId(Integer systemId);
-    public List<ConceptLibrary> listConstVariableBySystemId(Integer systemId);
-    public ConceptLibrary getConceptByNameandId(@Param("conceptName")String name,@Param("systemId")Integer systemId);
-    public void insertConcept(ConceptLibrary conceptLibrary);
-    public void updateConcept(ConceptLibrary conceptLibrary);
-    public void deleteConcept(Integer conceptLibraryId);
-    public void deleteConceptById(Integer systemId);
-    public void deleteConceptByProId(Integer proId);
+    List<ConceptLibrary> listAllConceptBySystemId(Integer systemId);
+    List<ConceptLibrary> listConceptByLikeNameAndSystemId(@Param("likeName")String likeName, @Param("systemId")Integer systemId);
+    ConceptLibrary getConceptById(Integer id);
+    List<ConceptLibrary> listInputVariableBySystemId(Integer systemId);
+    List<ConceptLibrary> listOutputVariableBySystemId(Integer systemId);
+    List<ConceptLibrary> listTermVariableBySystemId(Integer systemId);
+    List<ConceptLibrary> listConstVariableBySystemId(Integer systemId);
+    ConceptLibrary getConceptByNameandId(@Param("conceptName")String name,@Param("systemId")Integer systemId);
+    boolean insertConcept(ConceptLibrary conceptLibrary);
+    boolean updateConcept(ConceptLibrary conceptLibrary);
+    boolean deleteConcept(Integer conceptLibraryId);
+    boolean deleteConceptById(Integer systemId);
+    boolean deleteConceptByProId(Integer proId);
 
 }

@@ -1,4 +1,4 @@
-package com.nuaa.art.vrmcheck.service.Impl;
+package com.nuaa.art.vrmcheck.service.impl;
 
 import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrm.model.model.VRMOfXML;

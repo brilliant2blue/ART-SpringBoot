@@ -31,6 +31,11 @@ public class ModeServiceImpl extends ServiceImpl<ModeMapper, Mode>
     }
 
     @Override
+    public Mode getModeByNameAndId(String name, Integer id) {
+        return null;
+    }
+
+    @Override
     public List<Mode> listModeBySystemId(Integer systemId) {
         QueryWrapper<Mode> wrapper = new QueryWrapper<>();
         wrapper.eq("systemId",systemId);
@@ -45,37 +50,37 @@ public class ModeServiceImpl extends ServiceImpl<ModeMapper, Mode>
     }
 
     @Override
-    public void insertMode(Mode mode) {
-        save(mode);
+    public boolean insertMode(Mode mode) {
+        return save(mode);
     }
 
     @Override
-    public void insertModeList(List<Mode> modeList) {
-        saveBatch(modeList);
+    public boolean insertModeList(List<Mode> modeList) {
+        return saveOrUpdateBatch(modeList);
     }
 
     @Override
-    public void updateMode(Mode mode) {
-        updateById(mode);
+    public boolean updateMode(Mode mode) {
+        return updateById(mode);
     }
 
     @Override
-    public void deleteMode(Mode mode) {
-        removeById(mode);
+    public boolean deleteMode(Mode mode) {
+        return removeById(mode);
     }
 
     @Override
-    public void deleteModeById(Integer systemId) {
+    public boolean deleteModeById(Integer systemId) {
         QueryWrapper<Mode> wrapper = new QueryWrapper<>();
         wrapper.eq("systemId",systemId);
-        remove(wrapper);
+        return remove(wrapper);
     }
 
     @Override
-    public void deleteModeListByModeClassId(Integer modeClassId) {
+    public boolean deleteModeListByModeClassId(Integer modeClassId) {
         QueryWrapper<Mode> wrapper = new QueryWrapper<>();
         wrapper.eq("modeClassId",modeClassId);
-        remove(wrapper);
+        return remove(wrapper);
     }
 }
 

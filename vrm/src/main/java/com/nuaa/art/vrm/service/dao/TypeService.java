@@ -16,9 +16,9 @@ public interface TypeService extends IService<Type> {
     public Type getTypeById(Integer id);
     public List<Type> listTypeBySystemId(Integer systemId);
     public Type getTypeByNameandId(@Param("typeName")String name,@Param("systemId")Integer systemId);
-    public void insertType(Type type);
-    public void updateType(Type type);
-    public void deleteType(Type type);
-    public void deleteTypeById(Integer systemId);
-    public void deleteTypeByProId(Integer proId);
+    public boolean insertType(Type type);
+    public boolean updateType(Type type);
+    public boolean deleteType(Type type);
+    public boolean deleteTypeById(Integer systemId);
+    public boolean deleteTypeByProId(Integer proId);
 }

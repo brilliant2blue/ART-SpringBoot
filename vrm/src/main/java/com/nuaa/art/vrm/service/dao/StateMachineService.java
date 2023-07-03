@@ -12,14 +12,14 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:11
 */
 public interface StateMachineService extends IService<StateMachine> {
-    public List<StateMachine> listStateMachine();
-    public StateMachine getStateMachineById(Integer id);
-    public List<StateMachine> listStateMachineBySystemId(Integer systemId);
-    public List<StateMachine> listStateMachineByDenpdencyandId(@Param("dependencyModeClass")String denpedencyModeClass, @Param("systemId")Integer systemId);
-    public void insertStateMachine(StateMachine stateMachine);
-    public void insertStateMachineList(@Param("stateMachineList")List<StateMachine> stateMachineList);
-    public void updateStateMachine(StateMachine stateMachine);
-    public void deleteStateMachine(StateMachine stateMachine);
-    public void deleteStateMachineById(Integer systemId);
-    public void deleteStateMachineListByModeClassId(Integer modeClassId);
+    List<StateMachine> listStateMachine();
+    StateMachine getStateMachineById(Integer id);
+    List<StateMachine> listStateMachineBySystemId(Integer systemId);
+    List<StateMachine> listStateMachineByDenpdencyandId(@Param("dependencyModeClass")String denpedencyModeClass, @Param("systemId")Integer systemId);
+    boolean insertStateMachine(StateMachine stateMachine);
+    boolean insertStateMachineList(@Param("stateMachineList")List<StateMachine> stateMachineList);
+    boolean updateStateMachine(StateMachine stateMachine);
+    boolean deleteStateMachine(StateMachine stateMachine);
+    boolean deleteStateMachineById(Integer systemId);
+    boolean deleteStateMachineListByModeClassId(Integer modeClassId);
 }

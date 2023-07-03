@@ -43,38 +43,39 @@ public class ProperNounServiceImpl extends ServiceImpl<ProperNounMapper, ProperN
     }
 
     @Override
-    public void insertProperNoun(ProperNoun properNoun) {
-        save(properNoun);
+    public boolean insertProperNoun(ProperNoun properNoun) {
+        return save(properNoun);
     }
 
     @Override
-    public void updateProperNoun(ProperNoun properNoun) {
+    public boolean updateProperNoun(ProperNoun properNoun) {
         ProperNoun tempProperNoun = getProperNounById(properNoun.getProperNounId());
-
-        updateById(properNoun);
+        boolean res = true;
+        res = updateById(properNoun);
 
         for(StandardRequirement standardRequirement : standardRequirementService
                 .listStandardRequirementBySystemId(properNoun.getSystemId())){
             if(standardRequirement.getStandardReqVariable().contains(tempProperNoun.getProperNounName())) {
                 standardRequirement.setStandardReqVariable(properNoun.getProperNounName());
             }
-            standardRequirementService.updateStandardRequirement(standardRequirement);
+            res = standardRequirementService.updateStandardRequirement(standardRequirement);
         }
+        return res;
     }
 
     @Override
-    public void deleteProperNoun(ProperNoun properNoun) {
-        removeById(properNoun);
+    public boolean deleteProperNoun(ProperNoun properNoun) {
+        return removeById(properNoun);
     }
 
     @Override
-    public void deleteProperNounById(Integer systemId) {
-        remove(new QueryWrapper<ProperNoun>().eq("systemId",systemId));
+    public boolean deleteProperNounById(Integer systemId) {
+        return remove(new QueryWrapper<ProperNoun>().eq("systemId",systemId));
     }
 
     @Override
-    public void deleteProperNounByProId(Integer proId) {
-        removeById(proId);
+    public boolean deleteProperNounByProId(Integer proId) {
+        return removeById(proId);
     }
 }
 

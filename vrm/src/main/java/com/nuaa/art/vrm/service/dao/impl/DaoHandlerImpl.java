@@ -1,10 +1,8 @@
-package com.nuaa.art.vrm.service.handler.Impl;
+package com.nuaa.art.vrm.service.dao.impl;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.nuaa.art.common.utils.BeanGetUtils;
-import com.nuaa.art.vrm.entity.Type;
-import com.nuaa.art.vrm.service.handler.DaoHandler;
-import com.nuaa.art.vrm.service.dao.*;
+import com.nuaa.art.vrm.service.dao.DaoHandler;
 
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.nuaa.art.vrmcheck.service.Impl;
+package com.nuaa.art.vrmcheck.service.impl;
 
 import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrm.model.model.VRMOfXML;
@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import static com.nuaa.art.vrmcheck.common.utils.OutputUtils.getVariableSetHeader;
 
 @Service
 public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {

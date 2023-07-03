@@ -37,4 +37,13 @@ public enum BasicDataType {
         this.typeRange = typeRange;
         this.typeAccuracy = typeAccuracy;
     }
+
+    public static BasicDataType findTypeByName(String name){
+        for(BasicDataType type: BasicDataType.values()){
+            if(type.typeName.equals(name)){
+                return type;
+            };
+        }
+       return null;
+    }
 }

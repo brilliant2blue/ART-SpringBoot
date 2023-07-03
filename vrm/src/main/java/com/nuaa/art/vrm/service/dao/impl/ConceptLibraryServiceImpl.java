@@ -81,14 +81,15 @@ public class ConceptLibraryServiceImpl extends ServiceImpl<ConceptLibraryMapper,
     }
 
     @Override
-    public void insertConcept(ConceptLibrary conceptLibrary) {
-        save(conceptLibrary);
+    public boolean insertConcept(ConceptLibrary conceptLibrary) {
+        return save(conceptLibrary);
     }
 
     @Override
-    public void updateConcept(ConceptLibrary conceptLibrary) {
+    public boolean updateConcept(ConceptLibrary conceptLibrary) {
+        boolean res = true;
         ConceptLibrary tempConceptLibrary = getConceptById(conceptLibrary.getConceptId());
-        updateById(conceptLibrary);
+        res=updateById(conceptLibrary);
         for(StandardRequirement standardRequirement : standardRequirementService
                 .listStandardRequirementBySystemId(conceptLibrary.getSystemId())){
             if(standardRequirement.getStandardReqVariable() != null) {
@@ -96,25 +97,26 @@ public class ConceptLibraryServiceImpl extends ServiceImpl<ConceptLibraryMapper,
                     standardRequirement.setStandardReqVariable(conceptLibrary.getConceptName());
                 }
             }
-            standardRequirementService.updateStandardRequirement(standardRequirement);
+            res = standardRequirementService.updateStandardRequirement(standardRequirement);
         }
+        return res;
     }
 
     @Override
-    public void deleteConcept(Integer conceptLibraryId) {
-        removeById(conceptLibraryId);
+    public boolean deleteConcept(Integer conceptLibraryId) {
+        return removeById(conceptLibraryId);
     }
 
     @Override
-    public void deleteConceptById(Integer systemId) {
+    public boolean deleteConceptById(Integer systemId) {
         QueryWrapper<ConceptLibrary> wrapper = new QueryWrapper<>();
         wrapper.eq("systemId",systemId);
-        remove(wrapper);
+        return remove(wrapper);
     }
 
     @Override
-    public void deleteConceptByProId(Integer proId) {
-        removeById(proId);
+    public boolean deleteConceptByProId(Integer proId) {
+        return removeById(proId);
     }
 }
 

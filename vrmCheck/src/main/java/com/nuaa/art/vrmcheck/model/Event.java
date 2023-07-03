@@ -89,11 +89,12 @@ public class Event {
                     if (twoConditions[0].length() == 4)
                         twoConditions[0] = "";
                     else
-                        twoConditions[0] = twoConditions[0].substring(3, twoConditions[0].length() - 1);// 剥离条件1的事件标识和括号
+                        twoConditions[0] = twoConditions[0].substring(3, twoConditions[0].length() - 1)
+                                .replace("(","").replace(")","");// 剥离条件1的事件标识和括号
                     if (twoConditions[1].length() == 2)
                         twoConditions[1] = "";
                     else
-                        twoConditions[1] = twoConditions[1].substring(1, twoConditions[1].length() - 1);// 剥离条件2的括号
+                        twoConditions[1] = twoConditions[1].replace("(","").replace(")","");// 剥离条件2的括号
                     andEtagsForEachRow.add(etags);// 将此AND事件的事件类型存入上层集合
                     SubConditionOfEvent cp = new SubConditionOfEvent(vrmModel, twoConditions);  // 来获取事件子条件中的关键量和值域
                     for (int i = 0; i < 2; i++) {
