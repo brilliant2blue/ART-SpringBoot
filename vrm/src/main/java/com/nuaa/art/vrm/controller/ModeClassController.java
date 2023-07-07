@@ -30,7 +30,7 @@ public class ModeClassController {
     @Resource
     DaoHandler daoHandler;
 
-    @GetMapping("concept/{id}/modeclasses/{name}")
+    @GetMapping("vrm/{id}/modeclasses/{name}")
     @Operation(summary = "获取一个模式集")
     @Parameter(name = "name", description = "模式集名")
     @Parameter(name = "id", description = "项目号")
@@ -43,19 +43,8 @@ public class ModeClassController {
         }
     }
 
-    @GetMapping("concept/{id}/modeclasses")
-    @Operation(summary = "获取项目下所有模式集")
-    @Parameter(name = "id", description = "项目号")
-    public HttpResult<List<ModeClass>> getAll(int id) {
-        List<ModeClass> mc = daoHandler.getDaoService(ModeClassService.class).listModeClassBySystemId(id);
-        if (mc != null) {
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, mc);
-        } else {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
-        }
-    }
 
-    @PostMapping("/concept/{id}/modeclasses/{name}")
+    @PostMapping("vrm/{id}/modeclasses/{name}")
     @Operation(summary = "新增一个模式集信息", description = "仅包含模式集的说明信息,不包含具体模式")
     public HttpResult<Integer> newModeClass(@RequestBody ModeClass modeClass, @PathVariable("id") int systemId, @PathVariable("name") String name) {
 //        if(modeClass.getModeClassName() == null || modeClass.getModeClassName() == "" || modeClass.getSystemId() == null) {
@@ -71,7 +60,7 @@ public class ModeClassController {
         }
     }
 
-    @PutMapping("/concept/{id}/modeclasses/{modeclassid}")
+    @PutMapping("vrm/{id}/modeclasses/{modeclassid}")
     @Operation(summary = "更新一个模式集信息", description = "仅包含模式集的说明信息,不包含具体模式")
     public HttpResult<Integer> updateModeClass(@RequestBody ModeClass modeClass, @PathVariable("modeclassid")Integer systemId,@PathVariable("modeclassid")Integer id) {
 //        if(modeClass.getModeClassName() == null || modeClass.getModeClassName() == "" || modeClass.getSystemId() == null) {
@@ -95,7 +84,7 @@ public class ModeClassController {
 
     }
 
-    @DeleteMapping("/concept/{id}/modeclasses/{name}")
+    @DeleteMapping("vrm/{id}/modeclasses/{name}")
     @Operation(summary = "删除一个模式集")
     @Parameter(name = "name", description = "模式集名")
     @Parameter(name = "id", description = "项目号")
@@ -113,7 +102,7 @@ public class ModeClassController {
         }
     }
 
-    @GetMapping("/concept/{id}/modeclasses/{name}/modes")
+    @GetMapping("vrm/{id}/modeclasses/{name}/modes")
     @Operation(summary = "获取项目下某一模式集的所有模式")
     public HttpResult<List<Mode>> getModesOfModeClass(@PathVariable("id") int systemId, @PathVariable("name") String name) {
         List<Mode> modes = daoHandler.getDaoService(ModeService.class).listModeByNameandId(name, systemId);
@@ -124,7 +113,7 @@ public class ModeClassController {
         }
     }
 
-    @PostMapping("/concept/{id}/modeclasses/{name}/modes/{modename}")
+    @PostMapping("vrm/{id}/modeclasses/{name}/modes/{modename}")
     @Operation(summary = "创建一模式")
     public HttpResult<Integer> newMode(@RequestBody Mode mode, @PathVariable("id") int systemId, @PathVariable("modename") String name) {
         Mode m = daoHandler.getDaoService(ModeService.class).getModeByNameAndId(name, systemId);
@@ -149,7 +138,7 @@ public class ModeClassController {
 //        }
 //    }
 
-    @PutMapping("/concept/{id}/modeclasses/{name}/modes/{modeid}")
+    @PutMapping("vrm/{id}/modeclasses/{name}/modes/{modeid}")
     @Operation(summary = "更新一模式")
     public HttpResult<Integer> updateMode(@RequestBody Mode mode, @PathVariable("id") Integer systemId, @PathVariable("modeid") Integer modeId) {
         Mode m = daoHandler.getDaoService(ModeService.class).getById(modeId);
@@ -169,7 +158,7 @@ public class ModeClassController {
         }
     }
 
-    @DeleteMapping("/concept/{id}/modeclasses/{name}/modes/{modename}")
+    @DeleteMapping("vrm/{id}/modeclasses/{name}/modes/{modename}")
     @Operation(summary = "删除一模式")
     public HttpResult<Integer> deleteMode(@PathVariable("id") int systemId, @PathVariable("modename") String name) {
         Mode m = daoHandler.getDaoService(ModeService.class).getModeByNameAndId(name, systemId);
@@ -184,17 +173,17 @@ public class ModeClassController {
         }
     }
 
-    @DeleteMapping("/concept/{id}/modeclasses/{name}/modes")
-    @Operation(summary = "删除项目下所有模式")
-    public HttpResult<Integer> deleteModes(@PathVariable("id") int systemId) {
-            if (daoHandler.getDaoService(ModeService.class).deleteModeById(systemId)) {
-                return new HttpResult<>(HttpCodeEnum.SUCCESS, systemId);
-            } else {
-                return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
-            }
-    }
+//    @DeleteMapping("/concept/{id}/modeclasses/{name}/modes")
+//    @Operation(summary = "删除项目下所有模式")
+//    public HttpResult<Integer> deleteModes(@PathVariable("id") int systemId) {
+//            if (daoHandler.getDaoService(ModeService.class).deleteModeById(systemId)) {
+//                return new HttpResult<>(HttpCodeEnum.SUCCESS, systemId);
+//            } else {
+//                return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
+//            }
+//    }
 
-    @GetMapping("/concept/{id}/modeclasses/{name}/mode-trans")
+    @GetMapping("vrm/{id}/modeclasses/{name}/mode-trans")
     @Operation(summary = "获取某模式集的所有模式转换")
     public HttpResult<List<StateMachine>> getAllModeTrans(@PathVariable("id") int systemId, @PathVariable("name")String denpdencyName) {
         List<StateMachine> mt = daoHandler.getDaoService(StateMachineService.class).listStateMachineByDenpdencyandId(denpdencyName,systemId);
@@ -205,7 +194,7 @@ public class ModeClassController {
         }
     }
 
-    @GetMapping("/concept/{id}/modeclasses/{name}/mode-trans/{transid}")
+    @GetMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}")
     @Operation(summary = "根据模式转换id获取模式指定模式转换")
     public HttpResult<StateMachine> getModeTrans(@PathVariable("transid")int transId){
         StateMachine mt = daoHandler.getDaoService(StateMachineService.class).getById(transId);
@@ -216,7 +205,7 @@ public class ModeClassController {
         }
     }
 
-    @PostMapping("/concept/{id}/modeclasses/{name}/mode-trans")
+    @PostMapping("vrm/{id}/modeclasses/{name}/mode-trans")
     @Operation(summary = "新建一个模式转换")
     public HttpResult<Integer> newModeTrans(@RequestBody StateMachine stateMachine, @PathVariable("id")Integer systemId, @PathVariable("name")String modeClassName){
         QueryWrapper<StateMachine> wrapper = new QueryWrapper<StateMachine>()
@@ -238,7 +227,7 @@ public class ModeClassController {
         }
     }
 
-    @PutMapping("/concept/{id}/modeclasses/{name}/mode-trans/{transid}")
+    @PutMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}")
     @Operation(summary = "更新一个模式转换")
     public HttpResult<Integer> newModeTrans(@RequestBody StateMachine stateMachine, @PathVariable("id")Integer systemId,
                                             @PathVariable("name")String modeClassName, @PathVariable("transid")Integer transId){
@@ -265,9 +254,9 @@ public class ModeClassController {
         }
     }
 
-    @DeleteMapping("/concept/{id}/modeclasses/{name}/mode-trans/{transid}")
+    @DeleteMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}")
     @Operation(summary = "删除一个模式转换")
-    public HttpResult<Integer> newModeTrans(@PathVariable("transid")Integer transId){
+    public HttpResult<Integer> delModeTrans(@PathVariable("transid")Integer transId){
         StateMachine sm = daoHandler.getDaoService(StateMachineService.class).getStateMachineById(transId);
         if(sm == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
@@ -281,7 +270,7 @@ public class ModeClassController {
 
     @Resource
     EventTableHandler eventTableHandler;
-    @PutMapping("/concept/{id}/modeclasses/{name}/mode-trans/{transid}/table")
+    @PutMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}/table")
     @Operation(summary = "将模式转换的表达式转换为表形式进行编辑")
     public HttpResult<EventTable> modeTransToTable(String modeTrans){
         try {
@@ -293,7 +282,7 @@ public class ModeClassController {
         }
     }
 
-    @PostMapping("/concept/{id}/modeclasses/{name}/mode-trans/{transid}/string")
+    @PostMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}/string")
     @Operation(summary = "将表形式模式转换转换为表达式进行显示")
     public HttpResult<String> modeTransToTable(EventTable modeTrans){
         try {

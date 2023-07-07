@@ -1,11 +1,9 @@
 package com.nuaa.art.vrmcheck.model;
 
-import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrm.model.VRMOfXML;
 import com.nuaa.art.vrmcheck.common.utils.VariableUtils;
 
 import java.util.*;
-
-import static com.nuaa.art.vrmcheck.common.utils.VariableUtils.sortContinualValues;
 
 /**
  * 条件

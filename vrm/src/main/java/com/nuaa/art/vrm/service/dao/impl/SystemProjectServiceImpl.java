@@ -36,13 +36,13 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     }
 
     @Override
-    public void insertSystemProject(SystemProject systemProject) {
-        save(systemProject);
+    public boolean insertSystemProject(SystemProject systemProject) {
+        return save(systemProject);
     }
 
     @Override
-    public void deleteSystemProject(String systemName) {
-        remove(new QueryWrapper<SystemProject>().eq("systemName",systemName));
+    public boolean deleteSystemProject(String systemName) {
+        return remove(new QueryWrapper<SystemProject>().eq("systemName",systemName));
     }
 }
 

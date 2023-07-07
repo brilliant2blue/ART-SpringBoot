@@ -42,25 +42,25 @@ public class NaturalLanguageRequirementServiceImpl extends ServiceImpl<NaturalLa
     }
 
     @Override
-    public void insertNLR(NaturalLanguageRequirement naturalLanguageRequirement) {
-        save(naturalLanguageRequirement);
+    public boolean insertNLR(NaturalLanguageRequirement naturalLanguageRequirement) {
+        return save(naturalLanguageRequirement);
     }
 
     @Override
-    public void updateNLR(NaturalLanguageRequirement naturalLanguageRequirement) {
-        update(new QueryWrapper<NaturalLanguageRequirement>().eq("systemId",naturalLanguageRequirement.getSystemId()));
+    public boolean updateNLR(NaturalLanguageRequirement naturalLanguageRequirement) {
+        return update(new QueryWrapper<NaturalLanguageRequirement>().eq("systemId",naturalLanguageRequirement.getSystemId()));
     }
 
     @Override
-    public void deleteNLR(NaturalLanguageRequirement naturalLanguageRequirement) {
-        remove(new QueryWrapper<NaturalLanguageRequirement>()
+    public boolean deleteNLR(NaturalLanguageRequirement naturalLanguageRequirement) {
+        return remove(new QueryWrapper<NaturalLanguageRequirement>()
                 .eq("systemId",naturalLanguageRequirement.getSystemId())
                 .eq("reqExcelId",naturalLanguageRequirement.getReqExcelId()));
     }
 
     @Override
-    public void deleteNLRById(Integer systemId) {
-        remove(new QueryWrapper<NaturalLanguageRequirement>().eq("systemId",systemId));
+    public boolean deleteNLRById(Integer systemId) {
+        return remove(new QueryWrapper<NaturalLanguageRequirement>().eq("systemId",systemId));
     }
 }
 

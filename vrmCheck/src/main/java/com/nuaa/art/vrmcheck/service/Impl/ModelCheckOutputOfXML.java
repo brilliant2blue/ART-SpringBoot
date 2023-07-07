@@ -1,9 +1,9 @@
-package com.nuaa.art.vrmcheck.service.Impl;
+package com.nuaa.art.vrmcheck.service.impl;
 
 import com.nuaa.art.vrmcheck.common.CheckErrorType;
 import com.nuaa.art.vrmcheck.model.CheckErrorInfo;
 import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
-import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrm.model.VRMOfXML;
 import com.nuaa.art.vrmcheck.service.ModelCheckOutputHandler;
 import org.dom4j.Element;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,8 @@
 package com.nuaa.art.vrm.service.handler.impl;
 
 
+import com.nuaa.art.common.utils.FileUtils;
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.LogicSymbolToString;
 import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.vrm.entity.*;
@@ -38,9 +40,10 @@ public class ModelCreateToXML implements ModelCreateHandler {
      * 创建模型
      *
      * @param systemId 工程编号
+     * @return {@link String} 导出文件名
      */
     @Override
-    public void createModel(Integer systemId) {
+    public String createModel(Integer systemId) {
 
         Document vrmDocument = DocumentHelper.createDocument();
         //创建根节点vrmModel
@@ -167,6 +170,11 @@ public class ModelCreateToXML implements ModelCreateHandler {
                 Element accuracy = input.addElement("accuracy");
                 if (iv.getConceptAccuracy() != null) {
                     accuracy.setText(iv.getConceptAccuracy());
+                }
+
+                Element relateSReq = input.addElement("relateSReq");
+                if (iv.getSourceReqId() != null) {
+                    relateSReq.setText(iv.getSourceReqId().toString());
                 }
             }
         }
@@ -462,38 +470,24 @@ public class ModelCreateToXML implements ModelCreateHandler {
             fileName = url + "model.xml";
         }
 
-        XMLWriter writer = null;
-        try {
-            File file = new File(fileName);
-
-            if(!file.getParentFile().exists()){
-                file.getParentFile().mkdirs();
-            }
-
-            FileOutputStream fos = new FileOutputStream(file);
-            writer = new XMLWriter(fos, format);
-        } catch (UnsupportedEncodingException | FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        try {
-            writer.write(vrmDocument);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(FileUtils.saveXML(vrmDocument,fileName)){
+            return fileName;
+        } else {
+            return null;
         }
 
-        //System.out.println(fileName);
     }
 
     /**
      * 导出模型
      *
      * @param systemId 系统标识
-     * @param fileName 文件名称
+     * @param fileUrl 文件名称
+     * @return {@link String} 导出文件名
      */
     //todo: 并不完善，后面还是需要考虑导出地址的方式，是web的下载方式，还是客户端的保存方式
     @Override
-    public void exportModel(Integer systemId, String fileName) {
+    public String exportModel(Integer systemId, String fileUrl) {
         Document vrmDocument = DocumentHelper.createDocument();
         //创建根节点vrmModel
         Element vrmModel = vrmDocument.addElement("vrmModel");
@@ -968,26 +962,12 @@ public class ModelCreateToXML implements ModelCreateHandler {
             }
         }
 
+        if(FileUtils.saveXML(vrmDocument,fileUrl)){
+            return fileUrl;
+        } else {
+            return null;
+        }
 
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        format.setEncoding("UTF-8");
-
-            String url =PathUtils.ProjectPath()+File.separator;
-            fileName = url.concat(fileName).concat(".xml");
-
-            XMLWriter writer = null;
-            try {
-                FileOutputStream fos = new FileOutputStream(fileName);
-                writer = new XMLWriter(fos, format);
-            } catch (UnsupportedEncodingException | FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            try {
-                writer.write(vrmDocument);
-                writer.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
     }
 
 }

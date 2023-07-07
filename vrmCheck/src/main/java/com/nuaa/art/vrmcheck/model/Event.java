@@ -1,6 +1,6 @@
 package com.nuaa.art.vrmcheck.model;
 
-import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrm.model.VRMOfXML;
 import com.nuaa.art.vrmcheck.common.utils.VariableUtils;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class Event {
         timeScenarios = new ArrayList<ArrayList<ArrayList<Long>[]>>();
 
         for (String event : eventsForEachRow) {
-            String[] andEvents = event.replace(" ", "").split("\\}\\{");// 分离AND事件
+            String[] andEvents = event.replace(" ", "").split("}&&\\{");// 分离AND事件
 
             andEvents[0] = andEvents[0].substring(1);
             andEvents[andEvents.length - 1] = andEvents[andEvents.length - 1].substring(0,

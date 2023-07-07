@@ -66,6 +66,8 @@ public class ConceptLibrary implements Serializable {
      */
     private Integer systemId;
 
+    private Integer sourceReqId;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 

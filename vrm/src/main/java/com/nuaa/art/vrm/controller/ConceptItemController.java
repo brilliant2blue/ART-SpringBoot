@@ -27,7 +27,7 @@ import java.util.List;
 public class ConceptItemController {
     @Resource
     DaoHandler daoHandler;
-    @GetMapping("concept/{id}/vars/{name}")
+    @GetMapping("vrm/{id}/vars/{name}")
     @Operation(summary = "获取一个变量",description = "根据变量名和系统编号获取一个变量信息(输入、输出、中间变量以及常量通用)")
     @Parameter(name = "name",description = "变量名")
     @Parameter(name = "id",description = "系统编号")
@@ -40,65 +40,8 @@ public class ConceptItemController {
         }
     }
 
-    @GetMapping("concept/{id}/vars")
-    @Operation(summary = "获取项目所有变量",description = "根据系统编号获取所有变量信息")
-    @Parameter(name = "id",description = "系统编号")
-    public HttpResult<List<ConceptLibrary>> getAllVariable(@PathVariable("id")int systemId){
-        List<ConceptLibrary> data = daoHandler.getDaoService(ConceptLibraryService.class).listAllConceptBySystemId(systemId);
-        if(data != null){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, data);
-        } else {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
-        }
-    }
 
-    @GetMapping("concept/{id}/inputs")
-    @Operation(summary = "获取项目的所有输入变量", description = "根据系统编号获取系统所有输入变量信息")
-    @Parameter(name = "id",description = "系统编号")
-    public HttpResult<List<ConceptLibrary>> getAllInputVariable(@PathVariable("id")int systemId){
-        List<ConceptLibrary> data = daoHandler.getDaoService(ConceptLibraryService.class).listInputVariableBySystemId(systemId);
-        if(data != null){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, data);
-        } else {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
-        }
-    }
-
-    @GetMapping("concept/{id}/outputs")
-    @Operation(summary = "获取项目的所有输出变量",description = "根据系统编号获取系统所有输出变量信息")
-    @Parameter(name = "id",description = "系统编号")
-    public HttpResult<List<ConceptLibrary>> getAllOutputVariable(@PathVariable("id")int systemId){
-        List<ConceptLibrary> data = daoHandler.getDaoService(ConceptLibraryService.class).listOutputVariableBySystemId(systemId);
-        if(data != null){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, data);
-        } else {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
-        }
-    }
-
-    @GetMapping("concept/{id}/terms")
-    @Operation(summary = "获取项目的所有中间变量",description = "根据系统编号获取系统所有中间变量信息")
-    @Parameter(name = "id",description = "系统编号")
-    public HttpResult<List<ConceptLibrary>> getAllTermVariable(@PathVariable("id")int systemId){
-        List<ConceptLibrary> data = daoHandler.getDaoService(ConceptLibraryService.class).listTermVariableBySystemId(systemId);
-        if(data != null){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, data);
-        } else {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
-        }
-    }
-
-    @GetMapping("concept/{id}/consts")
-    @Operation(summary = "获取项目的所有常量",description = "根据系统编号获取系统所有中间变量信息")
-    @Parameter(name = "id",description = "系统编号")
-    public HttpResult<List<ConceptLibrary>> getAllConstVariable(@PathVariable("id")int systemId){
-
-        List<ConceptLibrary> data = daoHandler.getDaoService(ConceptLibraryService.class).listConstVariableBySystemId(systemId);
-        return new HttpResult<>(HttpCodeEnum.SUCCESS,data);
-    }
-
-
-    @PutMapping("concept/{id}/vars/{varid}")
+    @PutMapping("vrm/{id}/vars/{varid}")
     @Operation(summary = "更新一个变量信息",description = "更新一个变量信息(输入、输出、中间变量以及常量通用)")
     @Parameter(name = "id", description = "项目号")
     @Parameter(name = "varid",description = "领域元素id")
@@ -122,7 +65,7 @@ public class ConceptItemController {
         }
     }
 
-    @PostMapping("concept/{id}/vars/{name}")
+    @PostMapping("vrm/{id}/vars/{name}")
     @Operation(summary = "插入一个变量信息",description = "插入一个新的变量，最好前端判断是否已经存在以及所需属性是否完整(输入、输出、中间变量以及常量通用)")
     public HttpResult<Integer> newVariable(@RequestBody ConceptLibrary variable, @PathVariable("id") int systemId, @PathVariable("name") String name){
 //        if(variable.getConceptName() == null || variable.getConceptName() == "") {
@@ -139,7 +82,7 @@ public class ConceptItemController {
         }
     }
 
-    @DeleteMapping("concept/{id}/vars/{name}")
+    @DeleteMapping("vrm/{id}/vars/{name}")
     @Operation(summary = "删除一个变量")
     @Parameter(name = "id", description = "系统id")
     @Parameter(name = "name", description = "变量名")
@@ -156,19 +99,8 @@ public class ConceptItemController {
         }
     }
 
-    @DeleteMapping("concept/{id}/vars")
-    @Operation(summary = "删除一个项目的所有变量")
-    @Parameter(name = "id", description = "变量id")
-    public HttpResult<Integer> deleteLibrary(@PathVariable("id") int systemId){
-        if(daoHandler.getDaoService(ConceptLibraryService.class).deleteConceptById(systemId)){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, systemId);
-        } else{
-            return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
-        }
-    }
 
-
-    @GetMapping("concept/{id}/propernoun/{name}")
+    @GetMapping("vrm/{id}/propernoun/{name}")
     @Operation(summary = "获取指定专有名词信息")
     @Parameter(name = "name",description = "变量名")
     @Parameter(name = "id",description = "系统编号")
@@ -180,7 +112,7 @@ public class ConceptItemController {
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
         }
     }
-    @PostMapping("concept/{id}/propernoun/{name}")
+    @PostMapping("vrm/{id}/propernoun/{name}")
     @Operation(summary = "新建专有名词")
     public HttpResult<Integer> newProperNoun(@RequestBody ProperNoun properNoun,@PathVariable("id")Integer systemId, @PathVariable("name")String name){
 //        if(properNoun.getProperNounName() == null || properNoun.getProperNounName() =="") {
@@ -196,7 +128,7 @@ public class ConceptItemController {
             return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED,0);
         }
     }
-    @PutMapping("concept/{id}/propernoun/{itemid}")
+    @PutMapping("vrm/{id}/propernoun/{itemid}")
     @Operation(summary = "更新专有名词")
     @Parameter(name = "id", description = "系统id")
     @Parameter(name = "itemid", description = "专有名词id")
@@ -220,7 +152,7 @@ public class ConceptItemController {
             return  new HttpResult<>(HttpCodeEnum.NOT_FOUND, -1);
         }
     }
-    @DeleteMapping("concept/{id}/propernoun/{name}")
+    @DeleteMapping("vrm/{id}/propernoun/{name}")
     @Operation(summary = "删除一个专有名词")
     @Parameter(name = "id", description = "系统id")
     @Parameter(name = "name", description = "变量名")
@@ -236,19 +168,5 @@ public class ConceptItemController {
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, "领域概念元素不存在",-1);
         }
     }
-
-    @DeleteMapping("concept/{id}/propernouns")
-    @Operation(summary = "删除项目的所有专有名词")
-    @Parameter(name = "id", description = "系统id")
-    @Parameter(name = "name", description = "变量名")
-    public HttpResult<Integer> deleteProperNouns(@PathVariable("id") int systemId){
-            if (daoHandler.getDaoService(ProperNounService.class).deleteProperNounById(systemId)) {
-                return new HttpResult<>(HttpCodeEnum.SUCCESS, systemId);
-            } else {
-                return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
-            }
-
-    }
-
 
 }

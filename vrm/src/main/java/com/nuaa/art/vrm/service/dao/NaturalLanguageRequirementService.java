@@ -15,8 +15,8 @@ public interface NaturalLanguageRequirementService extends IService<NaturalLangu
     public NaturalLanguageRequirement getNaturalLanguageRequirementById(Integer id);
     public List<NaturalLanguageRequirement> listNaturalLanguageRequirement();
     public NaturalLanguageRequirement getNaturalLanguageRequirementByExcelId(Integer systemId,Integer excelId);
-    public void insertNLR(NaturalLanguageRequirement naturalLanguageRequirement);
-    public void updateNLR(NaturalLanguageRequirement naturalLanguageRequirement);
-    public void deleteNLR(NaturalLanguageRequirement naturalLanguageRequirement);
-    public void deleteNLRById(Integer systemId);
+    public boolean insertNLR(NaturalLanguageRequirement naturalLanguageRequirement);
+    public boolean updateNLR(NaturalLanguageRequirement naturalLanguageRequirement);
+    public boolean deleteNLR(NaturalLanguageRequirement naturalLanguageRequirement);
+    public boolean deleteNLRById(Integer systemId);
 }

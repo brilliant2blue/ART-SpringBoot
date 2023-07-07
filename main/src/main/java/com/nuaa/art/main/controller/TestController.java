@@ -1,8 +1,9 @@
 package com.nuaa.art.main.controller;
 
+import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.vrm.model.ConditionTable;
 import com.nuaa.art.vrm.model.EventTable;
-import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrm.model.VRMOfXML;
 import com.nuaa.art.vrm.service.dao.ModeService;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.handler.ConditionTableHandler;
@@ -12,6 +13,7 @@ import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
 import com.nuaa.art.vrmcheck.service.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.Resource;
+import org.dom4j.Document;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -96,7 +98,8 @@ public class TestController {
     @GetMapping("/test/newcheck")
     public CheckErrorReporter testcheck(){
         String fileName = "D:\\CodePath\\Code\\VRM\\variable-relation-model-generate-tool\\Formodel.xml";
-        VRMOfXML vrmModel = new VRMOfXML(fileName);
+        Document model = FileUtils.readXML(fileName);
+        VRMOfXML vrmModel = new VRMOfXML(model);
         CheckErrorReporter reporter = new CheckErrorReporter();
 
         // 基本语法分析

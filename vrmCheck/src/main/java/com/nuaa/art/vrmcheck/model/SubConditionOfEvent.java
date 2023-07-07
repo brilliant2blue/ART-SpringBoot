@@ -1,6 +1,6 @@
 package com.nuaa.art.vrmcheck.model;
 
-import com.nuaa.art.vrm.model.model.VRMOfXML;
+import com.nuaa.art.vrm.model.VRMOfXML;
 
 import java.util.ArrayList;
 

@@ -14,6 +14,6 @@ public interface SystemProjectService extends IService<SystemProject> {
     public List<SystemProject> listSystemProject();
     public SystemProject getSystemProjectById(Integer id);
     public SystemProject getSystemProjectByName(String systemName);
-    public void insertSystemProject(SystemProject systemProject);
-    public void deleteSystemProject(String systemName);
+    public boolean insertSystemProject(SystemProject systemProject);
+    public boolean deleteSystemProject(String systemName);
 }
