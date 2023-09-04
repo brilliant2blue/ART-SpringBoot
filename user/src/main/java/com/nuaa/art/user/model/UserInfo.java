@@ -6,11 +6,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class UserResult {
-    public Boolean result;
+public class UserInfo {
     public String username;
+    public String realname;
+    public String email;
     public String rolename;
     public int role;
-    public List<RoleAccess> accesses;
-    public List<String> accessStrings;
 }

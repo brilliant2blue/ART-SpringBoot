@@ -4,17 +4,16 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 
- * @TableName access
+ * @TableName sys_role_menu
  */
-@TableName(value ="access")
+@TableName(value ="sys_role_menu")
 @Data
-public class Access implements Serializable {
+public class RoleMenu implements Serializable {
     /**
      * 
      */
@@ -24,12 +23,12 @@ public class Access implements Serializable {
     /**
      * 
      */
-    private String access;
+    private Integer roleId;
 
     /**
      * 
      */
-    private String description;
+    private Integer menuId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -45,10 +44,10 @@ public class Access implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Access other = (Access) that;
+        RoleMenu other = (RoleMenu) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getAccess() == null ? other.getAccess() == null : this.getAccess().equals(other.getAccess()))
-            && (this.getDescription() == null ? other.getDescription() == null : this.getDescription().equals(other.getDescription()));
+            && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()))
+            && (this.getMenuId() == null ? other.getMenuId() == null : this.getMenuId().equals(other.getMenuId()));
     }
 
     @Override
@@ -56,8 +55,8 @@ public class Access implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getAccess() == null) ? 0 : getAccess().hashCode());
-        result = prime * result + ((getDescription() == null) ? 0 : getDescription().hashCode());
+        result = prime * result + ((getRoleId() == null) ? 0 : getRoleId().hashCode());
+        result = prime * result + ((getMenuId() == null) ? 0 : getMenuId().hashCode());
         return result;
     }
 
@@ -68,8 +67,8 @@ public class Access implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", access=").append(access);
-        sb.append(", description=").append(description);
+        sb.append(", roleId=").append(roleId);
+        sb.append(", menuId=").append(menuId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

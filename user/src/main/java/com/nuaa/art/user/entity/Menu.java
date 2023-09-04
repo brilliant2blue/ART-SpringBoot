@@ -4,17 +4,16 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 
- * @TableName role_access
+ * @TableName sys_menu
  */
-@TableName(value ="sys_role_access")
+@TableName(value ="sys_menu")
 @Data
-public class RoleAccess implements Serializable {
+public class Menu implements Serializable {
     /**
      * 
      */
@@ -22,14 +21,24 @@ public class RoleAccess implements Serializable {
     private Integer id;
 
     /**
-     * 
+     * 菜单标识
      */
-    private Integer roleId;
+    private String menuSign;
 
     /**
-     * 
+     * 菜单名
      */
-    private Integer accessId;
+    private String menuName;
+
+    /**
+     * 跳转路径
+     */
+    private String url;
+
+    /**
+     * 父ID
+     */
+    private Integer parentId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -45,10 +54,12 @@ public class RoleAccess implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        RoleAccess other = (RoleAccess) that;
+        Menu other = (Menu) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()))
-            && (this.getAccessId() == null ? other.getAccessId() == null : this.getAccessId().equals(other.getAccessId()));
+            && (this.getMenuSign() == null ? other.getMenuSign() == null : this.getMenuSign().equals(other.getMenuSign()))
+            && (this.getMenuName() == null ? other.getMenuName() == null : this.getMenuName().equals(other.getMenuName()))
+            && (this.getUrl() == null ? other.getUrl() == null : this.getUrl().equals(other.getUrl()))
+            && (this.getParentId() == null ? other.getParentId() == null : this.getParentId().equals(other.getParentId()));
     }
 
     @Override
@@ -56,8 +67,10 @@ public class RoleAccess implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getRoleId() == null) ? 0 : getRoleId().hashCode());
-        result = prime * result + ((getAccessId() == null) ? 0 : getAccessId().hashCode());
+        result = prime * result + ((getMenuSign() == null) ? 0 : getMenuSign().hashCode());
+        result = prime * result + ((getMenuName() == null) ? 0 : getMenuName().hashCode());
+        result = prime * result + ((getUrl() == null) ? 0 : getUrl().hashCode());
+        result = prime * result + ((getParentId() == null) ? 0 : getParentId().hashCode());
         return result;
     }
 
@@ -68,8 +81,10 @@ public class RoleAccess implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", roleId=").append(roleId);
-        sb.append(", accessId=").append(accessId);
+        sb.append(", menuSign=").append(menuSign);
+        sb.append(", menuName=").append(menuName);
+        sb.append(", url=").append(url);
+        sb.append(", parentId=").append(parentId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

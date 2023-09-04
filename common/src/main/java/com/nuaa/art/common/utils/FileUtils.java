@@ -2,6 +2,7 @@ package com.nuaa.art.common.utils;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -68,10 +69,11 @@ public class FileUtils {
     public static Workbook readExcel(String FileUrl){
         try {
             FileInputStream fis = new FileInputStream(FileUrl);
-            if(FileUrl.contains(".xlsx"))
-                return new HSSFWorkbook(fis);
-            else if(FileUrl.contains(".xls"))
-                return new XSSFWorkbook(fis);
+//            if(FileUrl.contains(".xlsx"))
+//                return new HSSFWorkbook(fis);
+//            else if(FileUrl.contains(".xls"))
+//                return new XSSFWorkbook(fis);
+            return WorkbookFactory.create(fis);
         } catch (IOException e) {
             LogUtils.error(e.getMessage());
         }

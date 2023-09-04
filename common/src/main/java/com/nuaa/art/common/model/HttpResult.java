@@ -26,6 +26,13 @@ public class HttpResult<T> {
         this.zhMessage = httpCodeEnum.getZhMessage();
     }
 
+    public HttpResult(HttpCodeEnum httpCodeEnum, String msg){
+        this.code = httpCodeEnum.getCode();
+        this.enMessage = httpCodeEnum.getEnMessage();
+        this.zhMessage = msg;
+        this.data = null;
+    }
+
     public HttpResult(HttpCodeEnum httpCodeEnum, T data){
         this.code = httpCodeEnum.getCode();
         this.enMessage = httpCodeEnum.getEnMessage();
@@ -38,6 +45,28 @@ public class HttpResult<T> {
         this.enMessage = httpCodeEnum.getEnMessage();
         this.zhMessage = message;
         this.data = data;
+    }
+
+    //快速封装成功时的响应体
+    public static <T> HttpResult<T> success(){
+        return new HttpResult<>(HttpCodeEnum.SUCCESS);
+    }
+    //快速封装成功时的响应体
+    public static <T> HttpResult<T> success(T data){
+        return new HttpResult<>(HttpCodeEnum.SUCCESS, data);
+    }
+    //快速封装失败时的响应体
+    public static <T> HttpResult<T> fail(){
+        return new HttpResult<>(HttpCodeEnum.NOT_EXTENDED);
+    }
+
+    //快速封装失败时的响应体
+    public static <T> HttpResult<T> fail(String msg){
+        return new HttpResult<>(HttpCodeEnum.NOT_EXTENDED, msg);
+    }
+    //快速封装失败时的响应体
+    public static <T> HttpResult<T> fail(String msg, T data){
+        return new HttpResult<>(HttpCodeEnum.NOT_EXTENDED, msg, data);
     }
 
 }

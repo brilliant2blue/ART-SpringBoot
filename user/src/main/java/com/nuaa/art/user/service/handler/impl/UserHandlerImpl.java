@@ -1,17 +1,22 @@
 package com.nuaa.art.user.service.handler.impl;
 
-import com.nuaa.art.user.common.RoleConstant;
-import com.nuaa.art.user.entity.RoleAccess;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.nuaa.art.user.common.utils.JwtUtils;
+import com.nuaa.art.user.entity.Menu;
+import com.nuaa.art.user.entity.Role;
+import com.nuaa.art.user.entity.RoleMenu;
 import com.nuaa.art.user.entity.User;
-import com.nuaa.art.user.model.UserResult;
+import com.nuaa.art.user.model.UserInfo;
+import com.nuaa.art.user.model.LoginInfo;
+import com.nuaa.art.user.service.dao.*;
+import com.nuaa.art.user.service.handler.MenuHandler;
 import com.nuaa.art.user.service.handler.UserHandler;
-import com.nuaa.art.user.service.dao.AccessService;
-import com.nuaa.art.user.service.dao.RoleAccessService;
-import com.nuaa.art.user.service.dao.UserService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserHandlerImpl implements UserHandler {
@@ -19,35 +24,60 @@ public class UserHandlerImpl implements UserHandler {
     UserService userService;
 
     @Autowired
-    RoleAccessService roleAccessService;
+    RoleMenuService roleMenuService;
 
     @Autowired
-    AccessService accessService;
+    MenuService menuService;
+
+    @Autowired
+    RoleService roleService;
+
+    @Resource
+    MenuHandler menuHandler;
 
 
 
     @Override
-    public Object login(User user) {
-        UserResult result = new UserResult();
-        User thisuser = userService.selectUserByName(user.getUsername());
-        if(thisuser.getPassword().equals(user.getPassword())){
-            result.result = true;
-            result.username = user.getUsername();
-            result.rolename = RoleConstant.getRoleNameById(thisuser.getRole());
-            result.role = thisuser.getRole();
-            result.accesses = roleAccessService.listRoleAccess(thisuser.getRole());
-            result.accessStrings  = new ArrayList<>();
-            for(RoleAccess roleAccess: result.accesses) {
-                result.accessStrings.add(accessService.getAccess(roleAccess.getAccessId()).getAccess());
+    public LoginInfo login(User user) {
+        User thisuser = userService.getOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, user.getUsername())
+                .eq(User::getPassword, user.getPassword()));
+        if(thisuser != null){
+            LoginInfo result = new LoginInfo();
+            result.token = JwtUtils.generateToken(thisuser);
+            result.username = thisuser.getUsername();
+            result.realname = thisuser.getRealname();
+            result.email = thisuser.getEmail();
+            Role role = roleService.getRoleByRoleId(thisuser.getRole());
+            if(role != null) {
+                result.rolename = role.getRoleName();
+                result.role = thisuser.getRole();
             }
-        } else {
-            result.result = false;
+            List<Menu> menu=  new ArrayList<>();
+            for(RoleMenu ra: roleMenuService.listRoleMenu(result.role)){
+                menu.add(menuService.getMenu(ra.getMenuId()));
+            }
+            result.menus= menuHandler.MenusToMenuTree(menu);
+            return result;
         }
-        return result;
+        return null;
     }
 
     @Override
-    public Object logout(User user) {
+    public UserInfo getUserInfo(String userName) {
+        User thisuser = userService.selectUserByName(userName);
+        if(thisuser != null){
+            UserInfo result = new UserInfo();
+            result.username = userName;
+            result.realname = thisuser.getRealname();
+            result.email = thisuser.getEmail();
+            Role role = roleService.getRoleByRoleId(thisuser.getRole());
+            if(role != null) {
+                result.rolename = role.getRoleName();
+                result.role = thisuser.getRole();
+            }
+            return result;
+        }
         return null;
     }
 }

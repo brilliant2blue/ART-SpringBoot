@@ -1,9 +1,12 @@
 package com.nuaa.art.user.service.handler;
 
 import com.nuaa.art.user.entity.User;
+import com.nuaa.art.user.model.LoginInfo;
+import com.nuaa.art.user.model.UserInfo;
 
 public interface UserHandler {
-    Object login(User user);
-    Object logout(User user);
+    LoginInfo login(User user);
+
+    UserInfo getUserInfo(String userName);
 
 }
