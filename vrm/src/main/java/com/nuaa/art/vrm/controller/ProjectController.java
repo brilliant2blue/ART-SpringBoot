@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 项目控制类
  *
@@ -37,21 +39,11 @@ public class ProjectController {
     @PostMapping("vrm")
     @Operation(summary = "创建项目",description =
             "方式0：空项目；\n" + "方式1：从领域概念库创建；\n" + "方式2：从已有项目创建\n")
-    @Parameter(name = "name",description = "项目名")
     @Parameter(name = "type",description = "创建方式")
     @Parameter(name = "baseSystemId",description = "基础项目号")
-    public HttpResult<Integer> creatProject(@RequestParam("name") String projectName, @RequestParam("type") Integer creatType
+    public HttpResult<Integer> creatProject(@RequestBody SystemProject project, @RequestParam("type") Integer creatType
             , @RequestParam(required = false, name = "baseSystemId")Integer baseSystemId){
-        if(daoHandler.getDaoService(SystemProjectService.class).getSystemProjectByName(projectName) != null){
-            LogUtils.info("系统重复： " + projectName);
-            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"已存在此系统名称，请重新输入名称！",-1);
-        }
-        if(baseSystemId == null || daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(baseSystemId) == null){
-            LogUtils.info("系统不存在： " + baseSystemId);
-            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"所选系统不存在，请重新选择！",-1);
-        }
-        SystemProject project = new SystemProject();
-        project.setSystemName(projectName);
+        String projectName = project.getSystemName();
 
         switch (creatType) {
             case 0 -> createAsNew.newProject(project, null);
@@ -86,6 +78,25 @@ public class ProjectController {
         } catch (Exception e) {
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,false);
         }
+    }
+
+    @GetMapping("vrm/{id}")
+    @Operation(summary = "获取项目名")
+    @Parameter(name = "id",description = "项目编号")
+    public HttpResult<SystemProject> getProject(@PathVariable("id") int systemId){
+        SystemProject project = daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId);
+        if(project != null) {
+            return HttpResult.success(project);
+        } else {
+            return HttpResult.fail();
+        }
+
+    }
+
+    @GetMapping("vrm")
+    @Operation(summary = "获取所有项目名")
+    public HttpResult<List<SystemProject>> listProject() {
+        return HttpResult.success(daoHandler.getDaoService(SystemProjectService.class).listSystemProject());
     }
 
     @GetMapping("vrm/file")

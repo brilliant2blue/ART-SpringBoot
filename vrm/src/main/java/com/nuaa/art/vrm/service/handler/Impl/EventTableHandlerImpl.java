@@ -21,24 +21,28 @@ public class EventTableHandlerImpl implements EventTableHandler {
     @Override
     public String ConvertTableToString(EventTable eventTable) {
         String eventResult = "";
-        for (int i = 0; i < eventTable.getAndNum(); i++) {
+        for (int i = 0; i < eventTable.getAndNum(); i++) { //循环读取每一行事件
             String result = "";
             if(!eventTable.getEvents().get(i).getEventOperator().equals("")
                     && eventTable.getEvents().get(i).getEventCondition() != null) {
                 result += eventTable.getEvents().get(i).getEventOperator();
-                if (eventTable.getEvents().get(i).getEventCondition().getOrNum() > 1) {
-                    result += "(" + conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getEventCondition()) + ")";
-                } else {
-                    result += conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getEventCondition());
+                String events = conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getEventCondition());
+                if (events.contains("true")||eventTable.getEvents().get(i).getEventCondition().getOrNum() > 1) {
+                    result += "(" + events + ")";
+                }
+                else {
+                    result += events;
                 }
             }
             if(!eventTable.getEvents().get(i).getGuardOperator().equals("")
                     && eventTable.getEvents().get(i).getGuardCondition() != null) {
                 result += eventTable.getEvents().get(i).getGuardOperator();
-                if (eventTable.getEvents().get(i).getGuardCondition().getOrNum() > 1) {
-                    result += "(" + conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getGuardCondition()) + ")";
-                } else {
-                    result += conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getGuardCondition());
+                String guards = conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getGuardCondition());
+                if (guards.contains("true") || eventTable.getEvents().get(i).getGuardCondition().getOrNum() > 1) {
+                    result += "(" + guards + ")";
+                }
+                else {
+                    result += guards;
                 }
             }
             if(result.equals("")) continue;

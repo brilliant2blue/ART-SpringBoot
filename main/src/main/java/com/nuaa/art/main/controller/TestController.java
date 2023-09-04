@@ -1,5 +1,7 @@
 package com.nuaa.art.main.controller;
 
+import com.nuaa.art.common.HttpCodeEnum;
+import com.nuaa.art.common.model.HttpResult;
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.vrm.model.ConditionTable;
 import com.nuaa.art.vrm.model.EventTable;
@@ -24,11 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @Resource
     DaoHandler daoHandler;
-    @Resource(name = "modelCreateToXml")
+    @Resource(name = "vrm-xml")
     ModelCreateHandler modelCreateHandler;
     @GetMapping("/test")
     public String test(){
         return daoHandler.getDaoService(ModeService.class).getModeById(339).toString();
+    }
+    @PostMapping("/test/login")
+    public HttpResult<String> login(){
+        return new HttpResult<>(HttpCodeEnum.SUCCESS, "成功");
     }
 
     @Parameter(name = "systemId", description = "系统编号")
@@ -41,7 +47,7 @@ public class TestController {
     @Parameter(name = "fileName", description = "文件名")
     @GetMapping("/testExport")
     public void test3(Integer systemId, String fileName){
-        modelCreateHandler.exportModel(systemId, fileName);
+        modelCreateHandler.modelFile(systemId, fileName);
     }
 
     @Resource(name = "conditionForTable")

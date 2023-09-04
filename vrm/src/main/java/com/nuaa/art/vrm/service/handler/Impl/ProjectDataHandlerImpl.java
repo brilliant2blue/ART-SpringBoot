@@ -219,10 +219,6 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
         }
     }
 
-
-    @Resource(name = "modelCreateToXml")
-    ModelCreateHandler modelCreateHandler;
-
     /**
      * 导出项目
      *

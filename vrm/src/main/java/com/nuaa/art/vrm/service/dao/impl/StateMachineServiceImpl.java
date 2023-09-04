@@ -1,5 +1,6 @@
 package com.nuaa.art.vrm.service.dao.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nuaa.art.vrm.entity.StateMachine;
@@ -36,10 +37,8 @@ public class StateMachineServiceImpl extends ServiceImpl<StateMachineMapper, Sta
     }
 
     @Override
-    public List<StateMachine> listStateMachineByDenpdencyandId(String denpedencyModeClass, Integer systemId) {
-        return list(new QueryWrapper<StateMachine>()
-                .eq("dependencyModeClass",denpedencyModeClass)
-                .eq("systemId",systemId));
+    public List<StateMachine> listStateMachineByDenpdencyId(Integer denpdencyId) {
+        return list(new LambdaQueryWrapper<StateMachine>().eq(StateMachine::getDependencyModeClassId, denpdencyId));
     }
 
     @Override

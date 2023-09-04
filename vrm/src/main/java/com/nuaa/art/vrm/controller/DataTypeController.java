@@ -56,13 +56,13 @@ public class DataTypeController {
 
     }
 
-    @PostMapping("vrm/{id}/types/{name}")
+    @PostMapping("vrm/{id}/types")
     @Operation(summary = "新建一个类型",description = "新建一个类型，最好前端判断是否已经存在")
-    public HttpResult<Integer> newType(@RequestBody Type type,  @PathVariable("id") int systemId, @PathVariable("name") String name){
+    public HttpResult<Integer> newType(@RequestBody Type type,  @PathVariable("id") int systemId){
 //        if(daoHandler.getDaoService(TypeService.class).getTypeByNameandId(type.getTypeName(), type.getSystemId())!= null ){
 //            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, "同名变量已存在，请重新填写！",false);
 //        }
-        Type t = daoHandler.getDaoService(TypeService.class).getTypeByNameandId(name,systemId);
+        Type t = daoHandler.getDaoService(TypeService.class).getTypeByNameandId(type.getTypeName(),systemId);
         if(t == null) {
             type.setTypeId(null);
             if (daoHandler.getDaoService(TypeService.class).insertType(type)) {
@@ -75,12 +75,12 @@ public class DataTypeController {
         }
     }
 
-    @PutMapping("vrm/{id}/types/{name}")
+    @PutMapping("vrm/{id}/types/{itemId}")
     @Operation(summary = "更新类型信息")
     @Parameter(name = "id", description = "系统工程号")
-    @Parameter(name = "name", description = "类型名")
-    public HttpResult<Integer> updateType(@RequestBody Type type, @PathVariable("id") int systemId, @PathVariable("name") String name){
-        Type t = daoHandler.getDaoService(TypeService.class).getTypeByNameandId(name,systemId);
+    @Parameter(name = "itemId", description = "类型编号")
+    public HttpResult<Integer> updateType(@RequestBody Type type, @PathVariable("id") int systemId, @PathVariable("itemId") int itemId){
+        Type t = daoHandler.getDaoService(TypeService.class).getTypeById(itemId);
         if(t != null) {
             if(!t.getTypeId().equals(type.getTypeId())){
                 return new HttpResult(HttpCodeEnum.BAD_REQUEST, "同名资源已存在，请重新填写！",t.getTypeId());
@@ -95,12 +95,12 @@ public class DataTypeController {
         }
     }
 
-    @DeleteMapping("vrm/{id}/types/{name}")
+    @DeleteMapping("vrm/{id}/types/{itemId}")
     @Operation(summary = "删除指定类型")
     @Parameter(name = "id", description = "系统工程号")
-    @Parameter(name = "name", description = "类型名")
-    public HttpResult<Integer> deleteType(@PathVariable("id") int systemId, @PathVariable("name") String name){
-        Type type = daoHandler.getDaoService(TypeService.class).getTypeByNameandId(name,systemId);
+    @Parameter(name = "itemId", description = "类型编号")
+    public HttpResult<Integer> deleteType(@PathVariable("id") int systemId, @PathVariable("itemId") int itemId){
+        Type type = daoHandler.getDaoService(TypeService.class).getTypeById(itemId);
         if(type != null) {
             if (daoHandler.getDaoService(TypeService.class).deleteType(type)) {
                 return new HttpResult<>(HttpCodeEnum.SUCCESS, type.getTypeId());

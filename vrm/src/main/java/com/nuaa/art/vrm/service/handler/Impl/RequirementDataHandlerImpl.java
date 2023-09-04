@@ -39,6 +39,7 @@ public class RequirementDataHandlerImpl implements RequirementDataHandler {
         try{
             Sheet sheetAt = workbook.getSheetAt(0);
             int count = 0;
+            daoHandler.getDaoService(NaturalLanguageRequirementService.class).deleteNLRById(systemId);
             for (Row row : sheetAt) {
                 if(row.getCell(0)==null)
                     continue;

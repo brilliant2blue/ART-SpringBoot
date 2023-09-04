@@ -26,8 +26,8 @@ public class StandardRequirementServiceImpl extends ServiceImpl<StandardRequirem
     }
 
     @Override
-    public List<StandardRequirement> listStandardRequirementByReqId(Integer id) {
-        return list(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId",id));
+    public List<StandardRequirement> listStandardRequirementByReqIdAndSystemId(Integer systemId, Integer reqId) {
+        return list(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId",reqId).eq("systemId", systemId));
     }
 
     @Override
@@ -46,15 +46,14 @@ public class StandardRequirementServiceImpl extends ServiceImpl<StandardRequirem
     }
 
     @Override
-    public boolean deleteStandardRequirement(Integer id) {
-        return remove(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId", id));
+    public boolean deleteStandardRequirementByReqIdAndSystemId(Integer systemId, Integer reqId) {
+        return remove(new QueryWrapper<StandardRequirement>().eq("naturalLanguageReqId",reqId).eq("systemId", systemId));
     }
 
     @Override
-    public boolean deleteOneStandardRequirement(Integer nid, Integer sid) {
+    public boolean deleteOneStandardRequirement(Integer sReqId) {
         return remove(new QueryWrapper<StandardRequirement>()
-                .eq("naturalLanguageReqId",nid)
-                .eq("standardRequirementId", sid));
+                .eq("standardRequirementId", sReqId));
     }
 
     @Override

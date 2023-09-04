@@ -12,10 +12,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -30,11 +28,11 @@ public class RequirementController {
     @Resource
     DaoHandler daoHandler;
 
-    @GetMapping("vrm/{id}/req/{reqid}/standards")
+    @GetMapping("vrm/{systemid}/req/{reqid}/standards")
     @Operation(summary = "获取项目下某一自然需求的规范化需求")
     @Parameter(name = "reqid",description = "是自然语言需求的excelId")
-    public HttpResult<List<StandardRequirement>> getStandardOfReq(Integer reqid){
-        List<StandardRequirement> sReq = daoHandler.getDaoService(StandardRequirementService.class).listStandardRequirementByReqId(reqid);
+    public HttpResult<List<StandardRequirement>> getStandardOfReq(@PathVariable Integer systemid, @PathVariable Integer reqid){
+        List<StandardRequirement> sReq = daoHandler.getDaoService(StandardRequirementService.class).listStandardRequirementByReqIdAndSystemId(systemid, reqid);
         if(sReq != null){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,sReq);
         } else {
@@ -79,22 +77,22 @@ public class RequirementController {
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
         }
 
-        if(daoHandler.getDaoService(StandardRequirementService.class).deleteOneStandardRequirement(reqid,standardid)){
+        if(daoHandler.getDaoService(StandardRequirementService.class).deleteOneStandardRequirement(standardid)){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,standardid);
         } else {
             return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
         }
     }
 
-    @DeleteMapping("vrm/{id}/req/{reqid}/standards")
+    @DeleteMapping("vrm/{systemid}/req/{reqid}/standards")
     @Operation(summary = "删除自然语言需求下的所有规范化需求")
-    public HttpResult<Integer> delStandardOfReq(@PathVariable("reqid")Integer reqid){
+    public HttpResult<Integer> delStandardOfReq(@PathVariable Integer systemid,@PathVariable("reqid")Integer reqid){
         if(daoHandler.getDaoService(StandardRequirementService.class)
-                .listStandardRequirementByReqId(reqid) == null){
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
+                .listStandardRequirementByReqIdAndSystemId(systemid, reqid).size() == 0){
+            return new HttpResult<>(HttpCodeEnum.SUCCESS, 0);
         }
 
-        if(daoHandler.getDaoService(StandardRequirementService.class).deleteStandardRequirement(reqid)){
+        if(daoHandler.getDaoService(StandardRequirementService.class).deleteStandardRequirementByReqIdAndSystemId(systemid, reqid)){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,reqid);
         } else {
             return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
@@ -159,7 +157,7 @@ public class RequirementController {
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"存在由此需求建立的领域概念元素，无法删除！",-1);
         }
 
-        if(daoHandler.getDaoService(StandardRequirementService.class).listStandardRequirementByReqId(req.getReqExcelId()) != null){
+        if(daoHandler.getDaoService(StandardRequirementService.class).listStandardRequirementByReqIdAndSystemId(id, req.getReqExcelId()) != null){
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"存在由此需求建立的模板化需求，无法删除！",-1);
         }
 
@@ -176,11 +174,7 @@ public class RequirementController {
 
     @PostMapping("vrm/{id}/req")
     @Operation(summary = "从文件导入原始需求")
-    public HttpResult<Integer> importReqs(@PathVariable("id")int id, @RequestParam("file")String fileUrl){
-        if(daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(id) == null){
-            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"系统不存在，请重新选择！",-1);
-        }
-
+    public HttpResult<Integer> importReqs(@PathVariable("id")int id, @RequestBody String fileUrl){
         int count = requirementDataHandler.importFromFile(id, fileUrl);
         if (count > 0)
             return new HttpResult<>(HttpCodeEnum.SUCCESS, count);

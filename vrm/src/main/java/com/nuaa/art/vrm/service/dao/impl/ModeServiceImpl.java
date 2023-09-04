@@ -1,5 +1,6 @@
 package com.nuaa.art.vrm.service.dao.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nuaa.art.vrm.entity.Mode;
@@ -49,10 +50,8 @@ public class ModeServiceImpl extends ServiceImpl<ModeMapper, Mode>
     }
 
     @Override
-    public List<Mode> listModeByNameandId(String modelClassName, Integer systemId) {
-        QueryWrapper<Mode> wrapper = new QueryWrapper<>();
-        wrapper.eq("modeClassName", modelClassName).eq("systemId",systemId);
-        return list(wrapper);
+    public List<Mode> listModeByClassId(Integer id) {
+        return list(new LambdaQueryWrapper<Mode>().eq(Mode::getModeClassId, id));
     }
 
     @Override
@@ -69,7 +68,7 @@ public class ModeServiceImpl extends ServiceImpl<ModeMapper, Mode>
     @Transactional
     public boolean updateMode(Mode mode) {
         Mode m = getModeById(mode.getModeId());
-        List<StateMachine> stateMachines = stateMachineService.listStateMachineByDenpdencyandId(m.getModeClassName(), m.getSystemId());
+        List<StateMachine> stateMachines = stateMachineService.listStateMachineByDenpdencyId(m.getModeClassId());
         for(StateMachine stateMachine : stateMachines){
             if(stateMachine.getSourceState().equals(m.getModeName())){
                 stateMachine.setSourceState(mode.getModeName());
@@ -84,7 +83,7 @@ public class ModeServiceImpl extends ServiceImpl<ModeMapper, Mode>
     @Override
     @Transactional
     public boolean deleteMode(Mode mode) {
-        List<StateMachine> stateMachines = stateMachineService.listStateMachineByDenpdencyandId(mode.getModeClassName(), mode.getSystemId());
+        List<StateMachine> stateMachines = stateMachineService.listStateMachineByDenpdencyId(mode.getModeClassId());
         for(StateMachine stateMachine : stateMachines){
             if(stateMachine.getSourceState().equals(mode.getModeName())){
                 stateMachineService.deleteStateMachine(stateMachine);

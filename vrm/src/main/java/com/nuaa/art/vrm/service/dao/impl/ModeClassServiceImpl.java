@@ -59,7 +59,7 @@ public class ModeClassServiceImpl extends ServiceImpl<ModeClassMapper, ModeClass
     @Override
     public boolean updateModeClass(ModeClass modeClass) {
         ModeClass mc = getById(modeClass.getModeClassId());
-        List<Mode> modes = modeService.listModeByNameandId(mc.getModeClassName(), mc.getSystemId());
+        List<Mode> modes = modeService.listModeByClassId(mc.getModeClassId());
         for (Mode mode : modes) {
             mode.setModeClassName(modeClass.getModeClassName());
             if (!modeService.updateMode(mode)) {

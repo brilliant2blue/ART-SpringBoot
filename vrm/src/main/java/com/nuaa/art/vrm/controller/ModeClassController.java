@@ -13,6 +13,7 @@ import com.nuaa.art.vrm.service.handler.EventTableHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,13 +45,13 @@ public class ModeClassController {
     }
 
 
-    @PostMapping("vrm/{id}/modeclasses/{name}")
+    @PostMapping("vrm/{id}/modeclasses")
     @Operation(summary = "新增一个模式集信息", description = "仅包含模式集的说明信息,不包含具体模式")
-    public HttpResult<Integer> newModeClass(@RequestBody ModeClass modeClass, @PathVariable("id") int systemId, @PathVariable("name") String name) {
+    public HttpResult<Integer> newModeClass(@RequestBody ModeClass modeClass, @PathVariable("id") int systemId) {
 //        if(modeClass.getModeClassName() == null || modeClass.getModeClassName() == "" || modeClass.getSystemId() == null) {
 //            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"属性不完整",false);
 //        }
-        if(daoHandler.getDaoService(ModeClassService.class).getModeClassByNameandId(name, systemId)!= null ){
+        if(daoHandler.getDaoService(ModeClassService.class).getModeClassByNameandId(modeClass.getModeClassName(), systemId)!= null ){
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, "同名变量已存在，请重新填写！",-1);
         }
         if (daoHandler.getDaoService(ModeClassService.class).insertModeClass(modeClass)) {
@@ -62,7 +63,7 @@ public class ModeClassController {
 
     @PutMapping("vrm/{id}/modeclasses/{modeclassid}")
     @Operation(summary = "更新一个模式集信息", description = "仅包含模式集的说明信息,不包含具体模式")
-    public HttpResult<Integer> updateModeClass(@RequestBody ModeClass modeClass, @PathVariable("modeclassid")Integer systemId,@PathVariable("modeclassid")Integer id) {
+    public HttpResult<Integer> updateModeClass(@RequestBody ModeClass modeClass, @PathVariable("id")Integer systemId,@PathVariable("modeclassid")Integer id) {
 //        if(modeClass.getModeClassName() == null || modeClass.getModeClassName() == "" || modeClass.getSystemId() == null) {
 //            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"属性不完整",false);
 //        }
@@ -84,13 +85,11 @@ public class ModeClassController {
 
     }
 
-    @DeleteMapping("vrm/{id}/modeclasses/{name}")
+    @DeleteMapping("vrm/{id}/modeclasses/{modeclassid}")
     @Operation(summary = "删除一个模式集")
-    @Parameter(name = "name", description = "模式集名")
     @Parameter(name = "id", description = "项目号")
-    //todo 应当删除其包含的模式和模式转换
-    public HttpResult<Integer> delModeClass(@PathVariable("id") int systemId, @PathVariable("name") String name) {
-        ModeClass mc = daoHandler.getDaoService(ModeClassService.class).getModeClassByNameandId(name, systemId);
+    public HttpResult<Integer> delModeClass(@PathVariable("id")Integer systemId,@PathVariable("modeclassid")Integer id) {
+        ModeClass mc = daoHandler.getDaoService(ModeClassService.class).getById(id);
         if (mc != null) {
             if (daoHandler.getDaoService(ModeClassService.class).deleteModeClass(mc)) {
                 return new HttpResult<>(HttpCodeEnum.SUCCESS, mc.getModeClassId());
@@ -102,10 +101,10 @@ public class ModeClassController {
         }
     }
 
-    @GetMapping("vrm/{id}/modeclasses/{name}/modes")
+    @GetMapping("vrm/{id}/modeclasses/{modeclassid}/modes")
     @Operation(summary = "获取项目下某一模式集的所有模式")
-    public HttpResult<List<Mode>> getModesOfModeClass(@PathVariable("id") int systemId, @PathVariable("name") String name) {
-        List<Mode> modes = daoHandler.getDaoService(ModeService.class).listModeByNameandId(name, systemId);
+    public HttpResult<List<Mode>> getModesOfModeClass(@PathVariable("id") int systemId, @PathVariable("modeclassid") int modeClassId) {
+        List<Mode> modes = daoHandler.getDaoService(ModeService.class).listModeByClassId(modeClassId);
         if (modes != null) {
             return new HttpResult<>(HttpCodeEnum.SUCCESS, modes);
         } else {
@@ -113,10 +112,10 @@ public class ModeClassController {
         }
     }
 
-    @PostMapping("vrm/{id}/modeclasses/{name}/modes/{modename}")
+    @PostMapping("vrm/{id}/modeclasses/{modeclassid}/modes")
     @Operation(summary = "创建一模式")
-    public HttpResult<Integer> newMode(@RequestBody Mode mode, @PathVariable("id") int systemId, @PathVariable("modename") String name) {
-        Mode m = daoHandler.getDaoService(ModeService.class).getModeByNameAndId(name, systemId);
+    public HttpResult<Integer> newMode(@RequestBody Mode mode, @PathVariable("id") int systemId, @PathVariable("modeclassid") int modeClassId) {
+        Mode m = daoHandler.getDaoService(ModeService.class).getModeByNameAndId(mode.getModeName(), systemId);
         if (m != null) {
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, "同名资源已存在，请重新填写！", -1);
         } else {
@@ -138,9 +137,9 @@ public class ModeClassController {
 //        }
 //    }
 
-    @PutMapping("vrm/{id}/modeclasses/{name}/modes/{modeid}")
+    @PutMapping("vrm/{id}/modeclasses/{modeclassid}/modes/{modeid}")
     @Operation(summary = "更新一模式")
-    public HttpResult<Integer> updateMode(@RequestBody Mode mode, @PathVariable("id") Integer systemId, @PathVariable("modeid") Integer modeId) {
+    public HttpResult<Integer> updateMode(@RequestBody Mode mode, @PathVariable("id") Integer systemId, @PathVariable("modeclassid") int modeClassId, @PathVariable("modeid") Integer modeId) {
         Mode m = daoHandler.getDaoService(ModeService.class).getById(modeId);
         if (m != null) {
             mode.setModeId(modeId);
@@ -158,10 +157,10 @@ public class ModeClassController {
         }
     }
 
-    @DeleteMapping("vrm/{id}/modeclasses/{name}/modes/{modename}")
+    @DeleteMapping("vrm/{id}/modeclasses/{modeclassid}/modes/{modeid}")
     @Operation(summary = "删除一模式")
-    public HttpResult<Integer> deleteMode(@PathVariable("id") int systemId, @PathVariable("modename") String name) {
-        Mode m = daoHandler.getDaoService(ModeService.class).getModeByNameAndId(name, systemId);
+    public HttpResult<Integer> deleteMode(@PathVariable("id") int systemId, @PathVariable("modeid") Integer modeId, @PathVariable("modeclassid") int modeClassId) {
+        Mode m = daoHandler.getDaoService(ModeService.class).getById(modeId);
         if (m != null) {
             if (daoHandler.getDaoService(ModeService.class).deleteMode(m)) {
                 return new HttpResult<>(HttpCodeEnum.SUCCESS, m.getModeId());
@@ -183,10 +182,10 @@ public class ModeClassController {
 //            }
 //    }
 
-    @GetMapping("vrm/{id}/modeclasses/{name}/mode-trans")
+    @GetMapping("vrm/{id}/modeclasses/{modeclassid}/mode-trans")
     @Operation(summary = "获取某模式集的所有模式转换")
-    public HttpResult<List<StateMachine>> getAllModeTrans(@PathVariable("id") int systemId, @PathVariable("name")String denpdencyName) {
-        List<StateMachine> mt = daoHandler.getDaoService(StateMachineService.class).listStateMachineByDenpdencyandId(denpdencyName,systemId);
+    public HttpResult<List<StateMachine>> getAllModeTrans(@PathVariable("id") Integer systemId, @PathVariable("modeclassid")Integer denpdencyId) {
+        List<StateMachine> mt = daoHandler.getDaoService(StateMachineService.class).listStateMachineByDenpdencyId(denpdencyId);
         if(mt != null){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,mt);
         } else {
@@ -194,9 +193,9 @@ public class ModeClassController {
         }
     }
 
-    @GetMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}")
+    @GetMapping("vrm/{id}/modeclasses/{modeclassid}/mode-trans/{transid}")
     @Operation(summary = "根据模式转换id获取模式指定模式转换")
-    public HttpResult<StateMachine> getModeTrans(@PathVariable("transid")int transId){
+    public HttpResult<StateMachine> getModeTrans(@PathVariable("id") Integer systemId, @PathVariable("modeclassid")Integer denpdencyId, @PathVariable("transid")int transId){
         StateMachine mt = daoHandler.getDaoService(StateMachineService.class).getById(transId);
         if(mt != null){
             return new HttpResult<>(HttpCodeEnum.SUCCESS,mt);
@@ -205,13 +204,13 @@ public class ModeClassController {
         }
     }
 
-    @PostMapping("vrm/{id}/modeclasses/{name}/mode-trans")
+    @PostMapping("vrm/{id}/modeclasses/{modeclassid}/mode-trans")
     @Operation(summary = "新建一个模式转换")
-    public HttpResult<Integer> newModeTrans(@RequestBody StateMachine stateMachine, @PathVariable("id")Integer systemId, @PathVariable("name")String modeClassName){
+    public HttpResult<Integer> newModeTrans(@RequestBody StateMachine stateMachine, @PathVariable("id")Integer systemId, @PathVariable("modeclassid")Integer modeClassId){
         QueryWrapper<StateMachine> wrapper = new QueryWrapper<StateMachine>()
                 .eq("sourceState", stateMachine.getSourceState())
                 .eq("endState",stateMachine.getEndState())
-                .eq("dependencyModeClass", modeClassName)
+                .eq("dependencyModeClassId", modeClassId)
                 .eq("systemId", systemId);
 
         StateMachine sm = daoHandler.getDaoService(StateMachineService.class).getOne(wrapper);
@@ -227,10 +226,10 @@ public class ModeClassController {
         }
     }
 
-    @PutMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}")
+    @PutMapping("vrm/{id}/modeclasses/{modeclassid}/mode-trans/{transid}")
     @Operation(summary = "更新一个模式转换")
     public HttpResult<Integer> newModeTrans(@RequestBody StateMachine stateMachine, @PathVariable("id")Integer systemId,
-                                            @PathVariable("name")String modeClassName, @PathVariable("transid")Integer transId){
+                                            @PathVariable("modeclassid")Integer modeClassId, @PathVariable("transid")Integer transId){
         if(daoHandler.getDaoService(StateMachineService.class).getStateMachineById(transId) == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
         }
@@ -238,7 +237,7 @@ public class ModeClassController {
         QueryWrapper<StateMachine> wrapper = new QueryWrapper<StateMachine>()
                 .eq("sourceState", stateMachine.getSourceState())
                 .eq("endState",stateMachine.getEndState())
-                .eq("dependencyModeClass", modeClassName)
+                .eq("dependencyModeClassId", modeClassId)
                 .eq("systemId", systemId);
 
         StateMachine sm = daoHandler.getDaoService(StateMachineService.class).getOne(wrapper);
@@ -254,9 +253,9 @@ public class ModeClassController {
         }
     }
 
-    @DeleteMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}")
+    @DeleteMapping("vrm/{id}/modeclasses/{modeclassid}/mode-trans/{transid}")
     @Operation(summary = "删除一个模式转换")
-    public HttpResult<Integer> delModeTrans(@PathVariable("transid")Integer transId){
+    public HttpResult<Integer> delModeTrans(@PathVariable("id") Integer systemId, @PathVariable("modeclassid")Integer denpdencyId,@PathVariable("transid")Integer transId){
         StateMachine sm = daoHandler.getDaoService(StateMachineService.class).getStateMachineById(transId);
         if(sm == null){
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
@@ -265,32 +264,6 @@ public class ModeClassController {
                 return new HttpResult<>(HttpCodeEnum.SUCCESS, sm.getStateMachineId());
         } else {
                 return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED,0);
-        }
-    }
-
-    @Resource
-    EventTableHandler eventTableHandler;
-    @PutMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}/table")
-    @Operation(summary = "将模式转换的表达式转换为表形式进行编辑")
-    public HttpResult<EventTable> modeTransToTable(String modeTrans){
-        try {
-            EventTable eventTable = eventTableHandler.ConvertStringToTable(modeTrans);
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, eventTable);
-        } catch (Exception e){
-            System.out.println(modeTrans);
-            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, e.getMessage(),null);
-        }
-    }
-
-    @PostMapping("vrm/{id}/modeclasses/{name}/mode-trans/{transid}/string")
-    @Operation(summary = "将表形式模式转换转换为表达式进行显示")
-    public HttpResult<String> modeTransToTable(EventTable modeTrans){
-        try {
-            String event = eventTableHandler.ConvertTableToString(modeTrans);
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, event);
-        } catch (Exception e){
-            System.out.println(modeTrans);
-            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, e.getMessage(),null);
         }
     }
 

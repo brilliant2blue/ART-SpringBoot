@@ -27,7 +27,7 @@ import java.util.List;
 public class ConceptItemController {
     @Resource
     DaoHandler daoHandler;
-    @GetMapping("vrm/{id}/vars/{name}")
+    @GetMapping("vrm/{id}/vars/{varid}")
     @Operation(summary = "获取一个变量",description = "根据变量名和系统编号获取一个变量信息(输入、输出、中间变量以及常量通用)")
     @Parameter(name = "name",description = "变量名")
     @Parameter(name = "id",description = "系统编号")
@@ -65,13 +65,14 @@ public class ConceptItemController {
         }
     }
 
-    @PostMapping("vrm/{id}/vars/{name}")
-    @Operation(summary = "插入一个变量信息",description = "插入一个新的变量，最好前端判断是否已经存在以及所需属性是否完整(输入、输出、中间变量以及常量通用)")
-    public HttpResult<Integer> newVariable(@RequestBody ConceptLibrary variable, @PathVariable("id") int systemId, @PathVariable("name") String name){
+    @PostMapping("vrm/{id}/vars")
+    @Operation(summary = "新建一个变量信息",description = "插入一个新的变量，最好前端判断是否已经存在以及所需属性是否完整(输入、输出、中间变量以及常量通用)")
+    @Parameter(name = "id", description = "项目号")
+    public HttpResult<Integer> newVariable(@RequestBody ConceptLibrary variable, @PathVariable("id") Integer systemId){
 //        if(variable.getConceptName() == null || variable.getConceptName() == "") {
 //            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"属性不完整",false);
 //        }
-        if(daoHandler.getDaoService(ConceptLibraryService.class).getConceptByNameandId(name, systemId)!= null ){
+        if(daoHandler.getDaoService(ConceptLibraryService.class).getConceptByNameandId(variable.getConceptName(), systemId)!= null ){
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, "同名资源已存在，请重新填写！",-1);
         }
         variable.setConceptId(null);
@@ -82,12 +83,12 @@ public class ConceptItemController {
         }
     }
 
-    @DeleteMapping("vrm/{id}/vars/{name}")
+    @DeleteMapping("vrm/{id}/vars/{varid}")
     @Operation(summary = "删除一个变量")
     @Parameter(name = "id", description = "系统id")
-    @Parameter(name = "name", description = "变量名")
-    public HttpResult<Integer> deleteVariable(@PathVariable("id") int systemId, @PathVariable("name") String name){
-        ConceptLibrary var = daoHandler.getDaoService(ConceptLibraryService.class).getConceptByNameandId(name,systemId);
+    @Parameter(name = "varid",description = "领域元素id")
+    public HttpResult<Integer> deleteVariable(@PathVariable("id") int systemId,  @PathVariable("varid")Integer varId){
+        ConceptLibrary var = daoHandler.getDaoService(ConceptLibraryService.class).getById(varId);
         if(var != null) {
             if (daoHandler.getDaoService(ConceptLibraryService.class).deleteConcept(var.getConceptId())) {
                 return new HttpResult<>(HttpCodeEnum.SUCCESS, var.getConceptId());
@@ -112,13 +113,13 @@ public class ConceptItemController {
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
         }
     }
-    @PostMapping("vrm/{id}/propernoun/{name}")
+    @PostMapping("vrm/{id}/propernoun")
     @Operation(summary = "新建专有名词")
-    public HttpResult<Integer> newProperNoun(@RequestBody ProperNoun properNoun,@PathVariable("id")Integer systemId, @PathVariable("name")String name){
+    public HttpResult<Integer> newProperNoun(@RequestBody ProperNoun properNoun,@PathVariable("id")Integer systemId){
 //        if(properNoun.getProperNounName() == null || properNoun.getProperNounName() =="") {
 //            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"属性不完整",false);
 //        }
-        if(daoHandler.getDaoService(ProperNounService.class).getProperNounByNameandId(name, systemId)!= null ){
+        if(daoHandler.getDaoService(ProperNounService.class).getProperNounByNameandId(properNoun.getProperNounName(), systemId)!= null ){
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST, "同名变量已存在，请重新填写！",-1);
         }
         properNoun.setProperNounId(null);   //防止主键冲突
@@ -152,12 +153,12 @@ public class ConceptItemController {
             return  new HttpResult<>(HttpCodeEnum.NOT_FOUND, -1);
         }
     }
-    @DeleteMapping("vrm/{id}/propernoun/{name}")
+    @DeleteMapping("vrm/{id}/propernoun/{itemid}")
     @Operation(summary = "删除一个专有名词")
     @Parameter(name = "id", description = "系统id")
-    @Parameter(name = "name", description = "变量名")
-    public HttpResult<Integer> deleteProperNoun(@PathVariable("id") int systemId, @PathVariable("name") String name){
-        ProperNoun var = daoHandler.getDaoService(ProperNounService.class).getProperNounByNameandId(name,systemId);
+    @Parameter(name = "itemid", description = "专有名词id")
+    public HttpResult<Integer> deleteProperNoun(@PathVariable("id") int systemId, @PathVariable("itemid") int id){
+        ProperNoun var = daoHandler.getDaoService(ProperNounService.class).getById(id);
         if(var != null) {
             if (daoHandler.getDaoService(ProperNounService.class).deleteProperNoun(var)) {
                 return new HttpResult<>(HttpCodeEnum.SUCCESS, var.getProperNounId());

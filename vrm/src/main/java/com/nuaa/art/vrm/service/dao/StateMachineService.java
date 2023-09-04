@@ -15,7 +15,7 @@ public interface StateMachineService extends IService<StateMachine> {
     List<StateMachine> listStateMachine();
     StateMachine getStateMachineById(Integer id);
     List<StateMachine> listStateMachineBySystemId(Integer systemId);
-    List<StateMachine> listStateMachineByDenpdencyandId(@Param("dependencyModeClass")String denpedencyModeClass, @Param("systemId")Integer systemId);
+    List<StateMachine> listStateMachineByDenpdencyId(Integer denpdencyId);
     boolean insertStateMachine(StateMachine stateMachine);
     boolean insertStateMachineList(@Param("stateMachineList")List<StateMachine> stateMachineList);
     boolean updateStateMachine(StateMachine stateMachine);

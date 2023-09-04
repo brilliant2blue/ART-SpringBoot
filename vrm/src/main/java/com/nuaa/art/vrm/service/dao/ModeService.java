@@ -16,7 +16,7 @@ public interface ModeService extends IService<Mode> {
     Mode getModeById(Integer id);
     Mode getModeByNameAndId(@Param("modeName") String name, @Param("systemId")Integer id);
     List<Mode> listModeBySystemId(Integer systemId);
-    List<Mode> listModeByNameandId(@Param("modeClassName")String name, @Param("systemId")Integer systemId);
+    List<Mode> listModeByClassId(@Param("modeClassId")Integer id);
     boolean insertMode(Mode mode);
     boolean insertModeList(@Param("modeList")List<Mode> modeList);
     boolean updateMode(Mode mode);

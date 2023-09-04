@@ -13,11 +13,11 @@ import java.util.List;
 */
 public interface StandardRequirementService extends IService<StandardRequirement> {
     List<StandardRequirement> listStandardRequirementBySystemId(Integer systemId);
-    List<StandardRequirement> listStandardRequirementByReqId(Integer id);
+    List<StandardRequirement> listStandardRequirementByReqIdAndSystemId(Integer systemId, Integer reqId);
     StandardRequirement getStandardRequirementById(Integer id);
     boolean insertStandardRequirement(StandardRequirement standardRequirement);
     boolean updateStandardRequirement(StandardRequirement standardRequirement);
-    boolean deleteStandardRequirement(Integer id);
-    boolean deleteOneStandardRequirement(@Param("nid")Integer nid, @Param("sid")Integer sid);
+    boolean deleteStandardRequirementByReqIdAndSystemId(Integer systemId, Integer reqId);
+    boolean deleteOneStandardRequirement(Integer sReqId);
     boolean deleteStandardRequirementBySystemId(@Param("sid")Integer sid);
 }
