@@ -3,6 +3,7 @@ package com.nuaa.art.vrm.service.handler.impl;
 
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.PathUtils;
+import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrm.common.utils.EntityXmlConvert;
 import com.nuaa.art.vrm.common.utils.VrmXml;
 import com.nuaa.art.vrm.entity.*;
@@ -20,6 +21,7 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -48,7 +50,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
      * @return {@link String} 导出文件名
      */
     @Override
-    public String createModel(Integer systemId) {
+    public VariableRealationModel createModel(Integer systemId) {
         VariableRealationModel vrm = (VariableRealationModel) createHandler.createModel(systemId);
 
         Document vrmDocument = DocumentHelper.createDocument();
@@ -138,7 +140,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
         String fileName = PathUtils.DefaultPath() + vrm.getSystem().getSystemName() + "model.xml";
 
         if(FileUtils.saveXML(vrmDocument,fileName)){
-            return fileName;
+            return vrm;
         } else {
             return null;
         }

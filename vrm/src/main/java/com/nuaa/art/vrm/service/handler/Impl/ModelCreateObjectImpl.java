@@ -10,6 +10,7 @@ import jakarta.annotation.Resource;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
