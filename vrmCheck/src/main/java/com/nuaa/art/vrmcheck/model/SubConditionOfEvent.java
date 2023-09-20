@@ -39,12 +39,12 @@ public class SubConditionOfEvent extends Condition{
      * @param continualRanges    整个事件的连续变量的值域
      * @param continualValues    整个事件的连续变量的关键值
      * @param discreteRanges     整个事件的离散变量的值域
-     * @param coder              整个事件的编码
+     * @param scenarioCorpusCoder              整个事件的编码
      */
     public SubConditionOfEvent(VRMOfXML vrmModel, ArrayList<ArrayList<NuclearCondition>>[] twoNuclearTrees,
                                ArrayList<String> continualVariables, ArrayList<String> discreteVariables,
                                ArrayList<ContinualRange> continualRanges, ArrayList<ArrayList<String>> continualValues,
-                               ArrayList<ArrayList<String>> discreteRanges, Coder coder) {
+                               ArrayList<ArrayList<String>> discreteRanges, ScenarioCorpusCoder scenarioCorpusCoder) {
         super();
         this.vrmModel = vrmModel;
         this.assignmentForEachRow = new ArrayList<String>();
@@ -56,7 +56,7 @@ public class SubConditionOfEvent extends Condition{
         this.continualRanges = continualRanges;
         this.nuclearTreeForEachRow.add(twoNuclearTrees[0]);
         this.nuclearTreeForEachRow.add(twoNuclearTrees[1]);
-        this.coder = coder;
+        this.scenarioCorpusCoder = scenarioCorpusCoder;
         scenariosCode = new ArrayList<ArrayList<Long>>();
     }
 
@@ -104,7 +104,7 @@ public class SubConditionOfEvent extends Condition{
         ArrayList<Long> scenarioCollectionSingle = new ArrayList<Long>(); //
         for (int j = 0; j < scenarioCollection.size(); j++) {
             long code = scenarioCollection.get(j);
-            Scenario thisScenario = coder.decode(code); //解码场景
+            Scenario thisScenario = scenarioCorpusCoder.decode(code); //解码场景
             //System.out.println("oldState:" + code);
             ArrayList<Integer> inconsidered = new ArrayList<Integer>();
             for (int i = 0; i < thisScenario.scenario.length; i++) {
@@ -112,7 +112,7 @@ public class SubConditionOfEvent extends Condition{
                     inconsidered.add(i);
                 }
             }
-            scenarioCollectionSingle = coder.appendInconsidered(scenarioCollectionSingle, code, inconsidered);
+            scenarioCollectionSingle = scenarioCorpusCoder.appendInconsidered(scenarioCollectionSingle, code, inconsidered);
         }
         return scenarioCollectionSingle;
 
@@ -173,17 +173,17 @@ public class SubConditionOfEvent extends Condition{
                         if (isSetForEachVariable[i]) {
                             int previousCount = thisAndTreeScenarios.size();
                             for (int j = 0; j < previousCount; j++) {
-                                Scenario thisScenario = coder.decode(thisAndTreeScenarios.get(j));
+                                Scenario thisScenario = scenarioCorpusCoder.decode(thisAndTreeScenarios.get(j));
                                 boolean isFirstSet = false;
                                 for (Integer value : valuesForEachVariable[i]) {
                                     if (!isFirstSet) {
                                         thisScenario.scenario[i] = value.intValue();
                                         isFirstSet = true;
-                                        thisAndTreeScenarios.set(j, coder.encode(thisScenario));
+                                        thisAndTreeScenarios.set(j, scenarioCorpusCoder.encode(thisScenario));
                                     } else {
                                         Scenario newScenario = new Scenario(thisScenario);
                                         newScenario.scenario[i] = value.intValue();
-                                        thisAndTreeScenarios.add(coder.encode(newScenario));
+                                        thisAndTreeScenarios.add(scenarioCorpusCoder.encode(newScenario));
                                     }
                                 }
                             }

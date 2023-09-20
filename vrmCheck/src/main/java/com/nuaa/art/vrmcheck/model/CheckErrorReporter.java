@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckErrorReporter {
-    public String ModelName = "";
+    public String modelName = "";
     public Integer errorCount = 0;
 
     /**
@@ -21,7 +21,7 @@ public class CheckErrorReporter {
     /**
      * 模式转换表正确
      */
-    boolean isModeConvertRight = true;
+    boolean isModeTransRight = true;
 
     /**
      * 输出完整性正确
@@ -31,11 +31,11 @@ public class CheckErrorReporter {
     List<CheckErrorInfo> errorList = new ArrayList<>();
 
     public String getModelName() {
-        return ModelName;
+        return modelName;
     }
 
     public void setModelName(String modelName) {
-        ModelName = modelName;
+        this.modelName = modelName;
     }
 
     public void setErrorCount(Integer errorCount) {
@@ -82,12 +82,12 @@ public class CheckErrorReporter {
         isEventRight = eventRight;
     }
 
-    public boolean isModeConvertRight() {
-        return isModeConvertRight;
+    public boolean isModeTransRight() {
+        return isModeTransRight;
     }
 
-    public void setModeConvertRight(boolean modeConvertRight) {
-        isModeConvertRight = modeConvertRight;
+    public void setModeTransRight(boolean modeTransRight) {
+        isModeTransRight = modeTransRight;
     }
 
     public boolean isOutputIntegrityRight() {
@@ -117,7 +117,7 @@ public class CheckErrorReporter {
                 ", isInputIntegrityRight=" + isInputIntegrityRight +
                 ", isConditionRight=" + isConditionRight +
                 ", isEventRight=" + isEventRight +
-                ", isModeConvertRight=" + isModeConvertRight +
+                ", isModeTransRight=" + isModeTransRight +
                 ", isOutputIntegrityRight=" + isOutputIntegrityRight +
                 ", errorList=" + errorList +
                 '}';

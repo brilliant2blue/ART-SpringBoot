@@ -1,16 +1,14 @@
-package com.nuaa.art.vrm.service.handler.impl;
+package com.nuaa.art.vrm.common.utils;
 
 import com.nuaa.art.vrm.model.EventItem;
 import com.nuaa.art.vrm.model.EventTable;
-import com.nuaa.art.vrm.service.handler.ConditionTableHandler;
-import com.nuaa.art.vrm.service.handler.EventTableHandler;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EventTableHandlerImpl implements EventTableHandler {
+public class EventTableUtils {
     @Resource
-    ConditionTableHandler conditionTableHandler;
+    ConditionTableUtils conditionTableUtils;
 
     /**
      * 将合法的事件表转换为表达式字符串
@@ -18,15 +16,20 @@ public class EventTableHandlerImpl implements EventTableHandler {
      * @param eventTable 条件表
      * @return {@link String}
      */
-    @Override
+
     public String ConvertTableToString(EventTable eventTable) {
+        if ((eventTable.getAndNum() == 0) || (eventTable.getAndNum() == 1 &&
+                eventTable.getEvents().get(0).getEventOperator().isBlank() &&
+                eventTable.getEvents().get(0).getGuardOperator().isBlank() )){
+            return "never";
+        }
         String eventResult = "";
         for (int i = 0; i < eventTable.getAndNum(); i++) { //循环读取每一行事件
             String result = "";
             if(!eventTable.getEvents().get(i).getEventOperator().equals("")
                     && eventTable.getEvents().get(i).getEventCondition() != null) {
                 result += eventTable.getEvents().get(i).getEventOperator();
-                String events = conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getEventCondition());
+                String events = conditionTableUtils.ConvertTableToString(eventTable.getEvents().get(i).getEventCondition());
                 if (events.contains("true")||eventTable.getEvents().get(i).getEventCondition().getOrNum() > 1) {
                     result += "(" + events + ")";
                 }
@@ -37,7 +40,7 @@ public class EventTableHandlerImpl implements EventTableHandler {
             if(!eventTable.getEvents().get(i).getGuardOperator().equals("")
                     && eventTable.getEvents().get(i).getGuardCondition() != null) {
                 result += eventTable.getEvents().get(i).getGuardOperator();
-                String guards = conditionTableHandler.ConvertTableToString(eventTable.getEvents().get(i).getGuardCondition());
+                String guards = conditionTableUtils.ConvertTableToString(eventTable.getEvents().get(i).getGuardCondition());
                 if (guards.contains("true") || eventTable.getEvents().get(i).getGuardCondition().getOrNum() > 1) {
                     result += "(" + guards + ")";
                 }
@@ -62,9 +65,14 @@ public class EventTableHandlerImpl implements EventTableHandler {
      * @param event 条件
      * @return {@link EventTable}
      */
-    @Override
     public EventTable ConvertStringToTable(String event) {
         EventTable eventResult = new EventTable();
+        if(event.isBlank()||event.equalsIgnoreCase("never")){
+            EventItem subEvent = new EventItem();
+            eventResult.getEvents().add(subEvent);
+            eventResult.setAndNum(1);
+            return eventResult;
+        }
         String[] events = event.split("}&&\\{");
         eventResult.setAndNum(events.length);
 
@@ -104,11 +112,11 @@ public class EventTableHandlerImpl implements EventTableHandler {
             } else if (singleEvent.contains("WHEN")) {
                 eventCondition = singleEvent.substring(2, singleEvent.indexOf("WHEN")).replace("(", "")
                         .replace(")", "");
-                System.out.println(eventCondition);
+                //System.out.println(eventCondition);
                 guardOp = "WHEN";
                 guardCondition = singleEvent.substring(singleEvent.indexOf("WHEN") + 4).replace("(", "")
                         .replace(")", "");
-                System.out.println(guardCondition);
+                //System.out.println(guardCondition);
             } else if (singleEvent.contains("WHILE")) {
                 eventCondition = singleEvent.substring(2, singleEvent.indexOf("WHILE")).replace("(", "")
                         .replace(")", "");
@@ -119,14 +127,18 @@ public class EventTableHandlerImpl implements EventTableHandler {
             } else {
                 eventCondition = singleEvent.substring(2).replace("(", "")
                         .replace(")", "");
-                System.out.println(eventCondition);
+                //System.out.println(eventCondition);
             }
 
             EventItem subEvent = new EventItem();
             subEvent.setEventOperator(eventOp);
-            subEvent.setEventCondition(conditionTableHandler.ConvertStringToTable(eventCondition));
             subEvent.setGuardOperator(guardOp);
-            subEvent.setGuardCondition(conditionTableHandler.ConvertStringToTable(guardCondition));
+            try {
+                subEvent.setEventCondition(conditionTableUtils.ConvertStringToTable(eventCondition));
+                subEvent.setGuardCondition(conditionTableUtils.ConvertStringToTable(guardCondition));
+            } catch (Exception e){
+                throw new RuntimeException("condition");
+            }
             eventResult.getEvents().add(subEvent);
         }
         return eventResult;

@@ -8,6 +8,7 @@ import java.util.Arrays;
  * @author konsin
  * @date 2023/06/12
  */
+// todo bug是如果变量的取值就是0，那么会认为这个值是空的，从而不会生成对应场景。
 public class Scenario {
     public int[] scenario;
     public int variableNumber;

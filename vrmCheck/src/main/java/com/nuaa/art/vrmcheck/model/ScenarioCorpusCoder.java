@@ -3,21 +3,21 @@ package com.nuaa.art.vrmcheck.model;
 import java.util.ArrayList;
 
 /**
- * 编码器 用于场景编码和解码的类
+ * 编码器 用于场景编码和解码的类。 实现场景全集的压缩存储
  *
  * @author konsin
  * @date 2023/06/12
  */
-public class Coder {
+public class ScenarioCorpusCoder {
     public int variableNumber;
 
-    public int[] variableRanges;
+    public int[] variableRanges; //离散化的值域大小。对于下标i，表示第i个变量的值域大小
 
     public long[] weights;
 
     public long codeLimit;
 
-    public Coder(int variableNumber, int[] variableRanges) {
+    public ScenarioCorpusCoder(int variableNumber, int[] variableRanges) {
         this.variableNumber = variableNumber;
         this.variableRanges = new int[variableNumber];
         weights = new long[variableNumber];
@@ -73,7 +73,7 @@ public class Coder {
         for (int i = 0; i < inconsidered.size(); i++) {
             inconsideredRanges[i] = variableRanges[inconsidered.get(i).intValue()] - 2;
         }
-        Coder c = new Coder(inconsidered.size(), inconsideredRanges);
+        ScenarioCorpusCoder c = new ScenarioCorpusCoder(inconsidered.size(), inconsideredRanges);
         for (long l = 0; l < c.codeLimit; l++) {
             Scenario s = c.decode(l);
             long newCode = code;

@@ -7,13 +7,10 @@ import com.nuaa.art.common.model.HttpResult;
 import com.nuaa.art.vrm.entity.Mode;
 import com.nuaa.art.vrm.entity.ModeClass;
 import com.nuaa.art.vrm.entity.StateMachine;
-import com.nuaa.art.vrm.model.EventTable;
 import com.nuaa.art.vrm.service.dao.*;
-import com.nuaa.art.vrm.service.handler.EventTableHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 

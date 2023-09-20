@@ -8,8 +8,8 @@ import com.nuaa.art.vrm.model.EventTable;
 import com.nuaa.art.vrm.model.VRMOfXML;
 import com.nuaa.art.vrm.service.dao.ModeService;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
-import com.nuaa.art.vrm.service.handler.ConditionTableHandler;
-import com.nuaa.art.vrm.service.handler.EventTableHandler;
+import com.nuaa.art.vrm.common.utils.ConditionTableUtils;
+import com.nuaa.art.vrm.common.utils.EventTableUtils;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
 import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
 import com.nuaa.art.vrmcheck.service.*;
@@ -51,11 +51,11 @@ public class TestController {
     }
 
     @Resource(name = "conditionForTable")
-    ConditionTableHandler conditionTableHandler;
+    ConditionTableUtils conditionTableUtils;
     @PostMapping("/test/and-or-condition")
     public String tcs(@RequestBody ConditionTable c){
         System.out.println(c.toString());
-        String res =  conditionTableHandler.ConvertTableToString(c);
+        String res =  conditionTableUtils.ConvertTableToString(c);
         System.out.println(res);
         return res;
     }
@@ -63,15 +63,15 @@ public class TestController {
     @GetMapping("/test/and-or-condition")
     public ConditionTable tsc(String s){
         System.out.println(s);
-        return conditionTableHandler.ConvertStringToTable(s);
+        return conditionTableUtils.ConvertStringToTable(s);
     }
 
     @Resource
-    EventTableHandler eventTableHandler;
+    EventTableUtils eventTableUtils;
     @PostMapping("/test/event")
     public String tes(@RequestBody EventTable c){
         System.out.println(c.toString());
-        String res =  eventTableHandler.ConvertTableToString(c);
+        String res =  eventTableUtils.ConvertTableToString(c);
         System.out.println(res);
         return res;
     }
@@ -79,7 +79,7 @@ public class TestController {
     @GetMapping("/test/event")
     public EventTable tse(String s){
         System.out.println(s);
-        return eventTableHandler.ConvertStringToTable(s);
+        return eventTableUtils.ConvertStringToTable(s);
     }
 
 

@@ -1,8 +1,7 @@
-package com.nuaa.art.vrm.service.handler.impl;
+package com.nuaa.art.vrm.common.utils;
 
 import com.nuaa.art.vrm.model.ConditionItem;
 import com.nuaa.art.vrm.model.ConditionTable;
-import com.nuaa.art.vrm.service.handler.ConditionTableHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,17 +14,25 @@ import java.util.List;
  * @date 2023/07/02
  */
 @Service("conditionForTable")
-public class ConditionTableHandlerForTable implements ConditionTableHandler {
+public class ConditionTableUtils {
     /**
      * 条件AndOr表转换为表达式字符串
      *
      * @param conditionTable 条件表
      * @return {@link String}
      */
-    @Override
+
     public String ConvertTableToString(ConditionTable conditionTable) {
+        /* 判断条件是否为永真永假
+         * 永真则表为空，或者有一个原子条件和Or列，但是原子条件为空，OR为 T
+         * 永假则有一个原子条件和Or列，但是原子条件为空，OR为 F
+         */
         if (conditionTable.getAndNum() == 0 && conditionTable.getOrNum() == 0) {
             return "true";
+        } else if(conditionTable.getAndNum() == 1 && conditionTable.getOrNum() == 1 && conditionTable.getConditionItems().get(0).isEmpty()){
+            String OR = conditionTable.getOrList().get(0).get(0);
+            if(OR.equals("T")|| OR.equals(".")) return "true";
+            else return "false";
         }
         String condition = "";
         ArrayList<String> headList = new ArrayList<String>();
@@ -86,11 +93,25 @@ public class ConditionTableHandlerForTable implements ConditionTableHandler {
      * @param condition 条件
      * @return {@link ConditionTable}
      */
-    @Override
+
     public ConditionTable ConvertStringToTable(String condition) {
         ConditionTable conditionTable = new ConditionTable();
         //System.out.println("完整的条件语句:   " + condition);
         if (condition.equalsIgnoreCase("true") || condition.equalsIgnoreCase("")) {
+            conditionTable.getConditionItems().add(new ConditionItem());
+            conditionTable.addAndNum();
+            conditionTable.setOrNum(1);
+            ArrayList<String> orList = new ArrayList<>();
+            orList.add("T");
+            conditionTable.getOrList().add(orList);
+            return conditionTable;
+        } else if (condition.equalsIgnoreCase("false")) {
+            conditionTable.getConditionItems().add(new ConditionItem());
+            conditionTable.addAndNum();
+            conditionTable.setOrNum(1);
+            ArrayList<String> orList = new ArrayList<>();
+            orList.add("F");
+            conditionTable.getOrList().add(orList);
             return conditionTable;
         }
 

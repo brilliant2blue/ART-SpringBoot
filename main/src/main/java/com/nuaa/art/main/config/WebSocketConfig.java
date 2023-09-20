@@ -11,14 +11,16 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
+    //WebSocket操作类的生成
     WebSocketHandler WebSocketHandler() {
         return new WebSocketHandler();
     }
 
+    // 拦截器生成
     WebSocketInterceptor WebSocketInterceptor() {
         return new WebSocketInterceptor();
     }
-
+    // 配置注册
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(WebSocketHandler(), "/console")

@@ -37,6 +37,7 @@ public class VariableRealationModel {
         this.inputs = new ArrayList<>();
         this.terms = new ArrayList<>();
         this.outputs = new ArrayList<>();
+        this.constants = new ArrayList<>();
         this.conditions = new ArrayList<>();
         this.events = new ArrayList<>();
         this.modeClass = new ArrayList<>();

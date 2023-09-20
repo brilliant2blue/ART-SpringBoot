@@ -9,18 +9,15 @@ public class VariableUtils {
     public static void sortContinualValues( ArrayList<ArrayList<String>> continualValues) {
         for (int i = 0; i < continualValues.size(); i++) {
             ArrayList<String> thisContinualValues = continualValues.get(i);
-            Collections.sort(thisContinualValues, new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    float fo1 = Float.parseFloat(o1);
-                    float fo2 = Float.parseFloat(o2);
-                    if (fo1 > fo2)
-                        return 1;
-                    else if (fo1 == fo2)
-                        return 0;
-                    else
-                        return -1;
-                }
+            thisContinualValues.sort((o1, o2) -> {
+                Double fo1 = Double.parseDouble(o1);
+                Double fo2 = Double.parseDouble(o2);
+                if (fo1 > fo2)
+                    return 1;
+                else if (fo1.equals(fo2))
+                    return 0;
+                else
+                    return -1;
             });
             continualValues.set(i, thisContinualValues);
         }

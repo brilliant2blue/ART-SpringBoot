@@ -120,6 +120,11 @@ public class ModelCreateObjectImpl implements ModelCreateHandler {
         if (modelXML != null) {
             root = modelXML.getRootElement();
         }
+
+        Element sysNode = root.element("lastSaved");
+        model.getSystem().setSystemName(sysNode.elementText("name"));
+        model.setDate(sysNode.elementText("date"));
+
         Element typesNode = root.element("types");
         List<Element> typeList = typesNode.elements("type");
         for(Element item : typeList){
@@ -146,7 +151,7 @@ public class ModelCreateObjectImpl implements ModelCreateHandler {
         Element outputsNode = root.element("outputs");
         List<Element> outputs = outputsNode.elements("output");
         for(Element item : outputs) {
-            model.getInputs().add(vrmTool.Input(item));
+            model.getOutputs().add(vrmTool.Output(item));
         }
 
         Element tablesNode = root.element("tables");

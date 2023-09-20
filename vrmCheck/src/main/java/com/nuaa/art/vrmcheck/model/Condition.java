@@ -23,7 +23,7 @@ public class Condition {
     public ArrayList<String> outputRanges;// 关联变量的值域
     public ArrayList<HashSet<Integer>> outputForEachState;// 每个场景对应的输出值号
     public int[] variableRanges;
-    public Coder coder;
+    public ScenarioCorpusCoder scenarioCorpusCoder;
 
 
 
@@ -33,11 +33,11 @@ public class Condition {
         this.vrmModel = vrmModel;
 
         getConditionInformation(conditionsForEachRow, assignmentForEachRow);
-        this.coder = new Coder(this.continualVariables.size() + this.discreteVariables.size(), this.variableRanges);
+        this.scenarioCorpusCoder = new ScenarioCorpusCoder(this.continualVariables.size() + this.discreteVariables.size(), this.variableRanges);
 
         this.outputForEachState = new ArrayList<HashSet<Integer>>();
-        for (long l = 0; l < coder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
-            if (!coder.decode(l).containsZero())
+        for (long l = 0; l < scenarioCorpusCoder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
+            if (!scenarioCorpusCoder.decode(l).containsZero())
                 this.outputForEachState.add(new HashSet<Integer>());
             else
                 this.outputForEachState.add(null);
@@ -59,11 +59,11 @@ public class Condition {
 
         getConditionInformation(conditionsForEachRow, assignmentForEachRow);
 
-        this.coder = new Coder(this.continualVariables.size() + this.discreteVariables.size(), this.variableRanges);
+        this.scenarioCorpusCoder = new ScenarioCorpusCoder(this.continualVariables.size() + this.discreteVariables.size(), this.variableRanges);
 
         this.outputForEachState = new ArrayList<HashSet<Integer>>();
-        for (long l = 0; l < coder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
-            if (!coder.decode(l).containsZero())
+        for (long l = 0; l < scenarioCorpusCoder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
+            if (!scenarioCorpusCoder.decode(l).containsZero())
                 this.outputForEachState.add(new HashSet<Integer>());
             else
                 this.outputForEachState.add(null);
@@ -199,8 +199,8 @@ public class Condition {
                 }
             }
             for (Scenario thisScenario : scenarioCollection) {
-                for (long l = 0; l < coder.codeLimit; l++) {
-                    Scenario s = coder.decode(l);
+                for (long l = 0; l < scenarioCorpusCoder.codeLimit; l++) {
+                    Scenario s = scenarioCorpusCoder.decode(l);
                     if (!s.containsZero() && s.almostEquals(thisScenario))
                         outputForEachState.get((int) l).add(outputRanges
                                 .indexOf(assignmentForEachRow.get(nuclearTreeForEachRow.indexOf(orTree))));

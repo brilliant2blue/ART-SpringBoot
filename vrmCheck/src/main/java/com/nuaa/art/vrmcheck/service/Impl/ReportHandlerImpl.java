@@ -1,6 +1,7 @@
 package com.nuaa.art.vrmcheck.service.impl;
 
 import com.nuaa.art.common.utils.FileUtils;
+import com.nuaa.art.common.utils.ListUtils;
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.vrm.entity.SystemProject;
@@ -155,10 +156,7 @@ public class ReportHandlerImpl implements ReportHandler {
         error.addElement("relateType").addText(e.getRelateType());
         error.addElement("relateItem").addText(e.getRelateName());
 
-        String reqId = "";
-        for (Integer id: e.getRequirementId()) {
-            reqId += id.toString() + ",";
-        }
+        String reqId = ListUtils.NumArrayToString(e.getRequirementId());
 
         error.addElement("relateReq").addText(reqId);
 
@@ -168,13 +166,10 @@ public class ReportHandlerImpl implements ReportHandler {
     }
 
     public CheckErrorInfo checkErrorInfoFromXml(Element error){
-        List<Integer> reqId = new ArrayList<>();
+        List<Integer> reqId =  ListUtils.StringToNumArray(error.element("relateReq").getText());
         //System.out.println(Collections.singletonList(error.element("relateReq").getText()));
-        for (String s : Collections.singletonList(error.element("relateReq").getText())){
-            if(s!=""){
-                reqId.add(Integer.valueOf(s));
-            }
-        }
+
+
         return new CheckErrorInfo(
                 Integer.valueOf(error.elementText("id")),
                 Integer.valueOf(error.elementText("typeId")),

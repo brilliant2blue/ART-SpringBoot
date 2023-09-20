@@ -25,7 +25,7 @@ public class Event {
     public ArrayList<ArrayList<ArrayList<Long>[]>> timeScenarios;// 每行事件的每个AND事件的两个条件对应的场景集合
     public ArrayList<ArrayList<Long>[]> scenarios;// 每行事件对应两个前后场景集合
     public int[] variableRanges;
-    public Coder coder;// 编码器
+    public ScenarioCorpusCoder scenarioCorpusCoder;// 编码器
 
     // 构造方法，基于事件列表和各事件的输出值作为参数，用于事件分析，此处调用了条件转换器的构造方法1，复用那部分代码生成条件的原子命题树
     public Event(VRMOfXML vrmModel, ArrayList<String> eventsForEachRow, ArrayList<String> assignmentForEachRow) {
@@ -143,7 +143,7 @@ public class Event {
         // 生成全体关键变量的离散化值域
         variableRanges = VariableUtils.rangeDiscretization(continualVariables.size(), discreteVariables.size(), continualValues, discreteRanges);
         //生成场景编码器
-        coder = new Coder(variableNumber, variableRanges);
+        scenarioCorpusCoder = new ScenarioCorpusCoder(variableNumber, variableRanges);
     }
 
     // 将事件内的每个@C类AND分解为各一个@T类和@F类，并复制一次该事件
@@ -219,7 +219,7 @@ public class Event {
             ArrayList<ArrayList<Long>[]> timeStatesForThisRow = new ArrayList<ArrayList<Long>[]>();
             for (ArrayList<ArrayList<NuclearCondition>>[] nuclearTreeForThisAnd : nuclearTreeForThisRow) {
                 SubConditionOfEvent cp = new SubConditionOfEvent(vrmModel, nuclearTreeForThisAnd, continualVariables,
-                        discreteVariables, continualRanges, continualValues, discreteRanges, coder);
+                        discreteVariables, continualRanges, continualValues, discreteRanges, scenarioCorpusCoder);
                 cp.parseConditionIntoScenarios();
                 ArrayList<Long>[] timeStatesForThisAnd = new ArrayList[2];
                 timeStatesForThisAnd[0] = cp.scenariosCode.get(0);
@@ -246,9 +246,9 @@ public class Event {
                 // wholeCollection.add(wholeState);
                 // wholeCollection = appendInconsidered(wholeCollection);
                 ArrayList<Long> complementaryOfCollectionOne = new ArrayList<Long>();
-                for (long l = 0; l < coder.codeLimit; l++) {
+                for (long l = 0; l < scenarioCorpusCoder.codeLimit; l++) {
                     boolean isZeroIn = false;
-                    Scenario thisScenario = coder.decode(l);
+                    Scenario thisScenario = scenarioCorpusCoder.decode(l);
                     for (int k = 0; k < thisScenario.variableNumber; k++) {
                         if (thisScenario.scenario[k] == 0)
                             isZeroIn = true;

@@ -27,7 +27,7 @@ public class EventHandlerOfXML implements EventHandler {
                         if (!assignmentOne.equals(assignmentTwo)) {
                             for (int l = 0; l < collectionOne[0].size(); l++) {
                                 if (collectionTwo[0].contains(collectionOne[0].get(l))) {
-                                    Scenario scenario = e.coder.decode(collectionOne[0].get(l));
+                                    Scenario scenario = e.scenarioCorpusCoder.decode(collectionOne[0].get(l));
                                     ConcreteScenario thisConcreteScenarioOne = new ConcreteScenario(
                                             e.continualVariables.size() + e.discreteVariables.size());
                                     for (int k = 0; k < e.continualVariables.size() + e.discreteVariables.size(); k++) {
@@ -60,7 +60,7 @@ public class EventHandlerOfXML implements EventHandler {
                             }
                             for (int l = 0; l < collectionOne[1].size(); l++) {
                                 if (collectionTwo[1].contains(collectionOne[1].get(l))) {
-                                    Scenario scenario = e.coder.decode(collectionOne[1].get(l));
+                                    Scenario scenario = e.scenarioCorpusCoder.decode(collectionOne[1].get(l));
                                     ConcreteScenario thisConcreteScenarioTwo = new ConcreteScenario(
                                             e.continualVariables.size() + e.discreteVariables.size());
                                     for (int k = 0; k < e.continualVariables.size() + e.discreteVariables.size(); k++) {

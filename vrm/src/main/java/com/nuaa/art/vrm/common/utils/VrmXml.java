@@ -111,7 +111,7 @@ public class VrmXml extends EntityXmlConvert {
 
     public ConceptLibrary Input(Element inputEle) {
         ConceptLibrary iv = new ConceptLibrary();
-        iv.setConceptName(inputEle.elementText("name"));
+        iv.setConceptName(inputEle.attributeValue("name"));
         iv.setConceptDatatype(inputEle.elementText("inputType"));
         iv.setConceptValue(inputEle.elementText("initialValue"));
         iv.setConceptAccuracy(inputEle.elementText("accuracy"));
@@ -167,7 +167,7 @@ public class VrmXml extends EntityXmlConvert {
 
     public ConceptLibrary Term(Element termEle) {
         ConceptLibrary tv = new ConceptLibrary();
-        tv.setConceptName(termEle.elementText("name"));
+        tv.setConceptName(termEle.attributeValue("name"));
         tv.setConceptDatatype(termEle.elementText("termType"));
         tv.setConceptValue(termEle.elementText("initialValue"));
         tv.setConceptAccuracy(termEle.elementText("accuracy"));
@@ -221,9 +221,19 @@ public class VrmXml extends EntityXmlConvert {
         return output;
     }
 
+    public ConceptLibrary Output(Element outputEle) {
+        ConceptLibrary tv = new ConceptLibrary();
+        tv.setConceptName(outputEle.attributeValue("name"));
+        tv.setConceptDatatype(outputEle.elementText("outputType"));
+        tv.setConceptValue(outputEle.elementText("initialValue"));
+        tv.setConceptAccuracy(outputEle.elementText("accuracy"));
+        tv.setConceptRange(outputEle.elementText("range"));
+        tv.setSourceReqId(ListUtils.StringToNumArray(outputEle.elementText("relateReq")));
+        return tv;
+    }
     public ConceptLibrary XMLToOutput(Element outputEle) {
         ConceptLibrary ov = new ConceptLibrary();
-        ov.setConceptName(outputEle.elementText("name"));
+        ov.setConceptName(outputEle.attributeValue("name"));
         ov.setConceptDatatype(outputEle.elementText("outputType"));
         ov.setConceptValue(outputEle.elementText("initialValue"));
         ov.setConceptAccuracy(outputEle.elementText("accuracy"));
@@ -261,21 +271,13 @@ public class VrmXml extends EntityXmlConvert {
             //添加conditionTable节点row
             Element row = conditionTable.addElement("row");
             Element assignment = row.addElement("assignment");
-            if (standardReq.getAssignment() != null) {
-                assignment.setText(standardReq.getAssignment());
-            }
+            assignment.setText(standardReq.getAssignment()+ "");
             Element condition = row.addElement("condition");
-            if (standardReq.getDetails() != null) {
-                condition.setText(standardReq.getDetails());
-            }
+            condition.setText(standardReq.getDetails()+ "");
             Element state = row.addElement("state");
-            if (standardReq.getMode() != null) {
-                state.setText(standardReq.getMode());
-            }
+            state.setText(standardReq.getMode()+ "");
             Element relateSReq = row.addElement("relateSReq");
-            if (standardReq.getRelateReq() != null) {
-                relateSReq.setText(standardReq.getRelateReq() + "");
-            }
+            relateSReq.setText(standardReq.getRelateReq() + "");
         }
 
         //添加table属性 tableVariableType
@@ -303,9 +305,10 @@ public class VrmXml extends EntityXmlConvert {
 
     public TableOfVRM Condition(Element table) {
         TableOfVRM con = new TableOfVRM();
-        con.setName(table.attributeValue("name"));
-
         ConceptLibrary var = new ConceptLibrary();
+        con.setName(table.attributeValue("name"));
+        var.setConceptName(table.attributeValue("name"));
+
         ArrayList<TableRow> rowList = new ArrayList<>();
 
         if (table.attributeValue("isOutput").equals("1")) {
@@ -383,22 +386,14 @@ public class VrmXml extends EntityXmlConvert {
             //添加conditionTable节点row
             Element row = eventTable.addElement("row");
             Element assignment = row.addElement("assignment");
-            if (standardReq.getAssignment() != null) {
-                assignment.setText(standardReq.getAssignment());
-            }
+            assignment.setText(standardReq.getAssignment()+ "");
             Element event = row.addElement("event");
-            if (standardReq.getDetails() != null) {
-                event.setText(standardReq.getDetails());
-            }
+            event.setText(standardReq.getDetails()+ "");
             Element state = row.addElement("state");
-            if (standardReq.getMode() != null) {
-                state.setText(standardReq.getMode());
-            }
+            state.setText(standardReq.getMode() + "");
             // 对应的自然语言需求 excelId
             Element relateSReq = row.addElement("relateSReq");
-            if (standardReq.getRelateReq() != null) {
-                relateSReq.setText(standardReq.getRelateReq() + "");
-            }
+            relateSReq.setText(standardReq.getRelateReq() + "");
         }
 
         //添加table属性 tableVariableType
@@ -426,9 +421,10 @@ public class VrmXml extends EntityXmlConvert {
 
     public TableOfVRM Event(Element table) {
         TableOfVRM ent = new TableOfVRM();
-        ent.setName(table.attributeValue("name"));
-
         ConceptLibrary var = new ConceptLibrary();
+        ent.setName(table.attributeValue("name"));
+        var.setConceptName(table.attributeValue("name"));
+
         ArrayList<TableRow> rowList = new ArrayList<>();
 
         if (table.attributeValue("isOutput").equals("1")) {

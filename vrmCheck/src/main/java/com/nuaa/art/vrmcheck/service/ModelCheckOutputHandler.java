@@ -5,7 +5,7 @@ import com.nuaa.art.vrm.model.VRMOfXML;
 
 public interface ModelCheckOutputHandler {
     /**
-     * 检查事件表输出完整性
+     * 检查条件表输出完整性
      *
      * @param vrmModel      vrm模型
      * @param errorReporter 错误报告

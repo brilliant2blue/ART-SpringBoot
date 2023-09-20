@@ -76,7 +76,7 @@ public class ModelCheckConditionOfXML implements ModelCheckConditionHandler {
                     Condition rcp = new Condition(
                             vrmModel, conditionForEachRow, behaviorForEachRow, outputRanges);
                     rcp.parseConditionIntoScenarios();
-                    String variableSet = OutputUtils.getVariableSetHeader(rcp.continualVariables, rcp.discreteVariables);;
+                    String variableSet = OutputUtils.getVariableSetHeader(rcp.continualVariables, rcp.discreteVariables);
 
                     ArrayList<ConditionConsistencyError> cceList = conditionHandler.findConsistencyError(rcp);
 

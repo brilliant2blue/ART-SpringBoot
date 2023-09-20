@@ -41,19 +41,27 @@ public class ModelController {
 
     @GetMapping("vrm/{id}/model/object")
     @Operation(summary = "读取本地文件生成模型")
-    public HttpResult<VariableRealationModel> read(@PathVariable(value = "id") Integer systemId, @RequestParam(value = "filename", required = false)String fileName){
+    public HttpResult read(@PathVariable(value = "id") Integer systemId, @RequestParam(value = "filename", required = false)String fileName){
         try {
             SystemProject system = systemProject.getSystemProjectById(systemId);
             if(fileName == null || fileName.isBlank()){
                 fileName = PathUtils.DefaultPath() + system.getSystemName() + "model.xml";
             }
-            VariableRealationModel vrm = (VariableRealationModel) modelObjectCreate.modelFile(systemId, fileName);
-            return HttpResult.success(vrm);
+            readLocal(systemId, fileName);
+            return HttpResult.success();
         } catch (Exception e){
             e.printStackTrace();
             return HttpResult.fail("模型生成失败");
         }
     }
+    @Async("AsyncTask")
+    public void readLocal(Integer systemId, String fileName) throws IOException {
+        webSocketService.sendMsg(SocketMessage.asText("解析模型文件中"));
+        VariableRealationModel vrm = (VariableRealationModel) modelObjectCreate.modelFile(systemId, fileName);
+        webSocketService.sendMsg(SocketMessage.asObject("vrm-model", vrm));
+    }
+
+
     @GetMapping("vrm/{id}/model/file")
     @Operation(summary = "检查本地模型是否存在")
     public HttpResult<String> exist(@PathVariable(value = "id") Integer systemId){

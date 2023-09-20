@@ -1,5 +1,6 @@
 package com.nuaa.art.common.websocket;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.ServletUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
@@ -31,15 +32,21 @@ public class WebSocketService {
         session.sendMessage(msg);
     }
 
-    public <T> void sendMsg(T msg) throws IOException {
-        String user = ServletUtils.getRequest().getParameter("user");
-        //LogUtils.info(user);
-        WebSocketSession session = WebSocketSessionManager.get(user);
-        if(msg instanceof String){
-            sendMsg(session, (String)msg);
-        }
-        if(msg instanceof  TextMessage){
-            sendMsg(session, (TextMessage)msg);
+    public <T> void sendMsg(T msg) {
+        try {
+            String user = ServletUtils.getRequest().getParameter("user");
+            LogUtils.info("对连接发送消息：" + user);
+            System.out.println(ServletUtils.getRequest().getRequestURL());
+            //LogUtils.info(user);
+            WebSocketSession session = WebSocketSessionManager.get(user);
+            if (msg instanceof String) {
+                sendMsg(session, (String) msg);
+            }
+            if (msg instanceof TextMessage) {
+                sendMsg(session, (TextMessage) msg);
+            }
+        } catch (Exception e){
+            LogUtils.error("websocket向session发送消息失败。");
         }
     }
 

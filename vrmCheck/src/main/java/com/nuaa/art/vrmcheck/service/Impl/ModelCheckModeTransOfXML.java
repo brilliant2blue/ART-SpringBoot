@@ -85,7 +85,7 @@ public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
                     String outputString = "";// 输出文本
                     for (EventConsistencyError ece : eces) {// 遍历每一组冲突
                         errorReporter.addErrorCount();
-                        errorReporter.setModeConvertRight(false);
+                        errorReporter.setModeTransRight(false);
                         outputString = "错误定位：模式集" + stateMachine.attributeValue("name")
                                 + "\n错误内容：当变量取值从下列两表中前者任意一行的组合变换为后者任意一行的组合时，\n会同时从源模式"
                                 + modeInTable + "转换到不同的目标模式" + ece.assignment[0] + "和"
@@ -116,6 +116,6 @@ public class ModelCheckModeTransOfXML implements ModelCheckModeTransHandler {
                 }
             }
         }
-        return errorReporter.isModeConvertRight();
+        return errorReporter.isModeTransRight();
     }
 }

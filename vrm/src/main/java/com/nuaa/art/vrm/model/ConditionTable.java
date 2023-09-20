@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 /**
  * 条件表的AndOr表数据模型
+ * conditionItems是每个and行
+ * orList是每个and行，在各个合取式中的真假情况
  *
  * @author konsin
  * @date 2023/07/02

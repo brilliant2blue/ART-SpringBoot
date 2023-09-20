@@ -40,7 +40,7 @@ public enum BasicDataType {
 
     public static BasicDataType findTypeByName(String name){
         for(BasicDataType type: BasicDataType.values()){
-            if(type.typeName.equals(name)){
+            if(type.typeName.equalsIgnoreCase(name)){
                 return type;
             };
         }

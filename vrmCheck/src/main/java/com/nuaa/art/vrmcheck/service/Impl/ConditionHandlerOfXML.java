@@ -11,10 +11,10 @@ import java.util.HashSet;
 public class ConditionHandlerOfXML implements ConditionHandler {
     public ArrayList<ConditionConsistencyError> findConsistencyError(Condition c) {
         ArrayList<ConditionConsistencyError> consistencyErrors = new ArrayList<ConditionConsistencyError>();
-        if (c.continualVariables.size() + c.discreteVariables.size() != 0) {
-            for (int i = 0; i < c.coder.codeLimit; i++) {
-                Scenario s = c.coder.decode(i);
-                if (!s.containsZero() && c.outputForEachState.get(i).size() > 1) {
+        if (c.continualVariables.size() + c.discreteVariables.size() != 0) { //如果非永真永假式
+            for (int i = 0; i < c.scenarioCorpusCoder.codeLimit; i++) {
+                Scenario s = c.scenarioCorpusCoder.decode(i); // 从场景全集，获取一个场景
+                if (!s.containsZero() && c.outputForEachState.get(i).size() > 1) { //如果场景不为空，且场景对应不只一行， 则发生条件一致性错误
                     ConditionConsistencyError cce = new ConditionConsistencyError();
                     ConcreteScenario thisConcreteScenario = new ConcreteScenario(
                             c.continualVariables.size() + c.discreteVariables.size());
@@ -49,7 +49,7 @@ public class ConditionHandlerOfXML implements ConditionHandler {
                     consistencyErrors.add(cce);
                 }
             }
-        } else {
+        } else {    //判断同源但是不同输出的多个条件中是否具有多个永真式
             int trueCount = 0;
             for (int i = 0; i < c.nuclearTreeForEachRow.size(); i++) {
                 if (c.nuclearTreeForEachRow.get(i).get(0).get(0).isTrue)
@@ -68,8 +68,8 @@ public class ConditionHandlerOfXML implements ConditionHandler {
     public ConditionIntegrityError fineIntegrityError(Condition c) {
         ConditionIntegrityError cie = new ConditionIntegrityError();
         if (c.continualVariables.size() + c.discreteVariables.size() != 0) {
-            for (int i = 0; i < c.coder.codeLimit; i++) {
-                Scenario s = c.coder.decode(i);
+            for (int i = 0; i < c.scenarioCorpusCoder.codeLimit; i++) {
+                Scenario s = c.scenarioCorpusCoder.decode(i);
                 if (!s.containsZero() && c.outputForEachState.get(i).size() == 0) {
                     ConcreteScenario thisConcreteScenario = new ConcreteScenario(
                             c.continualVariables.size() + c.discreteVariables.size());
