@@ -34,7 +34,7 @@ public class WebSocketService {
 
     public <T> void sendMsg(T msg) {
         try {
-            String user = ServletUtils.getRequest().getParameter("user");
+            String user = ServletUtils.getRequest().getHeader("user");
             LogUtils.info("对连接发送消息：" + user);
             System.out.println(ServletUtils.getRequest().getRequestURL());
             //LogUtils.info(user);

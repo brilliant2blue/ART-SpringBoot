@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
 
+import static java.lang.Thread.sleep;
+
 @RestController
 public class ModelCheck {
     @Resource
@@ -61,17 +63,17 @@ public class ModelCheck {
     @PostMapping("/vrm/{id}/check")
     @Operation(summary = "模型分析", description = "花费时间很长，应为异步响应操作")
     @Parameter(name = "id", description = "系统工程编号")
-    public HttpResult<Boolean> checkmodel(@PathVariable(value = "id") Integer systemId) throws IOException {
+    public HttpResult<Boolean> checkmodel(@PathVariable(value = "id") Integer systemId) {
 
         SystemProject systemProject = daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId);
         String fileName = PathUtils.DefaultPath() + systemProject.getSystemName() + "model.xml";
         VariableRealationModel vrm = null;
         try {
-            webSocket.sendMsg(SocketMessage.asText("开始解析模型文件"));
-            Thread.sleep(500);
+            webSocket.sendMsg(SocketMessage.asText("vrm-check","开始解析模型文件"));
+            sleep(500);
             vrm = (VariableRealationModel) modelObjectCreate.modelFile(systemId, fileName);
-            webSocket.sendMsg(SocketMessage.asText("模型文件解析成功, 开始进行模型分析。"));
-            webSocket.sendMsg(SocketMessage.asObject("test", vrm));
+            webSocket.sendMsg(SocketMessage.asText("vrm-check","模型文件解析成功, 开始进行模型分析。"));
+//            webSocket.sendMsg(SocketMessage.asObject("test", vrm));
         } catch (Exception e){
             e.printStackTrace();
             return HttpResult.fail("模型文件解析失败。");
@@ -79,8 +81,13 @@ public class ModelCheck {
 
 
         if (vrm != null) {
-            checkProcess(vrm);
-            //webSocket.sendMsg(SocketMessage.asObject("vrm-model",vrm));
+            try {
+                checkProcess(vrm);
+            } catch (Exception e) {
+                e.printStackTrace();
+                webSocket.sendMsg(SocketMessage.asText("vrm-model","模型分析失败"));
+            }
+
         }
         return HttpResult.success();
     }
@@ -100,13 +107,13 @@ public class ModelCheck {
 
 
     @Async("AsyncTask")
-    void checkProcess(VariableRealationModel vrmModel) {
+    void checkProcess(VariableRealationModel vrmModel) throws Exception {
         CheckErrorReporter reporter = new CheckErrorReporter();
         reporter.setModelName(vrmModel.getSystem().getSystemName());
 
         // 基本语法分析
         LogUtils.info("基本语法分析中");
-        webSocket.sendMsg(SocketMessage.asText("基本语法分析中"));
+        webSocket.sendMsg(SocketMessage.asText("vrm-check","基本语法分析中"));
         basicCheck.checkTypeBasic(vrmModel, reporter);
         basicCheck.checkConstantBasic(vrmModel, reporter);
         basicCheck.checkInputBasic(vrmModel, reporter);
@@ -119,34 +126,43 @@ public class ModelCheck {
         // 输入完整性分析
         if (reporter.isBasicRight()) {
             LogUtils.info("输入完整性分析中");
-            webSocket.sendMsg(SocketMessage.asText("输入完整性分析中"));
+            webSocket.sendMsg(SocketMessage.asText("vrm-check","输入完整性分析中"));
+            sleep(500);
+
             inputCheck.checkInputIntegrityOfCondition(vrmModel, reporter);
             inputCheck.checkInputIntegrityOfEvent(vrmModel, reporter);
             inputCheck.checkInputIntegrityOfModeTrans(vrmModel, reporter);
+
 
             if (reporter.isInputIntegrityRight()) {
                 // 表函数分析
 
                 LogUtils.info("条件一致性完整性分析");
-                webSocket.sendMsg(SocketMessage.asText("条件一致性完整性分析中"));
+                webSocket.sendMsg(SocketMessage.asText("vrm-check","条件一致性完整性分析中"));
+                sleep(500);
+
                 conditionCheck.checkConditionIntegrityAndConsistency(vrmModel, reporter);
-                // todo 没有对结果去重，导致错误事件可能重复出现
+
                 LogUtils.info("事件一致性分析");
-                webSocket.sendMsg(SocketMessage.asText("事件一致性分析中"));
+                webSocket.sendMsg(SocketMessage.asText("vrm-check","事件一致性分析中"));
+                sleep(500);
                 eventCheck.checkEventConsistency(vrmModel, reporter);
+
                 LogUtils.info("模式转换一致性分析");
-                webSocket.sendMsg(SocketMessage.asText("模式转换一致性分析中"));
+                webSocket.sendMsg(SocketMessage.asText("vrm-check","模式转换一致性分析中"));
+                sleep(500);
                 eventCheck.checkModeTransConsistency(vrmModel, reporter);
             }
 
             LogUtils.info("输出完整性分析中");
-            webSocket.sendMsg(SocketMessage.asText("输出完整性分析中"));
+            webSocket.sendMsg(SocketMessage.asText("vrm-check","输出完整性分析中"));
+            sleep(500);
             outputCheck.checkOutputIntegrityOfEvent(vrmModel, reporter);
             outputCheck.checkOutputIntegrityOfCondition(vrmModel, reporter);
         }
 
         reportHandler.saveCheckReport(reporter, PathUtils.DefaultPath() + vrmModel.getSystem().getSystemName() + "CheckReport.xml");
-        webSocket.sendMsg(SocketMessage.asText("模型分析结束，共发现错误数目："+reporter.getErrorCount().toString()));
+        webSocket.sendMsg(SocketMessage.asText("vrm-check","模型分析结束，共发现错误数目："+reporter.getErrorCount().toString()));
         webSocket.sendMsg(SocketMessage.asObject("vrm-check", reporter));
     }
 
@@ -160,9 +176,10 @@ public class ModelCheck {
 
     @Async("AsyncTask")
     public void read(int systemId) {
-        webSocket.sendMsg(SocketMessage.asText("解析报告中"));
+        webSocket.sendMsg(SocketMessage.asText("vrm-check","解析报告中"));
         CheckErrorReporter errorReporter = reportHandler.readCheckReport(systemId);
         webSocket.sendMsg(SocketMessage.asObject("vrm-check", errorReporter));
+        webSocket.sendMsg(SocketMessage.asText("vrm-check","报告解析完毕。打开报告："+errorReporter.getModelName()));
     }
 
     @PostMapping("/vrm/{id}/check/file")

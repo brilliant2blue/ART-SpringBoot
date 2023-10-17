@@ -20,10 +20,9 @@ public interface ProjectDataHandler {
      * 导出项目文件
      *
      * @param systemId  系统编号
-     * @param exportUrl 导出文件名
      * @return {@link String} 导出文件名
      */
-    String exportProjectToFile(int systemId, String exportUrl);
+    String exportProjectToFile(int systemId);
 
 
     /**

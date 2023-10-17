@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     // 配置注册
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(WebSocketHandler(), "/console")
+        registry.addHandler(WebSocketHandler(), "")
                 .addInterceptors(WebSocketInterceptor())
                 .setAllowedOrigins("*");
     }

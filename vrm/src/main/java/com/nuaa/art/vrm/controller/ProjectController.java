@@ -2,7 +2,10 @@ package com.nuaa.art.vrm.controller;
 
 import com.nuaa.art.common.HttpCodeEnum;
 import com.nuaa.art.common.model.HttpResult;
+import com.nuaa.art.common.model.SocketMessage;
+import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.LogUtils;
+import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrm.entity.SystemProject;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.dao.SystemProjectService;
@@ -12,6 +15,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +38,10 @@ public class ProjectController {
 
     @Resource(name = "createProjectBaseProject")
     CreateProjectHandler createBaseProject;
+
+    @Resource
+    WebSocketService webSocketService;
+
     @Resource
     DaoHandler daoHandler;
 
@@ -99,17 +108,36 @@ public class ProjectController {
         return HttpResult.success(daoHandler.getDaoService(SystemProjectService.class).listSystemProject());
     }
 
+
+
     @GetMapping("vrm/file")
     @Operation(summary = "导出项目")
     @Parameter(name = "id",description = "项目编号")
-    @Parameter(name = "fileUrl",description = "文件路径 {path}/{name}.xml")
-    public HttpResult<String> exportProjectFile(@RequestParam("id")int systemId, @RequestParam("fileUrl")String fileUrl){
-        if(projectDataHandler.exportProjectToFile(systemId,fileUrl)!=null){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS,fileUrl);
-        } else  {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND,null);
+    public HttpResult<String> exportProjectFile(@RequestParam("id")int systemId){
+        creatFile(systemId);
+        return HttpResult.success();
+    }
+
+
+    @Async("AsyncTask")
+    public void creatFile(int systemId){
+        try {
+            webSocketService.sendMsg(SocketMessage.asText("project", "生成可导出的工程文件中..."));
+            String fileUrl = projectDataHandler.exportProjectToFile(systemId);
+            if(fileUrl != null){
+                webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成完毕"));
+                webSocketService.sendMsg(SocketMessage.asText("project", "")); //发送空消息，关闭前端进度条
+                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl)); //返回对应工程文件的地址
+            } else {
+                webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
         }
     }
+
+
 
     @PostMapping("vrm/file")
     @Operation(summary = "导入新项目")

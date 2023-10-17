@@ -1,5 +1,6 @@
 package com.nuaa.art.common.utils;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -104,5 +105,51 @@ public class FileUtils {
             LogUtils.error(e.getMessage());
         }
         return false;
+    }
+
+    /**
+     * 文件下载方法封装，直接返回响应体
+     *
+     * @param path     文件路径
+     * @param response 响应题
+     */
+    public static HttpServletResponse download(String path , HttpServletResponse response){
+        File file = new File(path);
+        // 文件名称
+        String filename = file.getName();
+        byte[] buffer = new byte[1024];
+        BufferedInputStream bis = null;
+        OutputStream os = null;
+        try {
+            //文件是否存在
+            if (file.exists()) {
+                //设置响应
+                response.setContentType("application/octet-stream;charset=UTF-8");
+                // 将响应头中的Content-Disposition暴露出来，不然前端获取不到
+                response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+                // 在响应头中的Content-Disposition里设置文件名称
+                response.setHeader("Content-Disposition","attachment;filename="+filename);
+                os = response.getOutputStream();
+                bis = new BufferedInputStream(new FileInputStream(file));
+                while(bis.read(buffer) != -1){
+                    os.write(buffer);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(bis != null) {
+                    bis.close();
+                }
+                if(os != null) {
+                    os.flush();
+                    os.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return response;
     }
 }

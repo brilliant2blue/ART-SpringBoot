@@ -1,6 +1,7 @@
 package com.nuaa.art.user.common.utils;
 
 import cn.hutool.core.util.StrUtil;
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.user.entity.User;
 import com.nuaa.art.user.service.dao.UserService;
 import io.jsonwebtoken.Claims;

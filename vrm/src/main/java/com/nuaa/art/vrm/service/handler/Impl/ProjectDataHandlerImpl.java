@@ -2,6 +2,7 @@ package com.nuaa.art.vrm.service.handler.impl;
 
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.LogUtils;
+import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.vrm.entity.*;
 import com.nuaa.art.vrm.service.dao.*;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
@@ -223,11 +224,10 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
      * 导出项目
      *
      * @param systemId  系统编号
-     * @param exportUrl 导出文件名
      * @return {@link String} 导出文件名
      */
     @Override
-    public String exportProjectToFile(int systemId, String exportUrl) {
+    public String exportProjectToFile(int systemId) {
             Document systemDocument= DocumentHelper.createDocument();
             //创建根节点systemProject
             Element systemProject = systemDocument.addElement("systemProject");
@@ -235,9 +235,11 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Element lastSaved = systemProject.addElement("lastSaved");
             Element systemNameElement = lastSaved.addElement("name");
 
+            SystemProject system = daoHandler.getDaoService(SystemProjectService.class)
+                    .getSystemProjectById(systemId);
+
             //保存系统名称
-            systemNameElement.addText(daoHandler.getDaoService(SystemProjectService.class)
-                    .getSystemProjectById(systemId).getSystemName());
+            systemNameElement.addText(system.getSystemName());
 
             //保存导出时间
             Element updateDateElement =lastSaved.addElement("date");
@@ -327,7 +329,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
                 Element modeClassName=modeClassNode.addElement("modeClassName");
                 Element modeClassDescription=modeClassNode.addElement("modeClassDescription");
                 modeClassName.setText(modeClass.getModeClassName()+"");
-                modeClassDescription.setText(modeClass.getModeClassDescription());
+                modeClassDescription.setText(modeClass.getModeClassDescription()+"");
             }
 
             //存储模式
@@ -354,7 +356,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
                 value.setText(mode.getValue()+"");
                 modeClassId.setText(mode.getModeClassId()+"");
                 modeClassName.setText(mode.getModeClassName()+"");
-                modeDescription.setText(mode.getModeDescription());
+                modeDescription.setText(mode.getModeDescription()+"");
             }
 
             //存储需求规范化
@@ -402,6 +404,8 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
                 dependencyModeClassId.setText(stm.getDependencyModeClassId()+"");
             }
 
+
+            String exportUrl = PathUtils.DefaultPath()+system.getSystemName()+"Project.xml";
             if (FileUtils.saveXML(systemDocument, exportUrl)){
                 return exportUrl;
             }

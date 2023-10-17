@@ -3,18 +3,27 @@ package com.nuaa.art.vrm.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.nuaa.art.common.HttpCodeEnum;
 import com.nuaa.art.common.model.HttpResult;
+import com.nuaa.art.common.model.SocketMessage;
+import com.nuaa.art.common.utils.FileUtils;
+import com.nuaa.art.common.utils.PathUtils;
+import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrm.entity.ConceptLibrary;
 import com.nuaa.art.vrm.entity.NaturalLanguageRequirement;
 import com.nuaa.art.vrm.entity.StandardRequirement;
+import com.nuaa.art.vrm.entity.SystemProject;
 import com.nuaa.art.vrm.service.dao.*;
 import com.nuaa.art.vrm.service.handler.RequirementDataHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static java.lang.Thread.sleep;
 
 /**
  * 需求管理，原始需求和规范化需求
@@ -182,19 +191,41 @@ public class RequirementController {
             return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
     }
 
-    @PutMapping("vrm/{id}/req")
-    @Operation(summary = "导出规范化需求为Excel")
-    public HttpResult<String> exportReqs(@PathVariable("id")int id, @RequestParam("file")String fileUrl){
-        if(daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(id) == null){
-            return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"系统不存在，请重新选择！",null);
-        }
+    @Resource
+    WebSocketService webSocketService;
 
-        int count = requirementDataHandler.exportToFile(id, fileUrl);
-        if (count > 0)
-            return new HttpResult<>(HttpCodeEnum.SUCCESS, fileUrl);
-        else
-            return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, null);
+    @Async("AsyncTask")
+    public void creatFile(int systemId){
+        try {
+            String system = daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId).getSystemName();
+            String fileUrl = PathUtils.DefaultPath()+system+"Requirement.xlsx";
+            webSocketService.sendMsg(SocketMessage.asText("requirement", "生成可导出的工程文件中..."));
+            sleep(1000);
+            int count = requirementDataHandler.exportToFile(systemId, fileUrl);
+            if (count > 0){
+                webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成完毕"));
+                webSocketService.sendMsg(SocketMessage.asText("requirement", "")); //发送空消息，关闭前端进度条
+                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl)); //返回对应工程文件的地址
+            } else {
+                webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成失败"));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成失败"));
+        }
     }
+
+    @GetMapping("vrm/{id}/sreq")
+    @Operation(summary = "导出规范化需求为Excel")
+    public HttpResult<String> exportReqs(@PathVariable("id")int id){
+        creatFile(id);
+        return HttpResult.success();
+    }
+
+
+
+
+
 
 
 }

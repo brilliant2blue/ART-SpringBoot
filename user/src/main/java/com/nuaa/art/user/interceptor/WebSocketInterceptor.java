@@ -17,15 +17,19 @@ public class WebSocketInterceptor implements HandshakeInterceptor {
         if (request instanceof ServletServerHttpRequest) {
             ServletServerHttpRequest servletServerHttpRequest = (ServletServerHttpRequest) request;
             // 模拟用户（通常利用JWT令牌解析用户信息）
-            String token = servletServerHttpRequest.getServletRequest().getParameter("token");
-            Claims claims= JwtUtils.verifyJwt(token);
-            if (claims == null) {
-                LogUtils.info("websocket-token无效，请求拦截");
-                return false;
-            } else {
-                attributes.put("user", (String) claims.get("username"));
-                return true;
-            }
+//            String token = servletServerHttpRequest.getServletRequest().getParameter("token");
+//            Claims claims= JwtUtils.verifyJwt(token);
+//            if (claims == null) {
+//                LogUtils.info("websocket-token无效，请求拦截");
+//                return false;
+//            } else {
+//                attributes.put("user", (String) claims.get("username"));
+//                return true;
+//            }
+            String user = servletServerHttpRequest.getServletRequest().getParameter("user");
+            if(user == null  || user.isBlank()) return false;
+            attributes.put("user", user);
+            return true;
         }
         return false;
     }

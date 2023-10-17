@@ -40,6 +40,16 @@ public class SocketMessage<T> {
         }
         return null;
     }
+    public static TextMessage asText(String type, String data){
+        SocketMessage<String> msg = new SocketMessage<>("msg", type, data);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return new TextMessage(mapper.writeValueAsString(msg));
+        } catch (JsonProcessingException e) {
+            LogUtils.error(e.getMessage());
+        }
+        return null;
+    }
 
     public static <T> TextMessage asObject(String type, T data){
         SocketMessage<T> msg = new SocketMessage<>("obj", type, data);
