@@ -1,8 +1,10 @@
 package com.nuaa.art.vrm.service.handler.impl;
 
+import com.nuaa.art.common.model.SocketMessage;
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.PathUtils;
+import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrm.entity.*;
 import com.nuaa.art.vrm.service.dao.*;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
@@ -22,6 +24,9 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
     @Resource
     DaoHandler daoHandler;
 
+    @Resource
+    WebSocketService webSocketService;
+
     /**
      * 导入项目
      *
@@ -36,18 +41,19 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
         sProject.setSystemName(projectName);
         daoHandler.getDaoService(SystemProjectService.class).insertSystemProject(sProject);
         Integer systemId = sProject.getSystemId();
-        Document doc = FileUtils.readXML(fileUrl);
-        Element root = doc.getRootElement();
-        Element requirements = root.element("requirements");
-        Element variables = root.element("variables");
-        Element types = root.element("types");
-        Element props = root.element("props");
-        Element modeClasses = root.element("modeClasses");
-        Element modes = root.element("modes");
-        Element standards = root.element("standards");
-        Element stms = root.element("stms");
         try {
+            Document doc = FileUtils.readXML(fileUrl);
+            Element root = doc.getRootElement();
+            Element requirements = root.element("requirements");
+            Element variables = root.element("variables");
+            Element types = root.element("types");
+            Element props = root.element("props");
+            Element modeClasses = root.element("modeClasses");
+            Element modes = root.element("modes");
+            Element standards = root.element("standards");
+            Element stms = root.element("stms");
             LogUtils.info("原始需求导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","原始需求导入"));
             List<Element> requirementList = requirements.elements("requirement");
             NaturalLanguageRequirement requirement = new NaturalLanguageRequirement();
             for (Element requirementNode : requirementList) {
@@ -62,6 +68,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("数据类型导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","数据类型导入"));
             List<Element> typeList = types.elements("type");
             Type type = new Type();
             for (Element typeNode : typeList) {
@@ -77,6 +84,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("专有名词导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","专有名词导入"));
             List<Element> propList = props.elements("prop");
             ProperNoun prop = new ProperNoun();
             for (Element propNode : propList) {
@@ -90,6 +98,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("变量导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","变量导入"));
             List<Element> variableList = variables.elements("variable");
             ConceptLibrary variable = new ConceptLibrary();
             for (Element variableNode : variableList) {
@@ -120,6 +129,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("模式集导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","模式集导入"));
             List<Element> modeClassList = modeClasses.elements("modeClass");
             Map<String, Integer> modeClassMap = new HashMap<>();
             for (Element modeClassNode : modeClassList) {
@@ -135,6 +145,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("模式导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","模式导入"));
             List<Element> modeList = modes.elements("mode");
             for (Element modeNode : modeList) {
                 Mode mode = new Mode();
@@ -161,6 +172,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("规范化需求导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","规范化需求导入"));
             List<Element> standardList = standards.elements("standard");
             StandardRequirement standard = new StandardRequirement();
             for (Element standardNode : standardList) {
@@ -185,6 +197,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             Thread.sleep(800);
 
             LogUtils.info("模式转换导入");
+            webSocketService.sendMsg(SocketMessage.asText("project","模式转换导入"));
             List<Element> stmList = stms.elements("stm");
             for (Element stmNode : stmList) {
                 StateMachine stm = new StateMachine();
@@ -201,10 +214,14 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
 
             Thread.sleep(800);
             LogUtils.info("需求工程导入成功！");
+            webSocketService.sendMsg(SocketMessage.asText("project","需求工程导入成功！"));
+            Thread.sleep(800);
+            webSocketService.sendMsg(SocketMessage.asText("project",""));
             return systemId;
         } catch (Exception e) {
             e.printStackTrace();
             LogUtils.error("需求工程导入失败！已经成功的导入环节将被回滚！");
+            webSocketService.sendMsg(SocketMessage.asText("project","需求工程导入失败！已经成功的导入环节将被回滚！"));
             if (systemId != null) {
                 daoHandler.getDaoService(ConceptLibraryService.class).deleteConceptById(systemId);
                 daoHandler.getDaoService(ModeClassService.class).deleteModeClassById(systemId);
