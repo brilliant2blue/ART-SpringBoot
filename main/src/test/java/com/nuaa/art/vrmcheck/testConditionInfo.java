@@ -14,7 +14,6 @@ import com.nuaa.art.vrmcheck.service.obj.EventCheck;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
@@ -35,7 +34,7 @@ public class testConditionInfo {
             ArrayList<NuclearCondition> andTree = new ArrayList<>();
             for(int j = 0; j < thisCondition.getAndNum(); j++) {
                 if(orRelation.get(j).get(i).equals("T")){
-                    if(conditions.get(j).isEmpty()){
+                    if(conditions.get(j).whetherEmpty()){
                         NuclearCondition nc = new NuclearCondition();
                         nc.setTrue();
                         andTree.add(nc);
@@ -46,7 +45,7 @@ public class testConditionInfo {
                         System.out.println("真");
                     }
                 } else if (orRelation.get(j).get(i).equals("F")) {
-                    if(conditions.get(j).isEmpty()){
+                    if(conditions.get(j).whetherEmpty()){
                         NuclearCondition nc = new NuclearCondition();
                         nc.setFalse();
                         andTree.add(nc);

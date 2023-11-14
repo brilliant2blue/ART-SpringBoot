@@ -21,9 +21,6 @@ public class RoleContoller {
     @Resource
     RoleMenuService roleMenuService;
 
-    @Resource
-    MenuService menuService;
-
     @GetMapping("user/roles")
     @Operation(summary = "获取所有角色")
     public HttpResult<List<Role>> listRole() {
@@ -78,10 +75,10 @@ public class RoleContoller {
 
     @GetMapping("user/role/{roleid}/menus")
     @Operation(summary = "获取角色等级下的所有权限")
-    public HttpResult<List<Menu>> listRoleMenu(@PathVariable("roleid") Integer roleId) {
-        List<Menu> menu=  new ArrayList<>();
+    public HttpResult<List<String>> listRoleMenu(@PathVariable("roleid") Integer roleId) {
+        List<String> menu=  new ArrayList<>();
         for(RoleMenu ra: roleMenuService.listRoleMenu(roleId)){
-            menu.add(menuService.getMenu(ra.getMenuId()));
+            menu.add(ra.getMenu());
         }
         return HttpResult.success(menu);
     }
@@ -89,14 +86,14 @@ public class RoleContoller {
     @PutMapping("user/role/{roleid}/menus")
     @Operation(summary = "更新角色等级下的权限")
     @Transactional
-    public HttpResult updateRoleMenu(@RequestBody List<Menu> menuList,
+    public HttpResult updateRoleMenu(@RequestBody List<String> menuList,
                                                      @PathVariable("roleid") Integer roleId) {
         roleMenuService.remove(new LambdaQueryWrapper<RoleMenu>().eq(RoleMenu::getRoleId, roleId));
         List<RoleMenu> data = new ArrayList<>();
-        for(Menu menu: menuList){
+        for(String menu: menuList){
             RoleMenu roleMenu = new RoleMenu();
             roleMenu.setRoleId(roleId);
-            roleMenu.setMenuId(menu.getId());
+            roleMenu.setMenu(menu);
             data.add(roleMenu);
         }
         if(data.isEmpty() || roleMenuService.saveBatch(data) )

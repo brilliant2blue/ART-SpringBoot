@@ -11,12 +11,18 @@ import java.util.List;
 * @createDate 2023-06-10 19:04:37
 */
 public interface NaturalLanguageRequirementService extends IService<NaturalLanguageRequirement> {
-    public List<NaturalLanguageRequirement> listNaturalLanguageRequirementBySystemId(Integer systemId);
-    public NaturalLanguageRequirement getNaturalLanguageRequirementById(Integer id);
-    public List<NaturalLanguageRequirement> listNaturalLanguageRequirement();
-    public NaturalLanguageRequirement getNaturalLanguageRequirementByExcelId(Integer systemId,Integer excelId);
-    public boolean insertNLR(NaturalLanguageRequirement naturalLanguageRequirement);
-    public boolean updateNLR(NaturalLanguageRequirement naturalLanguageRequirement);
-    public boolean deleteNLR(NaturalLanguageRequirement naturalLanguageRequirement);
-    public boolean deleteNLRById(Integer systemId);
+    List<NaturalLanguageRequirement> listNaturalLanguageRequirementBySystemId(Integer systemId);
+    NaturalLanguageRequirement getNaturalLanguageRequirementById(Integer id);
+    List<NaturalLanguageRequirement> listNaturalLanguageRequirement();
+    NaturalLanguageRequirement getNaturalLanguageRequirementByExcelId(Integer systemId,Integer excelId);
+    List<NaturalLanguageRequirement> listNaturalLanguageRequirementBySystemIdAndModuleId(Integer systemId, Integer moduleId);
+    boolean insertNLR(NaturalLanguageRequirement naturalLanguageRequirement);
+    boolean updateNLR(NaturalLanguageRequirement naturalLanguageRequirement);
+    boolean deleteNLR(NaturalLanguageRequirement naturalLanguageRequirement);
+    boolean deleteNLRById(Integer systemId);
+    boolean deleteNLRBySystemIdAndModuleId(Integer systemId, Integer moduleId);
+    boolean bindModuleById(Integer id, Integer moduleId);
+    boolean bindModuleById(List<Integer> ids, Integer moduleId);
+    boolean releaseModuleByReqIdsAndModuleId(List<Integer> ids, Integer moduleId);
+    boolean releaseModuleByModuleId(Integer systemId, Integer moduleId);
 }

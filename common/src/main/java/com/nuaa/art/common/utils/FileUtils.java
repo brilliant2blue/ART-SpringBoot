@@ -1,5 +1,6 @@
 package com.nuaa.art.common.utils;
 
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -119,7 +120,8 @@ public class FileUtils {
         String filename = file.getName();
         byte[] buffer = new byte[1024];
         BufferedInputStream bis = null;
-        OutputStream os = null;
+        ServletOutputStream os = null;
+        int i = 0;
         try {
             //文件是否存在
             if (file.exists()) {
@@ -131,8 +133,8 @@ public class FileUtils {
                 response.setHeader("Content-Disposition","attachment;filename="+filename);
                 os = response.getOutputStream();
                 bis = new BufferedInputStream(new FileInputStream(file));
-                while(bis.read(buffer) != -1){
-                    os.write(buffer);
+                while((i=bis.read(buffer)) != -1){
+                    os.write(buffer,0,i);
                 }
             }
         } catch (Exception e) {

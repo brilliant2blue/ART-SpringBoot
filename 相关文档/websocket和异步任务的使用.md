@@ -46,3 +46,5 @@ public void creatlocal(Integer systemId)throws IOException{
 3. 前端的消息处理：
    1. 前端的api文件夹中Socket文件对Socket消息类型进行统一管理。
    2. 前端的common文件夹SocketMsg文件是对接收到的wensocket消息的处理逻辑。
+
+特别的，前端通过websocket实现了进度条的显示功能。对于约定为obj类型的消息，如果传递为了msg类型，那么前端在进度条中显示，直到前端页面切换或者接收到空消息。

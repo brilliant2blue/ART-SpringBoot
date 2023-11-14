@@ -13,6 +13,7 @@ import com.nuaa.art.vrm.common.utils.EventTableUtils;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
 import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
 import com.nuaa.art.vrmcheck.service.*;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.Resource;
 import org.dom4j.Document;
@@ -140,6 +141,23 @@ public class TestController {
 
         System.out.println(reporter.toString());
         return reporter;
+    }
+
+    @GetMapping("/runexe")
+    @Operation(summary = "测试打开应用程序")
+    public HttpResult openExec(){
+        final Runtime runtime = Runtime.getRuntime();
+        Process process = null;
+
+        try {
+            process = runtime.exec("cmd /c D:\\CodePath\\Code\\vrmgt\\VRMGT\\VRMGT.exe");
+            return HttpResult.success();
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+            System.out.println("Error exec!");
+            return HttpResult.fail();
+        }
     }
 
 }

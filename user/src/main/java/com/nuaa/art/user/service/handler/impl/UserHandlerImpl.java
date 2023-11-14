@@ -2,14 +2,12 @@ package com.nuaa.art.user.service.handler.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.nuaa.art.user.common.utils.JwtUtils;
-import com.nuaa.art.user.entity.Menu;
 import com.nuaa.art.user.entity.Role;
 import com.nuaa.art.user.entity.RoleMenu;
 import com.nuaa.art.user.entity.User;
 import com.nuaa.art.user.model.UserInfo;
 import com.nuaa.art.user.model.LoginInfo;
 import com.nuaa.art.user.service.dao.*;
-import com.nuaa.art.user.service.handler.MenuHandler;
 import com.nuaa.art.user.service.handler.UserHandler;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +25,7 @@ public class UserHandlerImpl implements UserHandler {
     RoleMenuService roleMenuService;
 
     @Autowired
-    MenuService menuService;
-
-    @Autowired
     RoleService roleService;
-
-    @Resource
-    MenuHandler menuHandler;
 
 
 
@@ -53,11 +45,11 @@ public class UserHandlerImpl implements UserHandler {
                 result.rolename = role.getRoleName();
                 result.role = thisuser.getRole();
             }
-            List<Menu> menu=  new ArrayList<>();
+            List<String> menu=  new ArrayList<>();
             for(RoleMenu ra: roleMenuService.listRoleMenu(result.role)){
-                menu.add(menuService.getMenu(ra.getMenuId()));
+                menu.add(ra.getMenu());
             }
-            result.menus= menuHandler.MenusToMenuTree(menu);
+            result.menus = menu;
             return result;
         }
         return null;
