@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 条件表 通过AndOr表形式创建、显示的实现
@@ -24,25 +25,27 @@ public class ConditionTableUtils {
 
     public String ConvertTableToString(ConditionTable conditionTable) {
         /* 判断条件是否为永真永假
-         * 永真则表为空，或者有一个原子条件和Or列，但是原子条件为空，OR为 T
+         * 永真则表有一个原子条件和Or列，但是原子条件为空，OR为 T
          * 永假则有一个原子条件和Or列，但是原子条件为空，OR为 F
+         * 其余情况返回空值，即默认
          */
-        if (conditionTable.getAndNum() == 0 && conditionTable.getOrNum() == 0) {
-            return "true";
-        } else if(conditionTable.getAndNum() == 1 && conditionTable.getOrNum() == 1 && conditionTable.getConditionItems().get(0).isEmpty()){
+        if (conditionTable.getAndNum() == 0) {
+            return "";
+        } else if(conditionTable.getAndNum() == 1 && conditionTable.getOrNum() == 1 && conditionTable.getConditionItems().get(0).whetherEmpty()){
             String OR = conditionTable.getOrList().get(0).get(0);
-            if(OR.equals("T")|| OR.equals(".")) return "true";
+            if(OR.equals(".")) return "";
+            else if(OR.equals("T")) return "true";
             else return "false";
         }
         String condition = "";
         ArrayList<String> headList = new ArrayList<String>();
-        for (int i = 0; i < conditionTable.getOrNum() + 1; i++) { //为每个or子条件创建条件头
+        for (int i = 0; i < conditionTable.getOrNum(); i++) { //为每个or子条件创建条件头
             headList.add("(");
         }
 
         for (int i = 0; i < conditionTable.getAndNum(); i++) {  // 按行解析and行
 
-            String head = conditionTable.conditionItems.get(i).conditionString(); //获取原始原子条件
+            String head = conditionTable.conditionItems.get(i).conditionString();
 
             for (int j = 0; j < conditionTable.getOrNum(); j++) {   //按列解析or列
                 if (conditionTable.orList.get(i).get(j).equals("T")) {
@@ -64,25 +67,21 @@ public class ConditionTableUtils {
                 }
             }
         }
-        for (int i = 0; i < conditionTable.getOrNum() + 1; i++) {  //排除空结果
-            if (!headList.get(i).equals("()")) {
+        int emptyCount = 0;
+        for (int i = 0; i < conditionTable.getOrNum(); i++) {  //排除空结果
+            if (!headList.get(i).equals("(")) {
                 headList.set(i, headList.get(i) + ")");
             } else {
                 headList.set(i, "");
+                emptyCount++;
             }
         }
 
-        for (String s : headList) {
-            if (headList.indexOf(s) != headList.size() - 1) {
-                condition += s + "||";
-            }
-        }
-
-        condition = condition.substring(0, condition.length() - 2);
-//        System.out.println(condition);
-
-        if (condition.contains("()||()")) {
+        if (emptyCount == conditionTable.getOrNum()) { //设置了条件，但是所有的条件都取值任意，则认为是永真式
             condition = "true";
+        } else {
+            condition = headList.stream().filter((item)->!item.isBlank()).collect(Collectors.joining("||"));
+            //System.out.println(condition);
         }
         return condition;
     }
@@ -97,7 +96,16 @@ public class ConditionTableUtils {
     public ConditionTable ConvertStringToTable(String condition) {
         ConditionTable conditionTable = new ConditionTable();
         //System.out.println("完整的条件语句:   " + condition);
-        if (condition.equalsIgnoreCase("true") || condition.equalsIgnoreCase("")) {
+        if (condition.equalsIgnoreCase("")) {
+            conditionTable.getConditionItems().add(new ConditionItem());
+            conditionTable.addAndNum();
+            conditionTable.setOrNum(1);
+            ArrayList<String> orList = new ArrayList<>();
+            orList.add(".");
+            conditionTable.getOrList().add(orList);
+            return conditionTable;
+        }
+        else if (condition.equalsIgnoreCase("true")) {
             conditionTable.getConditionItems().add(new ConditionItem());
             conditionTable.addAndNum();
             conditionTable.setOrNum(1);
@@ -186,11 +194,6 @@ public class ConditionTableUtils {
                         left = left.replaceAll("\\(", "");
                         left = left.replaceAll("\\)", "");
 
-                        if (left.charAt(0) == '!') {
-                            left = left.substring(1);
-                            isNotCondition = true;
-                        }
-
                         right = right.replaceAll("\\(", "");
                         right = right.replaceAll("\\)", "");
                     }
@@ -202,7 +205,7 @@ public class ConditionTableUtils {
                     conditionTable.getOrList().add(orList); //添加新的空or行
                     conditionTable.addAndNum(); //变量数增加
 
-                    if (isNotCondition)
+                    if (!nuclearConditionTrue)
                         falseIntegers.add(conditionTable.getAndNum());
                     else
                         trueIntegers.add(conditionTable.getAndNum());

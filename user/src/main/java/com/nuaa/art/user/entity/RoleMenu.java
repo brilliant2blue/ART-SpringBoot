@@ -28,7 +28,7 @@ public class RoleMenu implements Serializable {
     /**
      * 
      */
-    private Integer menuId;
+    private String menu;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -47,7 +47,7 @@ public class RoleMenu implements Serializable {
         RoleMenu other = (RoleMenu) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()))
-            && (this.getMenuId() == null ? other.getMenuId() == null : this.getMenuId().equals(other.getMenuId()));
+            && (this.getMenu() == null ? other.getMenu() == null : this.getMenu().equals(other.getMenu()));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class RoleMenu implements Serializable {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getRoleId() == null) ? 0 : getRoleId().hashCode());
-        result = prime * result + ((getMenuId() == null) ? 0 : getMenuId().hashCode());
+        result = prime * result + ((getMenu() == null) ? 0 : getMenu().hashCode());
         return result;
     }
 
@@ -68,7 +68,7 @@ public class RoleMenu implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", roleId=").append(roleId);
-        sb.append(", menuId=").append(menuId);
+        sb.append(", menuId=").append(menu);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

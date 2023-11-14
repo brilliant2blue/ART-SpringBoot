@@ -161,7 +161,7 @@ public class RequirementController {
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND,-1);
         }
         QueryWrapper<ConceptLibrary> wrapper = new QueryWrapper<>();
-        wrapper.eq("sorceId",req.getReqExcelId());
+        wrapper.eq("sorceId",req.getReqId());
         if(daoHandler.getDaoService(ConceptLibraryService.class).list(wrapper) != null){
             return new HttpResult<>(HttpCodeEnum.BAD_REQUEST,"存在由此需求建立的领域概念元素，无法删除！",-1);
         }

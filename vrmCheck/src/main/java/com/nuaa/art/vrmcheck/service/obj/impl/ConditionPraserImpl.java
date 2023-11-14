@@ -7,8 +7,6 @@ import com.nuaa.art.vrm.entity.Mode;
 import com.nuaa.art.vrm.entity.Type;
 import com.nuaa.art.vrm.model.*;
 
-import com.nuaa.art.vrmcheck.model.ContinualRange;
-import com.nuaa.art.vrmcheck.model.ScenarioCorpusCoder;
 import com.nuaa.art.vrmcheck.model.obj.NuclearCondition;
 import com.nuaa.art.vrmcheck.model.obj.ConditionsInformation;
 import jakarta.annotation.Resource;
@@ -37,7 +35,7 @@ public class ConditionPraserImpl implements com.nuaa.art.vrmcheck.service.obj.Co
         return ci;
     }
 
-    // todo 不仅可以设置离散型，也应当设置连续型
+    // todo 不仅可以设置离散型，也应当设置连续型， 连续型按有赋值的进行设置
     public void setParentRangeAndValueOfEachRow(VariableRealationModel vrmModel, TableOfVRM table, ConditionsInformation ci){
         Type thisType = typeUtils.FindVariableType(table.getRelateVar(), vrmModel.getTypes());
         // 获取每行的赋值
@@ -97,7 +95,7 @@ public class ConditionPraserImpl implements com.nuaa.art.vrmcheck.service.obj.Co
             for(int j = 0; j < conditionTable.getAndNum(); j++) {
                 String symbol = orRelation.get(j).get(i); //获取or类型
                 if(symbol.equals("T")){
-                    if(conditions.get(j).isEmpty()){
+                    if(conditions.get(j).whetherEmpty()){
                         NuclearCondition nc = new NuclearCondition();
                         nc.setTrue();
                         andTree.add(nc);
@@ -106,7 +104,7 @@ public class ConditionPraserImpl implements com.nuaa.art.vrmcheck.service.obj.Co
                         andTree.add(nc);
                     }
                 } else if (symbol.equals("F")) {
-                    if(conditions.get(j).isEmpty()){
+                    if(conditions.get(j).whetherEmpty()){
                         NuclearCondition nc = new NuclearCondition();
                         nc.setFalse();
                         andTree.add(nc);

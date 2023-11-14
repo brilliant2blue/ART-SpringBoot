@@ -27,7 +27,7 @@ public class EventPraserImpl implements EventPraser {
         return new EventsInformation();
     }
 
-
+    // todo 事件表也变为AndOr表后，需要将解析过程进行修改， 在解析子事件树时，每行and树为子事件树的Array，并新增字段保存改行Or列，然后在生成等价场景集时，根据Or列对等价场景集序偶进行计算。计算过程还需考虑怎样保证场景等价
     @Override
     public void praserInformationInTables(VariableRealationModel vrm, List<TableRow> tableRows, EventsInformation ei){
         ei.nuclearTreeForEachRow = new ArrayList<ArrayList<ArrayList<ArrayList<NuclearCondition>>[]>>();

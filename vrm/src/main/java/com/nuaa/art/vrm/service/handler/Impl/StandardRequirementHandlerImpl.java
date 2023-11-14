@@ -20,7 +20,7 @@ public class StandardRequirementHandlerImpl implements StandardRequirementHandle
                 str = "当满足以下条件，" + s.getStandardReqVariable() + "应能够" + s.getStandardReqFunction() + s.getStandardReqValue() + ":" + s.getStandardReqCondition();
                 break;
             case 1:
-                str = "当满足以下条件，" + s.getStandardReqVariable() + "应能够" + s.getStandardReqFunction() + s.getStandardReqValue() + ":" + s.getStandardReqEvent();
+                str = "当满足以下事件，" + s.getStandardReqVariable() + "应能够" + s.getStandardReqFunction() + s.getStandardReqValue() + ":" + s.getStandardReqEvent();
                 break;
         }
 

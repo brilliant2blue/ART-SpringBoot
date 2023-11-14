@@ -51,7 +51,7 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
             }
 
             int[] inconsideredRanges = new int[inconsidered.size()];
-            // todo 不太懂， 有BUG
+            // todo 不太懂， 有BUG？
             for (int i = 0; i < inconsidered.size(); i++) {
                 inconsideredRanges[i] = coder.variableRanges[inconsidered.get(i)] - 2;
             }
@@ -81,7 +81,7 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
      */
     @Override
     public ArrayList<HashSet<Integer>> buildEquivalentScenarioSet(ConditionsInformation ci){
-        ArrayList<HashSet<Integer>> equivalentScenarioSet = new ArrayList<HashSet<Integer>>();
+        ArrayList<HashSet<Integer>> equivalentScenarioSet = new ArrayList<HashSet<Integer>>(); // 场景编码为索引， 行的输出值为索引值. 使用哈希表是因为可以去重
 
         for (long l = 0; l < ci.scenarioCorpusCoder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
             if (!ci.scenarioCorpusCoder.decode(l).containsZero())
@@ -95,10 +95,10 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
             return equivalentScenarioSet;
         }
         for (int i=0; i< ci.nuclearTreeForEachRow.size(); i++) {// 遍历每行的析取范式树
-            ArrayList<ArrayList<NuclearCondition>> orTree = ci.nuclearTreeForEachRow.get(i);
+            ArrayList<ArrayList<NuclearCondition>> orTree = ci.nuclearTreeForEachRow.get(i); //获取一行条件
             //System.out.println(orTree.toString());
             if (orTree.get(0).get(0).isTrue) {// 如果第一个合取式的第一个原子条件为true，则整个条件就是true
-                for (Set<Integer> outputForThisState : equivalentScenarioSet) {
+                for (Set<Integer> outputForThisState : equivalentScenarioSet) { //遍历场景全集，将永真式的赋值与全部场景编号进行对应。
                     outputForThisState.add(
                             ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
                 }
@@ -136,6 +136,7 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
      * 构建事件的等价场景集序偶
      * 1.将每个AND事件的两个条件转换为场景集对
      * 2.将场景集对按照事件的逻辑语义进行集合运算，转换为时序场景集对）
+     * todo 需要把两个等价场景集合更改为等价场景有序对的集合
      *
      * @param ei
      * @return
@@ -269,7 +270,7 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
 
     /**
      * 构建子事件树的两个等价场景集
-     *
+     * todo 永真条件的情况
      * @param ei           事件信息
      * @param subEventTree 子事件树
      * @return {@link ArrayList}<{@link ArrayList}<{@link Long}>>
@@ -316,7 +317,7 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
     }
 
     /**
-     * 计算行方案集对
+     * 计算行场景集对
      *
      * @param eventOp                    事件谓词
      * @param guardOp                    时序谓词
@@ -327,7 +328,7 @@ public class ScenarioHandlerImpl implements com.nuaa.art.vrmcheck.service.obj.Sc
      */
     public  ArrayList<Long>[] caculateScenarioSetPairForRow(String eventOp, String guardOp, ScenarioCorpusCoder coder,
                                         ArrayList<Long> firstConditionScenarioSet, ArrayList<Long> secondConditionScenarioSet){
-        ArrayList<Long> excludeInFirstScenarioSet = new ArrayList<Long>();
+        ArrayList<Long> excludeInFirstScenarioSet = new ArrayList<Long>(); //计算事件谓词条件的补集
         for (long l = 0; l < coder.codeLimit; l++) {
             boolean isZeroIn = false;
             Scenario thisScenario = coder.decode(l);

@@ -36,6 +36,10 @@ public class NaturalLanguageRequirement implements Serializable {
      */
     private Integer reqExcelId;
 
+
+    private Integer moduleId;
+
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 

@@ -36,7 +36,7 @@ public class ConditionItem {
         this.symbol = symbol;
     }
 
-    public boolean isEmpty(){
+    public boolean whetherEmpty(){
         return (var1 == null || var1.isBlank()) && (operator == null || operator.isBlank()) && (var2 == null || var2.isBlank());
     }
 

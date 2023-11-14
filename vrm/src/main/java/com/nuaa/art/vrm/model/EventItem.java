@@ -16,4 +16,8 @@ public class EventItem {
     public ConditionTable eventCondition;
     public String guardOperator = "";
     public ConditionTable guardCondition;
+
+    public boolean whetherEmpty(){
+        return eventOperator.isBlank() && guardOperator.isBlank();
+    }
 }

@@ -6,6 +6,12 @@ import java.util.ArrayList;
 
 @Data
 public class EventTable {
-    Integer andNum;
-    ArrayList<EventItem> events = new ArrayList<>();
+    public Integer andNum = 0;
+    public Integer orNum = 0;
+    public ArrayList<EventItem> events = new ArrayList<>();
+    public ArrayList<ArrayList<String>> orList = new ArrayList<>();
+
+    public void addAndNum(){
+        andNum++;
+    }
 }

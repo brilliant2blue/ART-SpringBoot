@@ -4,5 +4,5 @@ import java.util.List;
 
 public class LoginInfo extends UserInfo{
     public String token;
-    public List<MenuTree> menus;
+    public List<String> menus;
 }

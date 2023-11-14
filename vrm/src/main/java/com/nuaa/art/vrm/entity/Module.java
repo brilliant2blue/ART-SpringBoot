@@ -1,20 +1,19 @@
-package com.nuaa.art.user.entity;
+package com.nuaa.art.vrm.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 /**
  * 
- * @TableName role_access
+ * @TableName vrm_module
  */
-@TableName(value ="sys_role_access")
+@TableName(value ="vrm_module")
 @Data
-public class RoleAccess implements Serializable {
+public class Module implements Serializable {
     /**
      * 
      */
@@ -24,12 +23,17 @@ public class RoleAccess implements Serializable {
     /**
      * 
      */
-    private Integer roleId;
+    private String name;
 
     /**
      * 
      */
-    private Integer accessId;
+    private Integer systemId;
+
+    /**
+     * 
+     */
+    private Integer parentId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
@@ -45,10 +49,11 @@ public class RoleAccess implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        RoleAccess other = (RoleAccess) that;
+        Module other = (Module) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getRoleId() == null ? other.getRoleId() == null : this.getRoleId().equals(other.getRoleId()))
-            && (this.getAccessId() == null ? other.getAccessId() == null : this.getAccessId().equals(other.getAccessId()));
+            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
+            && (this.getSystemId() == null ? other.getSystemId() == null : this.getSystemId().equals(other.getSystemId()))
+            && (this.getParentId() == null ? other.getParentId() == null : this.getParentId().equals(other.getParentId()));
     }
 
     @Override
@@ -56,8 +61,9 @@ public class RoleAccess implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
-        result = prime * result + ((getRoleId() == null) ? 0 : getRoleId().hashCode());
-        result = prime * result + ((getAccessId() == null) ? 0 : getAccessId().hashCode());
+        result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
+        result = prime * result + ((getSystemId() == null) ? 0 : getSystemId().hashCode());
+        result = prime * result + ((getParentId() == null) ? 0 : getParentId().hashCode());
         return result;
     }
 
@@ -68,8 +74,9 @@ public class RoleAccess implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", roleId=").append(roleId);
-        sb.append(", accessId=").append(accessId);
+        sb.append(", name=").append(name);
+        sb.append(", systemId=").append(systemId);
+        sb.append(", parent=").append(parentId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
