@@ -14,10 +14,16 @@ import java.util.List;
 public interface StandardRequirementService extends IService<StandardRequirement> {
     List<StandardRequirement> listStandardRequirementBySystemId(Integer systemId);
     List<StandardRequirement> listStandardRequirementByReqIdAndSystemId(Integer systemId, Integer reqId);
+    List<StandardRequirement> listStandardRequirementByModuleIdAndSystemId(Integer systemId, Integer moduleId);
     StandardRequirement getStandardRequirementById(Integer id);
     boolean insertStandardRequirement(StandardRequirement standardRequirement);
     boolean updateStandardRequirement(StandardRequirement standardRequirement);
     boolean deleteStandardRequirementByReqIdAndSystemId(Integer systemId, Integer reqId);
     boolean deleteOneStandardRequirement(Integer sReqId);
     boolean deleteStandardRequirementBySystemId(@Param("sid")Integer sid);
+    boolean bindModuleByReqId(Integer id, Integer moduleId);
+    boolean bindModuleByReqId(List<Integer> ids, Integer moduleId);
+    boolean releaseModuleByReqIdsAndModuleId(List<Integer> ids, Integer moduleId);
+    boolean releaseModuleByModuleId(Integer systemId, Integer moduleId);
+
 }

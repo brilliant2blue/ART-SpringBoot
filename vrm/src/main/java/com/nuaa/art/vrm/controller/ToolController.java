@@ -59,7 +59,7 @@ public class ToolController {
         return HttpResult.success(eventTableUtils.ConvertStringToTable(s));
     }
 
-    //todo 需求规范化模板
+    // 需求规范化模板
     @Operation(summary = "根据模板ID生成规范化需求语句")
     @PostMapping("tool/sreq/content")
     public HttpResult<String> reqStr(@RequestBody StandardRequirement s, Integer templeteId) {

@@ -28,7 +28,7 @@ public class FileUtils {
         try {
             document = reader.read(new File(FileUrl));
             return document;
-        } catch (DocumentException | MalformedURLException e) {
+        } catch (DocumentException e) {
             LogUtils.error("文件打开失败： "+FileUrl);
             return null;
         }

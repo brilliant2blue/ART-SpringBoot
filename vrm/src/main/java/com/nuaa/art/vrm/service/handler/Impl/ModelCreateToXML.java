@@ -3,13 +3,13 @@ package com.nuaa.art.vrm.service.handler.impl;
 
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.PathUtils;
-import com.nuaa.art.common.websocket.WebSocketService;
-import com.nuaa.art.vrm.common.utils.EntityXmlConvert;
-import com.nuaa.art.vrm.common.utils.VrmXml;
+import com.nuaa.art.vrm.common.utils.VrmModuleXml;
 import com.nuaa.art.vrm.entity.*;
-import com.nuaa.art.vrm.model.ModeClassOfVRM;
-import com.nuaa.art.vrm.model.TableOfVRM;
-import com.nuaa.art.vrm.model.VariableRealationModel;
+import com.nuaa.art.vrm.model.hvrm.ModuleTree;
+import com.nuaa.art.vrm.model.hvrm.TableOfModule;
+import com.nuaa.art.vrm.model.hvrm.HVRM;
+import com.nuaa.art.vrm.model.hvrm.VariableWithPort;
+import com.nuaa.art.vrm.model.vrm.ModeClassOfVRM;
 import com.nuaa.art.vrm.service.dao.*;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
@@ -21,7 +21,6 @@ import java.util.List;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,7 +38,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
     ModelCreateHandler createHandler;
 
     @Resource
-    VrmXml vrmTool;
+    VrmModuleXml vrmTool;
 
 
     /**
@@ -50,8 +49,8 @@ public class ModelCreateToXML implements ModelCreateHandler {
      * @return {@link String} 导出文件名
      */
     @Override
-    public VariableRealationModel createModel(Integer systemId) {
-        VariableRealationModel vrm = (VariableRealationModel) createHandler.createModel(systemId);
+    public HVRM createModel(Integer systemId) {
+        HVRM vrm = (HVRM) createHandler.createModel(systemId);
 
         Document vrmDocument = DocumentHelper.createDocument();
         //创建根节点vrmModel
@@ -98,7 +97,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //添加节点 inputs
         Element inputs = vrmModel.addElement("inputs");
 
-        for (ConceptLibrary iv : vrm.getInputs()) {
+        for (VariableWithPort iv : vrm.getInputs()) {
             //添加节点input
             inputs.add(vrmTool.Input(iv));
         }
@@ -107,7 +106,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //添加节点 terms
         Element terms = vrmModel.addElement("terms");
 
-        for (ConceptLibrary tv : vrm.getTerms()) {
+        for (VariableWithPort tv : vrm.getTerms()) {
             //添加节点input
             terms.add(vrmTool.Term(tv));
         }
@@ -116,18 +115,22 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //添加节点 outputs
         Element outputs = vrmModel.addElement("outputs");
 
-        for (ConceptLibrary ov : vrm.getOutputs()) {
+        for (VariableWithPort ov : vrm.getOutputs()) {
             //添加节点input
             outputs.add(vrmTool.Output(ov));
         }
 
+        Element modules = vrmModel.addElement("modules");
+        for(ModuleTree module: vrm.getModules()){
+            modules.add(vrmTool.Module(module));
+        }
 
         //添加节点tables
         Element tables = vrmModel.addElement("tables");
-        for(TableOfVRM t : vrm.getConditions()){
+        for(TableOfModule t : vrm.getConditions()){
             tables.add(vrmTool.Condition(t));
         }
-        for(TableOfVRM t : vrm.getEvents()){
+        for(TableOfModule t : vrm.getEvents()){
             tables.add(vrmTool.Event(t));
         }
 
@@ -158,7 +161,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
      */
     @Override
     public String modelFile(Integer systemId, String fileUrl) {
-        VariableRealationModel vrm = (VariableRealationModel) createHandler.createModel(systemId);
+        HVRM vrm = (HVRM) createHandler.createModel(systemId);
 
         Document vrmDocument = DocumentHelper.createDocument();
         //创建根节点vrmModel
@@ -225,7 +228,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //添加节点 inputs
         Element inputs = vrmModel.addElement("inputs");
 
-        for (ConceptLibrary iv : vrm.getInputs()) {
+        for (VariableWithPort iv : vrm.getInputs()) {
             //添加节点input
             inputs.add(vrmTool.Input(iv));
         }
@@ -234,7 +237,7 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //添加节点 terms
         Element terms = vrmModel.addElement("terms");
 
-        for (ConceptLibrary tv : vrm.getTerms()) {
+        for (VariableWithPort tv : vrm.getTerms()) {
             //添加节点input
             terms.add(vrmTool.Term(tv));
         }
@@ -243,18 +246,23 @@ public class ModelCreateToXML implements ModelCreateHandler {
         //添加节点 outputs
         Element outputs = vrmModel.addElement("outputs");
 
-        for (ConceptLibrary ov : vrm.getOutputs()) {
+        for (VariableWithPort ov : vrm.getOutputs()) {
             //添加节点input
             outputs.add(vrmTool.Output(ov));
+        }
+
+        Element modules = vrmModel.addElement("modules");
+        for(ModuleTree module: vrm.getModules()){
+            modules.add(vrmTool.Module(module));
         }
 
 
         //添加节点tables
         Element tables = vrmModel.addElement("tables");
-        for(TableOfVRM t : vrm.getConditions()){
+        for(TableOfModule t : vrm.getConditions()){
             tables.add(vrmTool.Condition(t));
         }
-        for(TableOfVRM t : vrm.getEvents()){
+        for(TableOfModule t : vrm.getEvents()){
             tables.add(vrmTool.Event(t));
         }
 

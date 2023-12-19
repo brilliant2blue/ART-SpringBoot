@@ -6,6 +6,7 @@ import com.nuaa.art.common.model.SocketMessage;
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.websocket.WebSocketService;
+import com.nuaa.art.vrm.controller.asynctask.AsyncTaskHandler;
 import com.nuaa.art.vrm.entity.SystemProject;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.dao.SystemProjectService;
@@ -109,33 +110,18 @@ public class ProjectController {
     }
 
 
+    @Resource(name = "vrm")
+    AsyncTaskHandler asyncTaskHandler;
 
     @GetMapping("vrm/file")
     @Operation(summary = "导出项目")
     @Parameter(name = "id",description = "项目编号")
     public HttpResult<String> exportProjectFile(@RequestParam("id")int systemId){
-        creatFile(systemId);
+        asyncTaskHandler.creatFile(systemId);
         return HttpResult.success();
     }
 
 
-    @Async("AsyncTask")
-    public void creatFile(int systemId){
-        try {
-            webSocketService.sendMsg(SocketMessage.asText("project", "生成可导出的工程文件中..."));
-            String fileUrl = projectDataHandler.exportProjectToFile(systemId);
-            if(fileUrl != null){
-                webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成完毕"));
-                webSocketService.sendMsg(SocketMessage.asText("project", "")); //发送空消息，关闭前端进度条
-                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl)); //返回对应工程文件的地址
-            } else {
-                webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
-        }
-    }
 
 
 

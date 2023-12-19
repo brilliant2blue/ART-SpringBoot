@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.nuaa.art</groupId>
         <artifactId>ART</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>main</artifactId>
@@ -41,22 +41,23 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
+            <!-- 1、编译出不带 lib 文件夹的Jar包 -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.nuaa.art.main.MainApplication</mainClass>
+<!--                    <fork>true</fork>-->
+                    <!--引入第三方jar包时,不添加则引入的第三方jar不会被打入jar包中-->
+                    <includeSystemScope>true</includeSystemScope>
+                    <!--排除第三方jar文件-->
+                    <includes>
+                        <include>
+                            <groupId>nothing</groupId>
+                            <artifactId>nothing</artifactId>
+                        </include>
+                    </includes>
+<!--                    <mainClass>com.nuaa.art.main.MainApplication</mainClass>-->
 <!--                    <skip>true</skip>-->
                 </configuration>
                 <executions>
@@ -68,7 +69,119 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- 2、完成对Java代码的编译 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <!-- 用来传递编译器自身不包含但是却支持的参数选项 -->
+<!--                    <compilerArguments>-->
+<!--                        <verbose/>-->
+<!--                        &lt;!&ndash; windows环境（二选一） &ndash;&gt;-->
+<!--                        <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jce.jar</bootclasspath>-->
+<!--                        &lt;!&ndash; Linux环境（二选一） &ndash;&gt;-->
+<!--                        <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jce.jar</bootclasspath>-->
+<!--                    </compilerArguments>-->
+                </configuration>
+            </plugin>
+
+            <!-- 3、将所有依赖的jar文件复制到target/lib目录 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!--复制到哪个路径，${project.build.directory} 缺醒为 target，其他内置参数见下面解释-->
+                            <outputDirectory>${user.dir}/out/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- maven资源文件复制插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-config</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${user.dir}/out/config</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                         <include>*.properties</include>
+                                         <include>*.yml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- 4、指定启动类，指定配置文件，将依赖打成外部jar包 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${user.dir}/out/</outputDirectory>
+                    <archive>
+                        <manifest>
+                            <!-- 是否要把第三方jar加入到类构建路径 -->
+                            <addClasspath>true</addClasspath>
+                            <!-- 外部依赖jar包的最终位置 -->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!-- 项目启动类 -->
+                            <mainClass>com.nuaa.art.main.MainApplication</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>config/</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                    <!--资源文件不打进jar包中，做到配置跟项目分离的效果-->
+                    <excludes>
+                        <!-- 业务jar中过滤application.properties/yml文件，在jar包外控制 -->
+                        <exclude>*.properties</exclude>
+                        <exclude>*.xml</exclude>
+                        <exclude>*.yml</exclude>
+                        <exclude>cache/</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
         </plugins>
+<!--        <resources>-->
+<!--            <resource>-->
+<!--                <directory>resources</directory>-->
+<!--                <includes>-->
+<!--                    <include>*.properties</include>-->
+<!--                    <include>*.yml</include>-->
+<!--                </includes>-->
+<!--                <filtering>true</filtering>-->
+<!--                &lt;!&ndash; 放在项目构建的target的里面	 &ndash;&gt;-->
+<!--                <targetPath>${user.dir}/config/</targetPath>-->
+<!--            </resource>-->
+<!--        </resources>-->
     </build>
 
 </project>

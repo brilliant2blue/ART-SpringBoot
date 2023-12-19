@@ -33,7 +33,7 @@ public class ConceptRelateRequirement implements Serializable {
     /**
      * 
      */
-    private Integer sourceReqId;
+    private String sourceReqId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

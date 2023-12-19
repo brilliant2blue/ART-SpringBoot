@@ -14,9 +14,9 @@ import java.util.List;
 * @createDate 2023-07-10 14:34:19
 */
 public interface ConceptRelateRequirementService extends IService<ConceptRelateRequirement> {
-    List<Integer> getConceptSourceId(@Param("systemId") Integer systemId, @Param("conceptId") Integer conceptId);
+    String getConceptSourceId(@Param("systemId") Integer systemId, @Param("conceptId") Integer conceptId);
 
-    List<Integer> getReqRelateConceptId(@Param("systemId") Integer systemId, @Param("sourceReqId") Integer sourceReqId);
+    String getReqRelateConceptId(@Param("systemId") Integer systemId, @Param("sourceReqId") Integer sourceReqId);
 
     boolean deleteBySystemId(Integer systemId);
     boolean deleteByConceptId(Integer conceptId);
@@ -32,4 +32,8 @@ public interface ConceptRelateRequirementService extends IService<ConceptRelateR
     boolean insertRelationOfConcept(ConceptLibrary item);
 
     boolean updateRelation(ConceptRelateRequirement item);
+
+    String updateRelation(@Param("systemId") Integer systemId, @Param("conceptId") Integer conceptId, @Param("sourceReqId") String sourceReqId);
+
+    boolean includesItem(@Param("systemId") Integer systemId, @Param("conceptId") Integer conceptId);
 }

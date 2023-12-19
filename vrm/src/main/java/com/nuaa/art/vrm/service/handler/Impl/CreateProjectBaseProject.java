@@ -31,6 +31,7 @@ public class CreateProjectBaseProject extends CreateProjectBaseConceptLibrary {
                 copyProperNoun(baseId, project.getSystemId());
                 copyConceptItem(baseId, project.getSystemId());
                 copyModelClass(baseId, project.getSystemId());
+                copyNaturalLanguageRequirement(baseId, project.getSystemId());
                 return 1;
             } catch (Exception e) {
                 LogUtils.error(e.getMessage());

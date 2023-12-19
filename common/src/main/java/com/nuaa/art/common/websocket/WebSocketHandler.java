@@ -22,6 +22,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler{
         if(!user.isBlank()) {
             LogUtils.info(String.format("用户%s建立websocket连接", user));
             WebSocketSessionManager.add(user, session);
+            System.out.println(WebSocketSessionManager.SESSION_POOL.get(user).getId());
         } else {
             session.sendMessage(new TextMessage("用户未登录， 连接关闭！"));
             session.close();

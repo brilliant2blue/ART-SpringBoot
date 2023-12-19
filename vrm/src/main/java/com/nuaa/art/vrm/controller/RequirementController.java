@@ -7,6 +7,7 @@ import com.nuaa.art.common.model.SocketMessage;
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.common.websocket.WebSocketService;
+import com.nuaa.art.vrm.controller.asynctask.AsyncTaskHandler;
 import com.nuaa.art.vrm.entity.ConceptLibrary;
 import com.nuaa.art.vrm.entity.NaturalLanguageRequirement;
 import com.nuaa.art.vrm.entity.StandardRequirement;
@@ -191,34 +192,14 @@ public class RequirementController {
             return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED, 0);
     }
 
-    @Resource
-    WebSocketService webSocketService;
 
-    @Async("AsyncTask")
-    public void creatFile(int systemId){
-        try {
-            String system = daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId).getSystemName();
-            String fileUrl = PathUtils.DefaultPath()+system+"Requirement.xlsx";
-            webSocketService.sendMsg(SocketMessage.asText("requirement", "生成可导出的工程文件中..."));
-            sleep(1000);
-            int count = requirementDataHandler.exportToFile(systemId, fileUrl);
-            if (count > 0){
-                webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成完毕"));
-                webSocketService.sendMsg(SocketMessage.asText("requirement", "")); //发送空消息，关闭前端进度条
-                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl)); //返回对应工程文件的地址
-            } else {
-                webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成失败"));
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成失败"));
-        }
-    }
+    @Resource(name = "vrm")
+    AsyncTaskHandler asyncTaskHandler;
 
     @GetMapping("vrm/{id}/sreq")
     @Operation(summary = "导出规范化需求为Excel")
     public HttpResult<String> exportReqs(@PathVariable("id")int id){
-        creatFile(id);
+        asyncTaskHandler.creatExcelFile(id);
         return HttpResult.success();
     }
 

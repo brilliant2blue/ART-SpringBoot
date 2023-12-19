@@ -31,7 +31,7 @@ public class MainController {
     @PostMapping("/file")
     @Operation(summary = "下载文件")
     public void download(@RequestParam(value = "filename")String fileName, HttpServletResponse response){
-        LogUtils.warn(fileName);
+        //LogUtils.warn(fileName);
         FileUtils.download(fileName,response);
     }
 

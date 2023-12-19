@@ -5,12 +5,12 @@ import com.nuaa.art.main.MainApplication;
 import com.nuaa.art.vrm.common.utils.ConditionTableUtils;
 import com.nuaa.art.vrm.model.ConditionItem;
 import com.nuaa.art.vrm.model.ConditionTable;
-import com.nuaa.art.vrm.model.VariableRealationModel;
+import com.nuaa.art.vrm.model.vrm.VRM;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
-import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
-import com.nuaa.art.vrmcheck.model.obj.NuclearCondition;
-import com.nuaa.art.vrmcheck.service.obj.ConditionCheck;
-import com.nuaa.art.vrmcheck.service.obj.EventCheck;
+import com.nuaa.art.vrmcheck.model.repoter.CheckErrorReporter;
+import com.nuaa.art.vrmcheck.model.table.NuclearCondition;
+import com.nuaa.art.vrmcheck.service.table.ConditionCheck;
+import com.nuaa.art.vrmcheck.service.table.EventCheck;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -77,7 +77,7 @@ public class testConditionInfo {
 
     @Test
     public void testConditionCheck(){
-        VariableRealationModel vrm = (VariableRealationModel) modelObjectCreate.modelFile(null, "D:\\CodePath\\ART\\ART-SpringBoot\\cache\\test3model.xml");
+        VRM vrm = (VRM) modelObjectCreate.modelFile(null, "D:\\CodePath\\ART\\ART-SpringBoot\\cache\\test3model.xml");
         CheckErrorReporter checkErrorReporter = new CheckErrorReporter();
         conditionCheck.checkConditionIntegrityAndConsistency(vrm, checkErrorReporter);
 
@@ -87,7 +87,7 @@ public class testConditionInfo {
     EventCheck eventCheck;
     @Test
     public void testModeTransCheck(){
-        VariableRealationModel vrm = (VariableRealationModel) modelObjectCreate.modelFile(null, "D:\\CodePath\\ART\\ART-SpringBoot\\cache\\testAP.xml");
+        VRM vrm = (VRM) modelObjectCreate.modelFile(null, "D:\\CodePath\\ART\\ART-SpringBoot\\cache\\testAP.xml");
         CheckErrorReporter checkErrorReporter = new CheckErrorReporter();
         eventCheck.checkModeTransConsistency(vrm, checkErrorReporter);
         System.out.println(checkErrorReporter.getErrorList().toString());

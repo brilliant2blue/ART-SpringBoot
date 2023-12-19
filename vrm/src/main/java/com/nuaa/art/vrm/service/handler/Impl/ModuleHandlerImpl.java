@@ -2,7 +2,7 @@ package com.nuaa.art.vrm.service.handler.impl;
 
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.entity.Module;
-import com.nuaa.art.vrm.model.ModuleTree;
+import com.nuaa.art.vrm.model.hvrm.ModuleTree;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.handler.ModuleHandler;
 import jakarta.annotation.Resource;
@@ -51,7 +51,7 @@ public class ModuleHandlerImpl implements ModuleHandler {
                 treeList.addAll(moduleTrees);
             }
             moduleTrees.forEach(item -> {
-                item.setChildren(treeMap.get(item.getId()));
+                item.setChildren((ArrayList<ModuleTree>) treeMap.get(item.getId()));
             });
         });
 
