@@ -1,17 +1,13 @@
 package com.nuaa.art.vrm.service.dao.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.nuaa.art.vrm.entity.ConceptLibrary;
 import com.nuaa.art.vrm.entity.ConceptRelateRequirement;
 import com.nuaa.art.vrm.service.dao.ConceptRelateRequirementService;
 import com.nuaa.art.vrm.mapper.ConceptRelateRequirementMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
 * @author konsin
@@ -21,20 +17,25 @@ import java.util.stream.Collectors;
 @Service
 public class ConceptRelateRequirementServiceImpl extends ServiceImpl<ConceptRelateRequirementMapper, ConceptRelateRequirement>
     implements ConceptRelateRequirementService{
+
     @Override
-    public List<Integer> getConceptSourceId(Integer systemId, Integer conceptId) {
+    public String getConceptSourceId(Integer systemId, Integer conceptId) {
         QueryWrapper<ConceptRelateRequirement> wrapper = new QueryWrapper<>();
         wrapper.select("sourceReqId").eq("systemId",systemId).eq("conceptId", conceptId);
-        List<ConceptRelateRequirement> ids = list(wrapper);
-        return ids.stream().map(ConceptRelateRequirement::getSourceReqId).collect(Collectors.toList());
+        ConceptRelateRequirement ids = getOne(wrapper);
+        if(ids != null)
+            return ids.getSourceReqId().equals("null")? "": ids.getSourceReqId();
+        else return "";
     }
 
     @Override
-    public List<Integer> getReqRelateConceptId(Integer systemId, Integer sourceReqId) {
+    public String getReqRelateConceptId(Integer systemId, Integer sourceReqId) {
         QueryWrapper<ConceptRelateRequirement> wrapper = new QueryWrapper<>();
         wrapper.select("conceptId").eq("systemId",systemId).eq("sourceReqId", sourceReqId);
-        List<ConceptRelateRequirement> ids = list(wrapper);
-        return ids.stream().map(ConceptRelateRequirement::getConceptId).collect(Collectors.toList());
+        ConceptRelateRequirement ids = getOne(wrapper);
+        if(ids != null)
+            return ids.getSourceReqId().equals("null")? "": ids.getSourceReqId();
+        else return "";
     }
 
     @Override
@@ -77,20 +78,20 @@ public class ConceptRelateRequirementServiceImpl extends ServiceImpl<ConceptRela
 
     @Override
     public boolean insertRelationOfConcept(ConceptLibrary conceptLibrary) {
-        if(conceptLibrary.getSourceReqId() == null) {
-            return true;
+        String ids = conceptLibrary.getSourceReqId();
+        if(ids.equals("null")) {
+            ids = "";
         }
         ConceptRelateRequirement item = new ConceptRelateRequirement();
-        for(Integer reqId: conceptLibrary.getSourceReqId()){
-            item.setId(null);
-            item.setSystemId(conceptLibrary.getSystemId());
-            item.setConceptId(conceptLibrary.getConceptId());
-            item.setSourceReqId(reqId);
-            if(insertRelation(item) < 0){
-                deleteBySystemIdAndConceptId(conceptLibrary.getSystemId(),conceptLibrary.getConceptId());
-                return false;
-            };
-        }
+
+        item.setId(null);
+        item.setSystemId(conceptLibrary.getSystemId());
+        item.setConceptId(conceptLibrary.getConceptId());
+        item.setSourceReqId(ids);
+        if(insertRelation(item) < 0){
+            deleteBySystemIdAndConceptId(conceptLibrary.getSystemId(),conceptLibrary.getConceptId());
+            return false;
+        };
         return true;
     }
 
@@ -102,6 +103,24 @@ public class ConceptRelateRequirementServiceImpl extends ServiceImpl<ConceptRela
     @Override
     public boolean updateRelation(ConceptRelateRequirement item) {
         return updateById(item);
+    }
+
+    @Override
+    public String updateRelation(Integer systemId, Integer conceptId, String sourceReqId) {
+        LambdaUpdateWrapper<ConceptRelateRequirement> wrapper = new LambdaUpdateWrapper<ConceptRelateRequirement>()
+                .set(ConceptRelateRequirement::getSourceReqId, sourceReqId)
+                .eq(ConceptRelateRequirement::getSystemId,systemId).eq(ConceptRelateRequirement::getConceptId, conceptId);
+        if(update(wrapper)){
+            return sourceReqId;
+        };
+        return "";
+    }
+
+    @Override
+    public boolean includesItem(Integer systemId, Integer conceptId) {
+        QueryWrapper<ConceptRelateRequirement> wrapper = new QueryWrapper<>();
+        wrapper.select("sourceReqId").eq("systemId",systemId).eq("conceptId", conceptId);
+        return count(wrapper) > 0;
     }
 }
 

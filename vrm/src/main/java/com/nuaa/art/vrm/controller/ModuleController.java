@@ -2,8 +2,7 @@ package com.nuaa.art.vrm.controller;
 
 import com.nuaa.art.common.model.HttpResult;
 import com.nuaa.art.vrm.entity.Module;
-import com.nuaa.art.vrm.entity.NaturalLanguageRequirement;
-import com.nuaa.art.vrm.model.ModuleTree;
+import com.nuaa.art.vrm.model.hvrm.ModuleTree;
 import com.nuaa.art.vrm.service.dao.ModuleService;
 import com.nuaa.art.vrm.service.dao.NaturalLanguageRequirementService;
 import com.nuaa.art.vrm.service.handler.ModuleHandler;
@@ -28,7 +27,7 @@ public class ModuleController {
     @Operation(summary = "获取模块树列表")
     public HttpResult<List<ModuleTree>> getModuleTree(@PathVariable("systemid") Integer id){
         List<Module> modules = moduleService.listModulesBySystemId(id);
-        System.out.println(modules.toString());
+        //System.out.println(modules.toString());
         return HttpResult.success(moduleHandler.ModulesToModuleTree(modules));
     }
 

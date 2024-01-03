@@ -1,5 +1,6 @@
 package com.nuaa.art.vrm.common.utils;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.model.EventItem;
 import com.nuaa.art.vrm.model.EventTable;
 import jakarta.annotation.Resource;
@@ -28,7 +29,7 @@ public class EventTableUtils {
         if (eventTable.getAndNum() == 0) return "";
         if (eventTable.getAndNum() == 1 && eventTable.getOrNum() == 1 && eventTable.getEvents().get(0).whetherEmpty()){
             String OR = eventTable.getOrList().get(0).get(0);
-            if(OR.equals(".")) return "";
+            if(OR.equals(".")) return "default";
             else if(OR.equals("T")) return "true";
             else return "never";
         }
@@ -102,7 +103,7 @@ public class EventTableUtils {
      */
     public EventTable ConvertStringToTable(String event) {
         EventTable eventResult = new EventTable();
-        if(event.isBlank()){
+        if(event.isBlank() || event.equalsIgnoreCase("default")){
             EventItem subEvent = new EventItem();
             eventResult.getEvents().add(subEvent);
             eventResult.setAndNum(1);
@@ -111,7 +112,7 @@ public class EventTableUtils {
             orList.add(".");
             eventResult.getOrList().add(orList);
             return eventResult;
-        } else if(event.equals("true")){
+        } else if(event.equalsIgnoreCase("true")){
             EventItem subEvent = new EventItem();
             eventResult.getEvents().add(subEvent);
             eventResult.setAndNum(1);
@@ -120,7 +121,7 @@ public class EventTableUtils {
             orList.add("T");
             eventResult.getOrList().add(orList);
             return eventResult;
-        }else if(event.equals("never")){
+        }else if(event.equalsIgnoreCase("never")){
             EventItem subEvent = new EventItem();
             eventResult.getEvents().add(subEvent);
             eventResult.setAndNum(1);
@@ -191,6 +192,7 @@ public class EventTableUtils {
         String guardOp = "";
         String guardCondition = "";
 
+        System.out.println("完整事件："+singleEvent);
 
         if (singleEvent.contains("@T")) {
             eventOp = "@T";
@@ -232,8 +234,20 @@ public class EventTableUtils {
         subEvent.setEventOperator(eventOp);
         subEvent.setGuardOperator(guardOp);
         try {
+            // 去除首尾的小括号
+            if (eventCondition.charAt(0) == '(') eventCondition = eventCondition.substring(1);
+            if (eventCondition.charAt(eventCondition.length() - 1) == ')')
+                eventCondition = eventCondition.substring(0, eventCondition.length() - 1);
             subEvent.setEventCondition(conditionTableUtils.ConvertStringToTable(eventCondition));
-            subEvent.setGuardCondition(conditionTableUtils.ConvertStringToTable(guardCondition));
+            if(!guardOp.isBlank()){ // 为保持数据结构完整，即便guard为空也要填充永真
+                // 去除首尾的小括号
+                if(guardCondition.charAt(0) == '(') guardCondition = guardCondition.substring(1);
+                if(guardCondition.charAt(guardCondition.length()-1) == ')') guardCondition =guardCondition.substring(0, guardCondition.length()-1);
+                subEvent.setGuardCondition(conditionTableUtils.ConvertStringToTable(guardCondition));
+            } else {
+                subEvent.setGuardCondition(conditionTableUtils.ConvertStringToTable("true"));
+            }
+
             return subEvent;
         } catch (Exception e){
             throw new RuntimeException("condition");

@@ -1,7 +1,8 @@
 package com.nuaa.art.vrm.service.handler;
 
 import com.nuaa.art.vrm.entity.Module;
-import com.nuaa.art.vrm.model.ModuleTree;
+import com.nuaa.art.vrm.model.hvrm.ModuleTree;
+import com.nuaa.art.vrm.model.vrm.VRM;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ import java.util.List;
  */
 public interface ModuleHandler {
     List<ModuleTree> ModulesToModuleTree(List<Module> modules);
+
 }

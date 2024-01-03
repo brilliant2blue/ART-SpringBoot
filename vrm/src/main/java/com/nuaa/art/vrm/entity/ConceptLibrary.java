@@ -70,7 +70,10 @@ public class ConceptLibrary implements Serializable {
 
 
     @TableField(exist = false)
-    private List<Integer> sourceReqId;
+    private String sourceReqId;
+
+    @TableField(exist = false)
+    private boolean valid;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -147,12 +147,14 @@ public class ConceptLibraryServiceImpl extends ServiceImpl<ConceptLibraryMapper,
     public List<ConceptLibrary> refreshRelation(List<ConceptLibrary> items){
         for(ConceptLibrary item : items){
             item.setSourceReqId(relateRequirement.getConceptSourceId(item.getSystemId(),item.getConceptId()));
+            item.setValid(relateRequirement.includesItem(item.getSystemId(),item.getConceptId()));
         }
         return items;
     }
 
     public ConceptLibrary refreshRelation(ConceptLibrary item){
         item.setSourceReqId(relateRequirement.getConceptSourceId(item.getSystemId(),item.getConceptId()));
+        item.setValid(relateRequirement.includesItem(item.getSystemId(),item.getConceptId()));
         return item;
     }
 
@@ -172,6 +174,19 @@ public class ConceptLibraryServiceImpl extends ServiceImpl<ConceptLibraryMapper,
         return true;
     }
 
+    @Override
+    public boolean switchValidStatus(Integer id) {
+        ConceptLibrary item = getConceptById(id);
+        boolean valid = item.isValid();
+        if(valid){
+            relateRequirement.deleteRelationOfConcept(item);
+            item.setValid(false);
+        } else {
+            relateRequirement.insertRelationOfConcept(item);
+            item.setValid(true);
+        }
+        return item.isValid();
+    }
 }
 
 

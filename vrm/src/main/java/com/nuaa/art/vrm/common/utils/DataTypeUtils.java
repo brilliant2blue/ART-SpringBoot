@@ -3,8 +3,6 @@ package com.nuaa.art.vrm.common.utils;
 import com.nuaa.art.vrm.common.BasicDataType;
 import com.nuaa.art.vrm.entity.ConceptLibrary;
 import com.nuaa.art.vrm.entity.Type;
-import com.nuaa.art.vrm.model.VariableRealationModel;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

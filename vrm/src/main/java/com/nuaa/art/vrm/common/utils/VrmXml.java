@@ -1,12 +1,10 @@
 package com.nuaa.art.vrm.common.utils;
 
-import com.nuaa.art.common.utils.ListUtils;
-import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.common.ConceptItemType;
 import com.nuaa.art.vrm.entity.*;
-import com.nuaa.art.vrm.model.ModeClassOfVRM;
-import com.nuaa.art.vrm.model.TableOfVRM;
-import com.nuaa.art.vrm.model.TableRow;
+import com.nuaa.art.vrm.model.vrm.ModeClassOfVRM;
+import com.nuaa.art.vrm.model.vrm.TableOfVRM;
+import com.nuaa.art.vrm.model.vrm.TableRow;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.stereotype.Component;
@@ -52,10 +50,10 @@ public class VrmXml extends EntityXmlConvert {
             description.setText(conLibrary.getConceptDescription());
         }
 
-        Element relateReq = constant.addElement("relateReq");
-        if (conLibrary.getSourceReqId() != null) {
-            relateReq.setText(ListUtils.NumArrayToString(conLibrary.getSourceReqId()));
-        }
+//        Element relateReq = constant.addElement("relateReq");
+//        if (conLibrary.getSourceReqId() != null) {
+//            relateReq.setText(ListUtils.NumArrayToString(conLibrary.getSourceReqId()));
+//        }
         return constant;
     }
 
@@ -65,7 +63,7 @@ public class VrmXml extends EntityXmlConvert {
         con.setConceptDatatype(conEle.elementText("constantType"));
         con.setConceptValue(conEle.elementText("value"));
         con.setConceptDescription(conEle.elementText("description"));
-        con.setSourceReqId(ListUtils.StringToNumArray(conEle.elementText("relateReq")));
+        //con.setSourceReqId(ListUtils.StringToNumArray(conEle.elementText("relateReq")));
         return con;
     }
 
@@ -102,10 +100,10 @@ public class VrmXml extends EntityXmlConvert {
             accuracy.setText(iv.getConceptAccuracy());
         }
 
-        Element relateReq = input.addElement("relateReq");
-        if (iv.getSourceReqId() != null) {
-            relateReq.setText(ListUtils.NumArrayToString(iv.getSourceReqId()));
-        }
+//        Element relateReq = input.addElement("relateReq");
+//        if (iv.getSourceReqId() != null) {
+//            relateReq.setText(ListUtils.NumArrayToString(iv.getSourceReqId()));
+//        }
         return input;
     }
 
@@ -116,7 +114,7 @@ public class VrmXml extends EntityXmlConvert {
         iv.setConceptValue(inputEle.elementText("initialValue"));
         iv.setConceptAccuracy(inputEle.elementText("accuracy"));
         iv.setConceptRange(inputEle.elementText("range"));
-        iv.setSourceReqId(ListUtils.StringToNumArray(inputEle.elementText("relateReq")));
+        //iv.setSourceReqId(ListUtils.StringToNumArray(inputEle.elementText("relateReq")));
         return iv;
     }
 
@@ -155,13 +153,13 @@ public class VrmXml extends EntityXmlConvert {
 
         Element modeClass = term.addElement("relateReqMC");
         if (tv.getConceptDependencyModeClass() != null) {
-            accuracy.setText(tv.getConceptDependencyModeClass());
+            modeClass.setText(tv.getConceptDependencyModeClass());
         }
 
-        Element relateReq = term.addElement("relateReq");
-        if (tv.getSourceReqId() != null) {
-            relateReq.setText(ListUtils.NumArrayToString(tv.getSourceReqId()));
-        }
+//        Element relateReq = term.addElement("relateReq");
+//        if (tv.getSourceReqId() != null) {
+//            relateReq.setText(ListUtils.NumArrayToString(tv.getSourceReqId()));
+//        }
         return term;
     }
 
@@ -172,7 +170,8 @@ public class VrmXml extends EntityXmlConvert {
         tv.setConceptValue(termEle.elementText("initialValue"));
         tv.setConceptAccuracy(termEle.elementText("accuracy"));
         tv.setConceptRange(termEle.elementText("range"));
-        tv.setSourceReqId(ListUtils.StringToNumArray(termEle.elementText("relateReq")));
+        tv.setConceptDependencyModeClass(termEle.elementText("relateReqMC"));
+        //tv.setSourceReqId(ListUtils.StringToNumArray(termEle.elementText("relateReq")));
         return tv;
     }
 
@@ -211,34 +210,25 @@ public class VrmXml extends EntityXmlConvert {
 
         Element modeClass = output.addElement("relateReqMC");
         if (ov.getConceptDependencyModeClass() != null) {
-            accuracy.setText(ov.getConceptDependencyModeClass());
+            modeClass.setText(ov.getConceptDependencyModeClass());
         }
 
-        Element relateReq = output.addElement("relateReq");
-        if (ov.getSourceReqId() != null) {
-            relateReq.setText(ListUtils.NumArrayToString(ov.getSourceReqId()));
-        }
+//        Element relateReq = output.addElement("relateReq");
+//        if (ov.getSourceReqId() != null) {
+//            relateReq.setText(ListUtils.NumArrayToString(ov.getSourceReqId()));
+//        }
         return output;
     }
 
     public ConceptLibrary Output(Element outputEle) {
-        ConceptLibrary tv = new ConceptLibrary();
-        tv.setConceptName(outputEle.attributeValue("name"));
-        tv.setConceptDatatype(outputEle.elementText("outputType"));
-        tv.setConceptValue(outputEle.elementText("initialValue"));
-        tv.setConceptAccuracy(outputEle.elementText("accuracy"));
-        tv.setConceptRange(outputEle.elementText("range"));
-        tv.setSourceReqId(ListUtils.StringToNumArray(outputEle.elementText("relateReq")));
-        return tv;
-    }
-    public ConceptLibrary XMLToOutput(Element outputEle) {
         ConceptLibrary ov = new ConceptLibrary();
         ov.setConceptName(outputEle.attributeValue("name"));
         ov.setConceptDatatype(outputEle.elementText("outputType"));
         ov.setConceptValue(outputEle.elementText("initialValue"));
         ov.setConceptAccuracy(outputEle.elementText("accuracy"));
         ov.setConceptRange(outputEle.elementText("range"));
-        ov.setSourceReqId(ListUtils.StringToNumArray(outputEle.elementText("relateReq")));
+        ov.setConceptDependencyModeClass(outputEle.elementText("relateReqMC"));
+        //tv.setSourceReqId(ListUtils.StringToNumArray(outputEle.elementText("relateReq")));
         return ov;
     }
 
@@ -482,14 +472,14 @@ public class VrmXml extends EntityXmlConvert {
     public Element ModeClassVRM(ModeClassOfVRM mcv) {
         Element stateMachine = DocumentHelper.createElement("stateMachine");
         ModeClass mc = mcv.getModeClass();
-        if (mc.getModeClassName() != null) {
-            stateMachine.addAttribute("name", mc.getModeClassName());
-        }
+        stateMachine.addAttribute("name", mc.getModeClassName()+"");
+
         //添加节点description
-        Element description = stateMachine.addElement("description");
-        if (mc.getModeClassDescription() != null) {
-            description.setText(mc.getModeClassDescription());
-        }
+        stateMachine.addElement("description",mc.getModeClassDescription()+"");
+        Element parentMode = stateMachine.addElement("parentMode");
+        parentMode.addAttribute("modeClass", mc.getParentName()+"");
+        parentMode.addAttribute("mode", mc.getParentModeName()+"");
+
 
         //添加节点stateList
         Element stateList = stateMachine.addElement("stateList");
@@ -549,6 +539,9 @@ public class VrmXml extends EntityXmlConvert {
         mc.setModeClassName(mcv.attributeValue("name"));
         //添加节点description
         mc.setModeClassDescription(mcv.elementText("description"));
+        Element parent = mcv.element("parentMode");
+        mc.setParentName(parent.attributeValue("modeClass"));
+        mc.setParentModeName(parent.attributeValue("mode"));
 
         //添加节点stateList
         Iterator stateList = mcv.element("stateList").elementIterator();

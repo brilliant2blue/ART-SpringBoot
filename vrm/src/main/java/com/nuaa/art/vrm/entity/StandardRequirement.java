@@ -67,6 +67,11 @@ public class StandardRequirement implements Serializable {
     private String mode;
 
     /**
+     *
+     */
+    private Integer moduleId;
+
+    /**
      * 
      */
     private Integer systemId;
@@ -96,6 +101,7 @@ public class StandardRequirement implements Serializable {
             && (this.getStandardReqContent() == null ? other.getStandardReqContent() == null : this.getStandardReqContent().equals(other.getStandardReqContent()))
             && (this.getTemplateType() == null ? other.getTemplateType() == null : this.getTemplateType().equals(other.getTemplateType()))
             && (this.getMode() == null ? other.getMode() == null : this.getMode().equals(other.getMode()))
+            && (this.getModuleId() == null ? other.getModuleId() == null : this.getModuleId().equals(other.getModuleId()))
             && (this.getSystemId() == null ? other.getSystemId() == null : this.getSystemId().equals(other.getSystemId()));
     }
 
@@ -113,6 +119,7 @@ public class StandardRequirement implements Serializable {
         result = prime * result + ((getStandardReqContent() == null) ? 0 : getStandardReqContent().hashCode());
         result = prime * result + ((getTemplateType() == null) ? 0 : getTemplateType().hashCode());
         result = prime * result + ((getMode() == null) ? 0 : getMode().hashCode());
+        result = prime * result + ((getModuleId() == null) ? 0 : getModuleId().hashCode());
         result = prime * result + ((getSystemId() == null) ? 0 : getSystemId().hashCode());
         return result;
     }
@@ -133,6 +140,7 @@ public class StandardRequirement implements Serializable {
         sb.append(", standardReqContent=").append(standardReqContent);
         sb.append(", templateType=").append(templateType);
         sb.append(", mode=").append(mode);
+        sb.append(", moduleId=").append(moduleId);
         sb.append(", systemId=").append(systemId);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

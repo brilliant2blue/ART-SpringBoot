@@ -2,8 +2,6 @@ package com.nuaa.art.vrm.model;
 
 import lombok.Data;
 
-import java.util.ArrayList;
-
 /**
  * 原子事件
  *
@@ -16,6 +14,21 @@ public class EventItem {
     public ConditionTable eventCondition;
     public String guardOperator = "";
     public ConditionTable guardCondition;
+
+    public EventItem() {
+        super();
+    }
+
+    public EventItem(String eventOperator, ConditionTable eventCondition, String guardOperator, ConditionTable guardCondition) {
+        this.eventOperator = eventOperator;
+        this.eventCondition = new ConditionTable(eventCondition);
+        this.guardOperator = guardOperator;
+        this.guardCondition = new ConditionTable(guardCondition);
+    }
+
+    public EventItem(EventItem item){
+        this(item.getEventOperator(),item.getEventCondition(),item.getGuardOperator(),item.getGuardCondition());
+    }
 
     public boolean whetherEmpty(){
         return eventOperator.isBlank() && guardOperator.isBlank();

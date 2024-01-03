@@ -44,6 +44,17 @@ public class ConditionTable {
                 this.logicString = "";
         }
 
+        // 深拷贝构造
+        public ConditionTable(ConditionTable condition) {
+                this.andNum = condition.getAndNum();
+                this.orNum = condition.getOrNum();
+                for(var con: condition.conditionItems)
+                        this.conditionItems.add(new ConditionItem(con));
+                for(var or : condition.orList)
+                        this.orList.add(new ArrayList<>(or));
+                this.logicString = condition.getLogicString();
+        }
+
         public Integer getAndNum() {
                 return andNum;
         }

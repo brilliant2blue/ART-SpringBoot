@@ -2,7 +2,11 @@ package com.nuaa.art.common.websocket;
 
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.ServletUtils;
+import com.nuaa.art.common.utils.ThreadLocalUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -34,9 +38,19 @@ public class WebSocketService {
 
     public <T> void sendMsg(T msg) {
         try {
-            String user = ServletUtils.getRequest().getHeader("user");
+            String user, url;
+            var par = ThreadLocalUtils.getRequest();
+            if(par != null) {
+                user = (String) par.get("user");
+                //url = String.valueOf(par.get("url"));
+                System.out.println(user);
+            } else {
+                var request = ServletUtils.getRequest();
+                user = request.getHeader("user");
+                //url = String.valueOf(request.getRequestURL());
+            }
             LogUtils.info("对连接发送消息：" + user);
-            System.out.println(ServletUtils.getRequest().getRequestURL());
+            //System.out.println(url);
             //LogUtils.info(user);
             WebSocketSession session = WebSocketSessionManager.get(user);
             if (msg instanceof String) {
@@ -46,7 +60,8 @@ public class WebSocketService {
                 sendMsg(session, (TextMessage) msg);
             }
         } catch (Exception e){
-            LogUtils.error("websocket向session发送消息失败。");
+            //e.printStackTrace();
+            LogUtils.error("websocket向session发送消息失败。\n"+e.getMessage());
         }
     }
 

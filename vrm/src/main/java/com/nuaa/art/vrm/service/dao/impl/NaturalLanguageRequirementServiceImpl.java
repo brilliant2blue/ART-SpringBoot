@@ -99,6 +99,7 @@ public class NaturalLanguageRequirementServiceImpl extends ServiceImpl<NaturalLa
         LambdaUpdateWrapper<NaturalLanguageRequirement> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(NaturalLanguageRequirement::getReqId, id);
         wrapper.set(NaturalLanguageRequirement::getModuleId, moduleId);
+        service.bindModuleByReqId(id, moduleId);
         return update(wrapper);
     }
 
@@ -107,6 +108,7 @@ public class NaturalLanguageRequirementServiceImpl extends ServiceImpl<NaturalLa
         LambdaUpdateWrapper<NaturalLanguageRequirement> wrapper = new LambdaUpdateWrapper<>();
         wrapper.in(NaturalLanguageRequirement::getReqId, ids);
         wrapper.set(NaturalLanguageRequirement::getModuleId, moduleId);
+        service.bindModuleByReqId(ids, moduleId);
         return update(wrapper);
     }
 
@@ -116,6 +118,7 @@ public class NaturalLanguageRequirementServiceImpl extends ServiceImpl<NaturalLa
         wrapper.in(NaturalLanguageRequirement::getReqId, ids);
         wrapper.eq(NaturalLanguageRequirement::getModuleId, moduleId);
         wrapper.set(NaturalLanguageRequirement::getModuleId, 0);
+        service.releaseModuleByReqIdsAndModuleId(ids, moduleId);
         return update(wrapper);
     }
 
@@ -125,6 +128,7 @@ public class NaturalLanguageRequirementServiceImpl extends ServiceImpl<NaturalLa
         wrapper.eq(NaturalLanguageRequirement::getSystemId, systemId);
         wrapper.eq(NaturalLanguageRequirement::getModuleId, moduleId);
         wrapper.set(NaturalLanguageRequirement::getModuleId, 0);
+        service.releaseModuleByModuleId(systemId, moduleId);
         return update(wrapper);
     }
 }

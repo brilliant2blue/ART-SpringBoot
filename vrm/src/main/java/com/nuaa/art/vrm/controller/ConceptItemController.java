@@ -3,8 +3,10 @@ package com.nuaa.art.vrm.controller;
 import com.nuaa.art.common.HttpCodeEnum;
 import com.nuaa.art.common.model.HttpResult;
 import com.nuaa.art.vrm.entity.ConceptLibrary;
+import com.nuaa.art.vrm.entity.ConceptRelateRequirement;
 import com.nuaa.art.vrm.entity.ProperNoun;
 import com.nuaa.art.vrm.service.dao.ConceptLibraryService;
+import com.nuaa.art.vrm.service.dao.ConceptRelateRequirementService;
 import com.nuaa.art.vrm.service.dao.DaoHandler;
 import com.nuaa.art.vrm.service.dao.ProperNounService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +40,18 @@ public class ConceptItemController {
         } else {
             return new HttpResult<>(HttpCodeEnum.NOT_FOUND, null);
         }
+    }
+
+    @PostMapping("vrm/{id}/vars/{varid}")
+    @Operation(summary = "切换变量有效状态", description = "切换变量在工程中的有效状态")
+    public HttpResult<Boolean> switchConceptStatus (@PathVariable("id") Integer systemId, @PathVariable("varid")Integer varId){
+        return HttpResult.success(daoHandler.getDaoService(ConceptLibraryService.class).switchValidStatus(varId));
+    }
+
+    @PutMapping("vrm/{id}/vars/{varid}/reqs")
+    @Operation(summary = "修改变量关联的需求", description = "修改变量关联的需求")
+    public HttpResult<String> updateSourceReqId (@RequestBody String ids, @PathVariable("id") Integer systemId, @PathVariable("varid")Integer varId){
+        return HttpResult.success(daoHandler.getDaoService(ConceptRelateRequirementService.class).updateRelation(systemId, varId, ids));
     }
 
 

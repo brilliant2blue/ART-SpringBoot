@@ -35,6 +35,13 @@ public class ConditionItem {
         this.var2 = var2;
         this.symbol = symbol;
     }
+    // 深拷贝构造
+    public ConditionItem(ConditionItem item){
+        this.var1 = item.var1;
+        this.operator = item.operator;
+        this.var2 = item.var2;
+        this.symbol = item.symbol;
+    }
 
     public boolean whetherEmpty(){
         return (var1 == null || var1.isBlank()) && (operator == null || operator.isBlank()) && (var2 == null || var2.isBlank());

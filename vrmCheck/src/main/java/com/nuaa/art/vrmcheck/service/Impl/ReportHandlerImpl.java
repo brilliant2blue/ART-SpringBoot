@@ -1,4 +1,4 @@
-package com.nuaa.art.vrmcheck.service.impl;
+package com.nuaa.art.vrmcheck.service.Impl;
 
 import com.nuaa.art.common.utils.FileUtils;
 import com.nuaa.art.common.utils.ListUtils;
@@ -6,18 +6,14 @@ import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.vrm.entity.SystemProject;
 import com.nuaa.art.vrm.service.dao.SystemProjectService;
-import com.nuaa.art.vrmcheck.common.CheckErrorType;
-import com.nuaa.art.vrmcheck.model.CheckErrorInfo;
-import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
+import com.nuaa.art.vrmcheck.model.repoter.CheckErrorInfo;
+import com.nuaa.art.vrmcheck.model.repoter.CheckErrorReporter;
 import com.nuaa.art.vrmcheck.service.ReportHandler;
 import jakarta.annotation.Resource;
-import org.apache.juli.logging.Log;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.ElementHandler;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

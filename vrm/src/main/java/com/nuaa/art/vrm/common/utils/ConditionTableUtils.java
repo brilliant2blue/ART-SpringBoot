@@ -1,5 +1,6 @@
 package com.nuaa.art.vrm.common.utils;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.model.ConditionItem;
 import com.nuaa.art.vrm.model.ConditionTable;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,10 @@ public class ConditionTableUtils {
          * 其余情况返回空值，即默认
          */
         if (conditionTable.getAndNum() == 0) {
-            return "";
+            return "default";
         } else if(conditionTable.getAndNum() == 1 && conditionTable.getOrNum() == 1 && conditionTable.getConditionItems().get(0).whetherEmpty()){
             String OR = conditionTable.getOrList().get(0).get(0);
-            if(OR.equals(".")) return "";
+            if(OR.equals(".")) return "default";
             else if(OR.equals("T")) return "true";
             else return "false";
         }
@@ -95,8 +96,8 @@ public class ConditionTableUtils {
 
     public ConditionTable ConvertStringToTable(String condition) {
         ConditionTable conditionTable = new ConditionTable();
-        //System.out.println("完整的条件语句:   " + condition);
-        if (condition.equalsIgnoreCase("")) {
+        System.out.println("完整的条件语句:   " + condition);
+        if (condition.equalsIgnoreCase("") || condition.equalsIgnoreCase("default")) {
             conditionTable.getConditionItems().add(new ConditionItem());
             conditionTable.addAndNum();
             conditionTable.setOrNum(1);
@@ -155,40 +156,40 @@ public class ConditionTableUtils {
                     for (int i = 0; i < conditionTable.getOrNum(); i++) {    //初始化orList行
                         orList.add(".");
                     }
-
-                    boolean moreOper = s1.contains(">");
-                    boolean equalOper = s1.contains("=");
-                    boolean lessOper = s1.contains("<");
+                    // 修复 字符转换的bug
+                    boolean moreOper = nuclearCondition.contains(">");
+                    boolean equalOper = nuclearCondition.contains("=");
+                    boolean lessOper = nuclearCondition.contains("<");
                     boolean isNotCondition = false;
                     String left = "";
                     String right = "";
                     String operator = "";
                     int operIndex = 0;
                     if (moreOper == true) {
-                        operIndex = s1.indexOf(">");
+                        operIndex = nuclearCondition.indexOf(">");
                         operator = ">";
                     }
 
                     if (equalOper == true) {
-                        operIndex = s1.indexOf("=");
+                        operIndex = nuclearCondition.indexOf("=");
                         operator = "=";
                     }
 
                     if (lessOper == true) {
-                        operIndex = s1.indexOf("<");
+                        operIndex = nuclearCondition.indexOf("<");
                         operator = "<";
                     }
 
                     if (moreOper == false && lessOper == false && equalOper == false) {
-                        String temp = s1.replaceAll("\\(", "");
+                        String temp = nuclearCondition.replaceAll("\\(", "");
                         temp = temp.replaceAll("\\)", "");
 
                         left = temp;
                         right = "";
                     } else {
 
-                        left = s1.substring(0, operIndex).trim();
-                        right = s1.substring(operIndex + 1).trim();
+                        left = nuclearCondition.substring(0, operIndex).trim();
+                        right = nuclearCondition.substring(operIndex + 1).trim();
 
                         //处理左值
                         left = left.replaceAll("\\(", "");

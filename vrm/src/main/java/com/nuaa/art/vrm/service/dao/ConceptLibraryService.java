@@ -26,4 +26,6 @@ public interface ConceptLibraryService extends IService<ConceptLibrary> {
     boolean deleteConceptById(Integer systemId);
     boolean deleteConceptByProId(Integer proId);
 
+    boolean switchValidStatus(Integer id);
+
 }

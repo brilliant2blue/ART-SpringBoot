@@ -115,13 +115,10 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
                 variable.setSystemId(systemId);
                 String reqID = variableNode.elementText("relateReq");
                 if(reqID.equals("null")){
-                    variable.setSourceReqId( null);
+                    variable.setSourceReqId("");
                 } else {
-                    for (String s : Collections.singletonList(reqID)){
-                        if(s!=""){
-                            variable.getSourceReqId().add(Integer.valueOf(s));
-                        }
-                    }
+                    variable.setSourceReqId(reqID);
+
                 }
                 daoHandler.getDaoService(ConceptLibraryService.class).insertConcept(variable);
             }

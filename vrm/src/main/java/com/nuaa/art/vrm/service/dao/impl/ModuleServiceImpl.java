@@ -61,13 +61,15 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module>
     @Transactional
     public boolean deleteModuleById(Integer id) {
         Module module = getModuleById(id);
-        return requirementService.releaseModuleByModuleId(module.getSystemId(), id) && removeById(id);
+        requirementService.releaseModuleByModuleId(module.getSystemId(), id);
+        return removeById(id);
     }
 
     @Override
     @Transactional
     public boolean deleteModule(Module module) {
-        return requirementService.releaseModuleByModuleId(module.getSystemId(), module.getId()) && removeById(module);
+        requirementService.releaseModuleByModuleId(module.getSystemId(), module.getId());
+        return removeById(module);
     }
 
     @Override
@@ -75,10 +77,12 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module>
     public boolean deleteModulesBySystemId(Integer systemId) {
         boolean flag = true;
             List<Module> modules = list(new LambdaQueryWrapper<Module>().eq(Module::getSystemId, systemId));
-            for (Module module : modules)
-                if (!(requirementService.releaseModuleByModuleId(systemId, module.getId()) && removeById(module))) {
+            for (Module module : modules) {
+                requirementService.releaseModuleByModuleId(systemId, module.getId());
+                if (!removeById(module)) {
                     flag = false;
                 }
+            }
             return flag;
     }
 
@@ -94,9 +98,9 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module>
         boolean flag = true;
         List<Module> modules = list(new LambdaQueryWrapper<Module>().eq(Module::getSystemId, systemId).eq(Module::getParentId, id));
         for(Module module : modules) {
-            if (!(deleteAllChilds(systemId, module.getId())
-                    && requirementService.releaseModuleByModuleId(systemId, module.getId())
-                    && removeById(module))) {
+            deleteAllChilds(systemId, module.getId());
+            requirementService.releaseModuleByModuleId(systemId, module.getId());
+            if (!(removeById(module))) {
                 flag = false;
                 break;
             }

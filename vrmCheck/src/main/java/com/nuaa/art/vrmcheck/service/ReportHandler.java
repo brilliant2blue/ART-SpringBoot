@@ -1,6 +1,6 @@
 package com.nuaa.art.vrmcheck.service;
 
-import com.nuaa.art.vrmcheck.model.CheckErrorReporter;
+import com.nuaa.art.vrmcheck.model.repoter.CheckErrorReporter;
 
 /**
  * 报告处理

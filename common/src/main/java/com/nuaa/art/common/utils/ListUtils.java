@@ -7,6 +7,7 @@ import java.util.List;
 public class ListUtils {
     public static List<Integer> StringToNumArray(String str) {
         List<Integer> nums = new ArrayList<>();
+        if(str == null || str.isBlank()) return nums;
         for (String s : str.split(", ")){
             //System.out.println("s: "+s);
             if(!s.isBlank()){
