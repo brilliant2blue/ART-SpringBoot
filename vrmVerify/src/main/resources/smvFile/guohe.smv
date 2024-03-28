@@ -1,0 +1,59 @@
+-- 人、狼、羊、菜过河问题
+MODULE main
+    VAR 
+        ferrymen: boolean;
+        goat: boolean;
+        wolf: boolean;
+        cabbage: boolean;
+        ship:{goat_man, wolf_man, cabbage_man, man, empty}; 
+
+    ASSIGN
+        init(ferrymen):= FALSE;
+        init(goat):= FALSE;
+        init(wolf):= FALSE;
+        init(cabbage):= FALSE;
+        init(ship):= empty;
+
+    ASSIGN
+        next(ship):=
+            case
+                ferrymen=TRUE & ferrymen=goat & goat=wolf & goat=cabbage : empty; --state 10
+                ferrymen=FALSE & goat=FALSE & wolf=FALSE & cabbage=FALSE : {goat_man}; --state 1
+                ferrymen=TRUE & goat=TRUE & cabbage=FALSE & wolf=FALSE : {goat_man,man};--state 2
+                ferrymen=FALSE & cabbage=FALSE & wolf=FALSE & goat=TRUE : {man , wolf_man , cabbage_man};--state 3
+                ferrymen=TRUE & cabbage=TRUE & wolf=FALSE & goat=TRUE : {cabbage_man,goat_man};--state 4
+                ferrymen=TRUE & cabbage=FALSE & wolf=TRUE & goat=TRUE : {goat_man, wolf_man}; --state 5
+                ferrymen=FALSE & cabbage=TRUE & wolf=FALSE & goat=FALSE : {goat_man, wolf_man};--state 6
+                ferrymen=FALSE & cabbage=FALSE & wolf=TRUE & goat=FALSE: {goat_man, cabbage_man};--state 7
+                ferrymen=TRUE & cabbage=TRUE & wolf=TRUE & goat=FALSE : {man,cabbage_man};--state 8
+                ferrymen=FALSE & cabbage=TRUE & wolf=TRUE & goat=FALSE : {goat_man,man}; --state 9
+                TRUE: empty;
+            esac;
+
+        next(goat):=
+            case
+                next(ship)=goat_man: next(ferrymen);
+                TRUE: goat;
+            esac;
+
+        next(wolf):=
+            case
+                next(ship)=wolf_man: next(ferrymen);
+                TRUE: wolf;
+            esac;
+
+        next(cabbage):=
+            case
+                next(ship)=cabbage_man: next(ferrymen);
+                TRUE: cabbage;
+            esac;
+
+        next(ferrymen):=
+            case
+                ship=empty: ferrymen;
+                TRUE: !ferrymen;
+            esac;
+
+CTLSPEC !E [(((goat=wolf)->(goat=ferrymen)) & ((goat=cabbage)->(goat=ferrymen))) U (cabbage =TRUE & goat=TRUE & wolf=TRUE &ferrymen=TRUE)]
+
+CTLSPEC AF (wolf=TRUE)

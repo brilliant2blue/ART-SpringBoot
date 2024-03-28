@@ -36,6 +36,11 @@
             <artifactId>vrmCheck</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.nuaa.art</groupId>
+            <artifactId>vrmVerify</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 
 

@@ -8,7 +8,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://127.0.0.1:3306/art_dev?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&tinyInt1isBit=false&allowPublicKeyRetrieval=true
     username: root
-    password: 123456
+    password: djl210126
     druid:
 #      filter:
 #        config:

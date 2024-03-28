@@ -14,6 +14,7 @@
         <module>user</module>
         <module>vrm</module>
         <module>vrmCheck</module>
+        <module>vrmVerify</module>
         <module>atg</module>
     </modules>
 
