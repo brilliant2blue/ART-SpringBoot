@@ -14,6 +14,7 @@ public class Variable extends BaseExpression{
 
     public Variable(String name) {
         super(name);
+        setLeaf(true);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.nuaa.art.vrmverify.model.formula.ctl;
 import com.nuaa.art.vrmverify.common.utils.ExpressionUtils;
 import com.nuaa.art.vrmverify.model.formula.expression.BaseExpression;
 import com.nuaa.art.vrmverify.model.formula.expression.Constant;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -31,11 +30,11 @@ public class Proposition extends CTLFormula{
         registerFormula(this);
     }
 
-    static Proposition trueFormula() {
+    public static Proposition trueFormula() {
         return new Proposition(new Constant("TRUE"));
     }
 
-    static Proposition falseFormula() {
+    public static Proposition falseFormula() {
         return new Proposition(new Constant("FALSE"));
     }
 
@@ -43,7 +42,11 @@ public class Proposition extends CTLFormula{
         return originalVersion == null ? this : originalVersion;
     }
 
-    Proposition not() {
+    public BaseExpression getExpression(){
+        return expression;
+    }
+
+    public Proposition not() {
         return new Proposition(expression, originalVersion == null ? this : originalVersion, !negated);
     }
 
@@ -71,20 +74,20 @@ public class Proposition extends CTLFormula{
 //        return this;
 //    }
 //
-//    @Override
-//    public CTLFormula removeImplication() {
-//        return this;
-//    }
-//
-//    @Override
-//    public CTLFormula removeEquivalence() {
-//        return this;
-//    }
-//
-//    @Override
-//    public CTLFormula removeXor() {
-//        return this;
-//    }
+    @Override
+    public CTLFormula removeImplication() {
+        return this;
+    }
+
+    @Override
+    public CTLFormula removeEquivalence() {
+        return this;
+    }
+
+    @Override
+    public CTLFormula removeXor() {
+        return this;
+    }
 
     @Override
     public CTLFormula toNNF() {

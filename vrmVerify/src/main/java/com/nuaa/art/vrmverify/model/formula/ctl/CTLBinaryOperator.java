@@ -1,6 +1,7 @@
 package com.nuaa.art.vrmverify.model.formula.ctl;
 
 import com.nuaa.art.vrmverify.common.utils.ExpressionUtils;
+import com.nuaa.art.vrmverify.model.formula.TreeNode;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
@@ -17,10 +18,28 @@ public class CTLBinaryOperator extends CTLFormula{
     public final CTLFormula rightArgument;
 
     public CTLBinaryOperator(String name, CTLFormula leftArgument, CTLFormula rightArgument) {
+        name = name.trim();
         this.name = name;
         this.leftArgument = leftArgument;
         this.rightArgument = rightArgument;
+        setName(name);
+        List<TreeNode> childList = getChildList();
+        childList.add(leftArgument);
+        childList.add(rightArgument);
         registerFormula(this);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public CTLFormula getLeftArgument() {
+        return leftArgument;
+    }
+
+    public CTLFormula getRightArgument() {
+        return rightArgument;
     }
 
     @Override
@@ -53,26 +72,26 @@ public class CTLBinaryOperator extends CTLFormula{
 //    }
 //
 //    @Override
-//    public CTLFormula removeImplication() {
-//        return recursion(CTLFormula::removeImplication, f -> or(not(f.leftArgument), f.rightArgument), "->");
-//    }
-//
-//    @Override
-//    public CTLFormula removeEquivalence() {
-//        return recursion(CTLFormula::removeEquivalence, f -> or(and(f.leftArgument, f.rightArgument),
-//                and(not(f.leftArgument), not(f.rightArgument))), "<->", "xnor");
-//    }
-//
-//    @Override
-//    public CTLFormula removeXor() {
-//        return recursion(CTLFormula::removeXor, f -> not(or(and(f.leftArgument, f.rightArgument),
-//                and(not(f.leftArgument), not(f.rightArgument)))), "xor");
-//    }
-//
-//    @Override
 //    public CTLFormula removeG() {
 //        return recursion(CTLFormula::removeG, null);
 //    }
+
+    @Override
+    public CTLFormula removeImplication() {
+        return recursion(CTLFormula::removeImplication, f -> or(not(f.leftArgument), f.rightArgument), "->");
+    }
+
+    @Override
+    public CTLFormula removeEquivalence() {
+        return recursion(CTLFormula::removeEquivalence, f -> or(and(f.leftArgument, f.rightArgument),
+                and(not(f.leftArgument), not(f.rightArgument))), "<->", "xnor");
+    }
+
+    @Override
+    public CTLFormula removeXor() {
+        return recursion(CTLFormula::removeXor, f -> not(or(and(f.leftArgument, f.rightArgument),
+                and(not(f.leftArgument), not(f.rightArgument)))), "xor");
+    }
 
     @Override
     public CTLFormula toNNF() {

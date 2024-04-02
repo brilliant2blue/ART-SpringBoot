@@ -14,21 +14,21 @@ import java.util.function.Function;
  */
 public abstract class CTLFormula extends TreeNode {
 
-    public static final List<CTLFormula> subFormulas = new ArrayList<>();
-    public static final Map<CTLFormula, Integer> subFormulas2Index = new HashMap<>();
+    public static final List<CTLFormula> SUB_FORMULAS = new ArrayList<>();
+    public static final Map<CTLFormula, Integer> SUB_FORMULAS_2_INDEX = new HashMap<>();
 
     public static void reset() {
-        subFormulas.clear();
-        subFormulas2Index.clear();
+        SUB_FORMULAS.clear();
+        SUB_FORMULAS_2_INDEX.clear();
     }
 
     public void registerFormula(CTLFormula f) {
-        subFormulas2Index.put(f, subFormulas2Index.size());
-        subFormulas.add(f);
+        SUB_FORMULAS_2_INDEX.put(f, SUB_FORMULAS_2_INDEX.size());
+        SUB_FORMULAS.add(f);
     }
 
     public static CTLFormula getSubFormula(int index) {
-        return subFormulas.get(index);
+        return SUB_FORMULAS.get(index);
     }
 
     public abstract Set<String> variableSet();
@@ -37,11 +37,11 @@ public abstract class CTLFormula extends TreeNode {
 //
 //    public abstract CTLFormula removeG();
 //
-//    public abstract CTLFormula removeImplication();
-//
-//    public abstract CTLFormula removeEquivalence();
-//
-//    public abstract CTLFormula removeXor();
+    public abstract CTLFormula removeImplication();
+
+    public abstract CTLFormula removeEquivalence();
+
+    public abstract CTLFormula removeXor();
 
     public abstract CTLFormula toNNF();
 
@@ -107,6 +107,6 @@ public abstract class CTLFormula extends TreeNode {
     }
 
     public String url(int position) {
-        return subFormulas2Index.get(this) + ":" + position;
+        return SUB_FORMULAS_2_INDEX.get(this) + ":" + position;
     }
 }

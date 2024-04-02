@@ -53,13 +53,13 @@ public class BigRational {
 
         // 若分子为 0，保证分母为 0
         BigInteger g = numerator.gcd(denominator);
-        numerator = numerator.divide(g);
-        denominator = denominator.divide(g);
+        this.numerator = numerator.divide(g);
+        this.denominator = denominator.divide(g);
 
         // 保证分母为正数
         if (denominator.compareTo(BigInteger.ZERO) < 0) {
-            denominator = denominator.negate();
-            numerator = numerator.negate();
+            this.denominator = denominator.negate();
+            this.numerator = numerator.negate();
         }
     }
 

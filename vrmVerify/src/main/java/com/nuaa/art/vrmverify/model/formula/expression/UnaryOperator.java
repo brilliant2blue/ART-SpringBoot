@@ -18,6 +18,11 @@ public class UnaryOperator extends BaseExpression{
     public UnaryOperator(String name, BaseExpression argument) {
         super(name);
         this.argument = argument;
+        getChildList().add(argument);
+    }
+
+    public BaseExpression getArgument(){
+        return argument;
     }
 
     @Override

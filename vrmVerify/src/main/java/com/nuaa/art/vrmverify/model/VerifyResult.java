@@ -18,4 +18,5 @@ public class VerifyResult {
     private String details; // 错误具体信息
     private int propertyCount;    // 验证属性个数
     private List<Counterexample> cxList;    // 反例链表
+
 }

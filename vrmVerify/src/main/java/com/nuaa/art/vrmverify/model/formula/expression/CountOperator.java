@@ -2,6 +2,7 @@ package com.nuaa.art.vrmverify.model.formula.expression;
 
 import com.nuaa.art.vrmverify.common.Msg;
 import com.nuaa.art.vrmverify.common.utils.ExpressionUtils;
+import com.nuaa.art.vrmverify.model.formula.TreeNode;
 
 import java.util.List;
 import java.util.Map;
@@ -13,13 +14,18 @@ import java.util.TreeSet;
  * @author djl
  * @date 2024-03-27
  */
-public class CountOperator extends BaseExpression{
+public class CountOperator extends BaseExpression {
 
     private final List<BaseExpression> arguments;
 
     public CountOperator(List<BaseExpression> arguments) {
         super("count");
         this.arguments = arguments;
+        getChildList().addAll(arguments);
+    }
+
+    public List<BaseExpression> getArguments() {
+        return arguments;
     }
 
     @Override

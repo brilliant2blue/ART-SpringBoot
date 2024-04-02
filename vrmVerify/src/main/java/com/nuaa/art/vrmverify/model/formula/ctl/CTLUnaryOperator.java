@@ -17,9 +17,21 @@ public class CTLUnaryOperator extends CTLFormula{
     public final CTLFormula argument;
 
     public CTLUnaryOperator(String name, CTLFormula argument) {
+        name = name.trim();
         this.name = name;
         this.argument = argument;
+        setName(name);
+        getChildList().add(argument);
         registerFormula(this);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public CTLFormula getArgument() {
+        return argument;
     }
 
     @Override
@@ -49,20 +61,20 @@ public class CTLUnaryOperator extends CTLFormula{
 //        return recursion(CTLFormula::removeG, f -> release(Proposition.falseFormula(), f.argument), "G");
 //    }
 //
-//    @Override
-//    public CTLFormula removeImplication() {
-//        return recursion(CTLFormula::removeImplication, null, null);
-//    }
-//
-//    @Override
-//    public CTLFormula removeEquivalence() {
-//        return recursion(CTLFormula::removeEquivalence, null, null);
-//    }
-//
-//    @Override
-//    public CTLFormula removeXor() {
-//        return recursion(CTLFormula::removeXor, null, null);
-//    }
+    @Override
+    public CTLFormula removeImplication() {
+        return recursion(CTLFormula::removeImplication, null, null);
+    }
+
+    @Override
+    public CTLFormula removeEquivalence() {
+        return recursion(CTLFormula::removeEquivalence, null, null);
+    }
+
+    @Override
+    public CTLFormula removeXor() {
+        return recursion(CTLFormula::removeXor, null, null);
+    }
 
     @Override
     public CTLFormula toNNF() {

@@ -1,8 +1,9 @@
 // Generated from E:/idea_projects/ART-SpringBoot/vrmVerify/src/main/resources/CTL.g4 by ANTLR 4.13.1
 package com.nuaa.art.vrmverify.antlr4gen;
 
-import com.nuaa.art.vrmverify.model.formula.expression.*;
-import com.nuaa.art.vrmverify.model.formula.ctl.*;
+    import com.nuaa.art.vrmverify.model.formula.expression.*;
+    import com.nuaa.art.vrmverify.model.formula.ctl.*;
+    import com.nuaa.art.vrmverify.model.formula.TreeNode;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -967,7 +968,7 @@ public class CTLParser extends Parser {
 			{
 			setState(147);
 			((Arithmetic_expression2Context)_localctx).f1 = arithmetic_expression3();
-			 ((Arithmetic_expression2Context)_localctx).f =  ((Arithmetic_expression2Context)_localctx).f1.f; String op; 
+			 String op; ((Arithmetic_expression2Context)_localctx).f =  ((Arithmetic_expression2Context)_localctx).f1.f; 
 			setState(162);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -1003,7 +1004,7 @@ public class CTLParser extends Parser {
 				}
 				setState(157);
 				((Arithmetic_expression2Context)_localctx).f2 = arithmetic_expression3();
-				 ((Arithmetic_expression2Context)_localctx).f =  new BinaryOperator(op, _localctx.f, ((Arithmetic_expression2Context)_localctx).f2.f); 
+				 ((Arithmetic_expression2Context)_localctx).f =  new BinaryOperator(op, ((Arithmetic_expression2Context)_localctx).f1.f, ((Arithmetic_expression2Context)_localctx).f2.f); 
 				}
 				}
 				setState(164);
@@ -1062,7 +1063,7 @@ public class CTLParser extends Parser {
 			{
 			setState(165);
 			((Arithmetic_expression1Context)_localctx).f1 = arithmetic_expression2();
-			 ((Arithmetic_expression1Context)_localctx).f =  ((Arithmetic_expression1Context)_localctx).f1.f; String op; 
+			 String op; ((Arithmetic_expression1Context)_localctx).f =  ((Arithmetic_expression1Context)_localctx).f1.f; 
 			setState(178);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -1091,7 +1092,7 @@ public class CTLParser extends Parser {
 				}
 				setState(173);
 				((Arithmetic_expression1Context)_localctx).f2 = arithmetic_expression2();
-				 ((Arithmetic_expression1Context)_localctx).f =  new BinaryOperator(op, _localctx.f, ((Arithmetic_expression1Context)_localctx).f2.f); 
+				 ((Arithmetic_expression1Context)_localctx).f =  new BinaryOperator(op, ((Arithmetic_expression1Context)_localctx).f1.f, ((Arithmetic_expression1Context)_localctx).f2.f); 
 				}
 				}
 				setState(180);
@@ -1164,7 +1165,7 @@ public class CTLParser extends Parser {
 				((Comparison_expressionContext)_localctx).comparison_operator_sign = comparison_operator_sign();
 				setState(184);
 				((Comparison_expressionContext)_localctx).f2 = arithmetic_expression1();
-				 ((Comparison_expressionContext)_localctx).f =  new ComparisonOperator((((Comparison_expressionContext)_localctx).comparison_operator_sign!=null?_input.getText(((Comparison_expressionContext)_localctx).comparison_operator_sign.start,((Comparison_expressionContext)_localctx).comparison_operator_sign.stop):null), _localctx.f, ((Comparison_expressionContext)_localctx).f2.f); 
+				 ((Comparison_expressionContext)_localctx).f =  new ComparisonOperator((((Comparison_expressionContext)_localctx).comparison_operator_sign!=null?_input.getText(((Comparison_expressionContext)_localctx).comparison_operator_sign.start,((Comparison_expressionContext)_localctx).comparison_operator_sign.stop):null), ((Comparison_expressionContext)_localctx).f1.f, ((Comparison_expressionContext)_localctx).f2.f); 
 				}
 			}
 
@@ -1229,7 +1230,7 @@ public class CTLParser extends Parser {
 				match(T__13);
 				setState(192);
 				((And_arithmetic_expressionContext)_localctx).f2 = comparison_expression();
-				 ((And_arithmetic_expressionContext)_localctx).f =  new BinaryOperator("&", _localctx.f, ((And_arithmetic_expressionContext)_localctx).f2.f); 
+				 ((And_arithmetic_expressionContext)_localctx).f =  new BinaryOperator("&", ((And_arithmetic_expressionContext)_localctx).f1.f, ((And_arithmetic_expressionContext)_localctx).f2.f); 
 				}
 				break;
 			}
@@ -1319,7 +1320,7 @@ public class CTLParser extends Parser {
 				}
 				setState(207);
 				((Or_arithmetic_expressionContext)_localctx).f2 = and_arithmetic_expression();
-				 ((Or_arithmetic_expressionContext)_localctx).f =  new BinaryOperator(op, _localctx.f, ((Or_arithmetic_expressionContext)_localctx).f2.f); 
+				 ((Or_arithmetic_expressionContext)_localctx).f =  new BinaryOperator(op, ((Or_arithmetic_expressionContext)_localctx).f1.f, ((Or_arithmetic_expressionContext)_localctx).f2.f); 
 				}
 				break;
 			}
@@ -1456,7 +1457,7 @@ public class CTLParser extends Parser {
 				match(T__17);
 				setState(225);
 				((Eq_arithmetic_expressionContext)_localctx).f2 = ternary_arithmetic_expression();
-				 ((Eq_arithmetic_expressionContext)_localctx).f =  new BinaryOperator("<->", _localctx.f, ((Eq_arithmetic_expressionContext)_localctx).f2.f); 
+				 ((Eq_arithmetic_expressionContext)_localctx).f =  new BinaryOperator("<->", ((Eq_arithmetic_expressionContext)_localctx).f1.f, ((Eq_arithmetic_expressionContext)_localctx).f2.f); 
 				}
 			}
 
@@ -1522,7 +1523,7 @@ public class CTLParser extends Parser {
 				match(T__18);
 				setState(233);
 				((Implies_arithmetic_expressionContext)_localctx).f2 = implies_arithmetic_expression();
-				 ((Implies_arithmetic_expressionContext)_localctx).f =  new BinaryOperator("->", _localctx.f, ((Implies_arithmetic_expressionContext)_localctx).f2.f); 
+				 ((Implies_arithmetic_expressionContext)_localctx).f =  new BinaryOperator("->", ((Implies_arithmetic_expressionContext)_localctx).f1.f, ((Implies_arithmetic_expressionContext)_localctx).f2.f); 
 				}
 			}
 
@@ -1772,7 +1773,8 @@ public class CTLParser extends Parser {
 				((Unary_operatorContext)_localctx).unary_operator_sign = unary_operator_sign();
 				setState(269);
 				((Unary_operatorContext)_localctx).unary_operator = unary_operator();
-				 ((Unary_operatorContext)_localctx).f =  new CTLUnaryOperator((((Unary_operatorContext)_localctx).unary_operator_sign!=null?_input.getText(((Unary_operatorContext)_localctx).unary_operator_sign.start,((Unary_operatorContext)_localctx).unary_operator_sign.stop):null), ((Unary_operatorContext)_localctx).unary_operator.f); 
+				 CTLFormula t = ((Unary_operatorContext)_localctx).unary_operator.f;
+				          ((Unary_operatorContext)_localctx).f =  new CTLUnaryOperator((((Unary_operatorContext)_localctx).unary_operator_sign!=null?_input.getText(((Unary_operatorContext)_localctx).unary_operator_sign.start,((Unary_operatorContext)_localctx).unary_operator_sign.stop):null), t); 
 				}
 				break;
 			case 3:
@@ -1782,7 +1784,8 @@ public class CTLParser extends Parser {
 				((Unary_operatorContext)_localctx).unary_operator_sign = unary_operator_sign();
 				setState(273);
 				((Unary_operatorContext)_localctx).binary_operator5 = binary_operator5();
-				 ((Unary_operatorContext)_localctx).f =  new CTLUnaryOperator((((Unary_operatorContext)_localctx).unary_operator_sign!=null?_input.getText(((Unary_operatorContext)_localctx).unary_operator_sign.start,((Unary_operatorContext)_localctx).unary_operator_sign.stop):null), ((Unary_operatorContext)_localctx).binary_operator5.f); 
+				 CTLFormula t = ((Unary_operatorContext)_localctx).binary_operator5.f;
+				          ((Unary_operatorContext)_localctx).f =  new CTLUnaryOperator((((Unary_operatorContext)_localctx).unary_operator_sign!=null?_input.getText(((Unary_operatorContext)_localctx).unary_operator_sign.start,((Unary_operatorContext)_localctx).unary_operator_sign.stop):null), t); 
 				}
 				break;
 			}
@@ -1881,7 +1884,7 @@ public class CTLParser extends Parser {
 				((Binary_operator5Context)_localctx).binary_operator_sign5 = binary_operator_sign5();
 				setState(286);
 				((Binary_operator5Context)_localctx).f2 = unary_operator();
-				 ((Binary_operator5Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator5Context)_localctx).p!=null?_input.getText(((Binary_operator5Context)_localctx).p.start,((Binary_operator5Context)_localctx).p.stop):null)+(((Binary_operator5Context)_localctx).binary_operator_sign5!=null?_input.getText(((Binary_operator5Context)_localctx).binary_operator_sign5.start,((Binary_operator5Context)_localctx).binary_operator_sign5.stop):null), _localctx.f, ((Binary_operator5Context)_localctx).f2.f); 
+				 ((Binary_operator5Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator5Context)_localctx).p!=null?_input.getText(((Binary_operator5Context)_localctx).p.start,((Binary_operator5Context)_localctx).p.stop):null)+(((Binary_operator5Context)_localctx).binary_operator_sign5!=null?_input.getText(((Binary_operator5Context)_localctx).binary_operator_sign5.start,((Binary_operator5Context)_localctx).binary_operator_sign5.stop):null), ((Binary_operator5Context)_localctx).f1.f, ((Binary_operator5Context)_localctx).f2.f); 
 				setState(288);
 				match(T__2);
 				}
@@ -1958,7 +1961,7 @@ public class CTLParser extends Parser {
 				((Binary_operator4Context)_localctx).binary_operator_sign4 = binary_operator_sign4();
 				setState(295);
 				((Binary_operator4Context)_localctx).f2 = binary_operator5();
-				 ((Binary_operator4Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator4Context)_localctx).binary_operator_sign4!=null?_input.getText(((Binary_operator4Context)_localctx).binary_operator_sign4.start,((Binary_operator4Context)_localctx).binary_operator_sign4.stop):null), _localctx.f, ((Binary_operator4Context)_localctx).f2.f); 
+				 ((Binary_operator4Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator4Context)_localctx).binary_operator_sign4!=null?_input.getText(((Binary_operator4Context)_localctx).binary_operator_sign4.start,((Binary_operator4Context)_localctx).binary_operator_sign4.stop):null), ((Binary_operator4Context)_localctx).f1.f, ((Binary_operator4Context)_localctx).f2.f); 
 				}
 				}
 				setState(302);
@@ -2035,7 +2038,7 @@ public class CTLParser extends Parser {
 				((Binary_operator3Context)_localctx).binary_operator_sign3 = binary_operator_sign3();
 				setState(306);
 				((Binary_operator3Context)_localctx).f2 = binary_operator4();
-				 ((Binary_operator3Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator3Context)_localctx).binary_operator_sign3!=null?_input.getText(((Binary_operator3Context)_localctx).binary_operator_sign3.start,((Binary_operator3Context)_localctx).binary_operator_sign3.stop):null), _localctx.f, ((Binary_operator3Context)_localctx).f2.f); 
+				 ((Binary_operator3Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator3Context)_localctx).binary_operator_sign3!=null?_input.getText(((Binary_operator3Context)_localctx).binary_operator_sign3.start,((Binary_operator3Context)_localctx).binary_operator_sign3.stop):null), ((Binary_operator3Context)_localctx).f1.f, ((Binary_operator3Context)_localctx).f2.f); 
 				}
 				}
 				setState(313);
@@ -2112,7 +2115,7 @@ public class CTLParser extends Parser {
 				((Binary_operator2Context)_localctx).binary_operator_sign2 = binary_operator_sign2();
 				setState(317);
 				((Binary_operator2Context)_localctx).f2 = binary_operator3();
-				 ((Binary_operator2Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator2Context)_localctx).binary_operator_sign2!=null?_input.getText(((Binary_operator2Context)_localctx).binary_operator_sign2.start,((Binary_operator2Context)_localctx).binary_operator_sign2.stop):null), _localctx.f, ((Binary_operator2Context)_localctx).f2.f); 
+				 ((Binary_operator2Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator2Context)_localctx).binary_operator_sign2!=null?_input.getText(((Binary_operator2Context)_localctx).binary_operator_sign2.start,((Binary_operator2Context)_localctx).binary_operator_sign2.stop):null), ((Binary_operator2Context)_localctx).f1.f, ((Binary_operator2Context)_localctx).f2.f); 
 				}
 				}
 				setState(324);
@@ -2185,7 +2188,7 @@ public class CTLParser extends Parser {
 				((Binary_operator1Context)_localctx).binary_operator_sign1 = binary_operator_sign1();
 				setState(328);
 				((Binary_operator1Context)_localctx).f2 = binary_operator1();
-				 ((Binary_operator1Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator1Context)_localctx).binary_operator_sign1!=null?_input.getText(((Binary_operator1Context)_localctx).binary_operator_sign1.start,((Binary_operator1Context)_localctx).binary_operator_sign1.stop):null), _localctx.f, ((Binary_operator1Context)_localctx).f2.f); 
+				 ((Binary_operator1Context)_localctx).f =  new CTLBinaryOperator((((Binary_operator1Context)_localctx).binary_operator_sign1!=null?_input.getText(((Binary_operator1Context)_localctx).binary_operator_sign1.start,((Binary_operator1Context)_localctx).binary_operator_sign1.stop):null), ((Binary_operator1Context)_localctx).f1.f, ((Binary_operator1Context)_localctx).f2.f); 
 				}
 			}
 

@@ -9,8 +9,9 @@ import java.net.URL;
  */
 public class PathUtils {
 
-    public static final String NUXMV = "engines/nuxmv.exe";
-    public static final String SMV_FILE = "smvFile";
+    private static final String NUXMV = "engines/nuxmv.exe";
+    private static final String SMV_FILE = "smvFile";
+    private static final String CX_FILE = "cxFile";
 
     /**
      * 获取 nuxmv 的绝对路径
@@ -32,6 +33,16 @@ public class PathUtils {
     public static String getSmvFilePath(String fileName){
         String rootPath = System.getProperty("user.dir");
         return rootPath + "\\vrmVerify\\src\\main\\resources\\" + SMV_FILE + "\\" + fileName;
+    }
+
+    /**
+     * 获取验证结果文件的绝对路径
+     * @param fileName
+     * @return
+     */
+    public static String getCxFilePath(String fileName){
+        String rootPath = System.getProperty("user.dir");
+        return rootPath + "\\vrmVerify\\src\\main\\resources\\" + CX_FILE + "\\" + fileName;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.nuaa.art.vrmverify.model.formula.expression;
 
 import com.nuaa.art.vrmverify.common.utils.ExpressionUtils;
+import com.nuaa.art.vrmverify.model.formula.TreeNode;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,17 @@ public class ComparisonOperator extends BaseExpression{
         super(name);
         this.leftArgument = leftArgument;
         this.rightArgument = rightArgument;
+        List<TreeNode> childList = getChildList();
+        childList.add(leftArgument);
+        childList.add(rightArgument);
+    }
+
+    public BaseExpression getLeftArgument(){
+        return leftArgument;
+    }
+
+    public BaseExpression getRightArgument(){
+        return rightArgument;
     }
 
     @Override

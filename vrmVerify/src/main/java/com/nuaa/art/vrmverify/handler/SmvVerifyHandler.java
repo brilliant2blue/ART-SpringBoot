@@ -24,23 +24,12 @@ public class SmvVerifyHandler {
     public static String VERIFY_OPTIONS = " -coi -df ";
     public static String PROPERTY_TYPE = "CTLSPEC ";
 
-    public static void main(String[] args) throws Exception {
-        String smvFilePath = "E:\\idea_projects\\ART-SpringBoot\\vrmVerify\\src\\main\\java\\com\\nuaa\\art\\vrmverify\\common\\utils\\guohe.smv";
-        List<String> properties = new ArrayList<>();
-        System.out.println(handleVerifyRes(smvFilePath, true, properties));
-    }
-
     /**
      * 对验证结果进行处理，并返回结果对象
-     * @param originalSmvFilePath
-     * @param addProperties
-     * @param properties
+     * @param result
      * @return
-     * @throws Exception
      */
-    public static VerifyResult handleVerifyRes(String originalSmvFilePath, boolean addProperties, List<String> properties) throws Exception {
-        String result = execute(generateVerifyCmd(originalSmvFilePath, addProperties, properties));
-
+    public static VerifyResult handleVerifyRes(String result){
         String[] lines = result.split("\n");
         int propertyCount = 0;  // 记录验证属性的个数
         List<Counterexample> cxList = new ArrayList<>();
@@ -68,32 +57,30 @@ public class SmvVerifyHandler {
                 while(++i < lines.length && !lines[i].startsWith("-- "))
                     propertyRes += lines[i];
                 // 验证通过
-                if(propertyRes.endsWith(" is true")){
+                if(propertyRes.contains(" is true")){
                     String property = propertyRes.substring("-- specification".length(), propertyRes.length() - " is true".length());
                     cx.setProperty(property);
                     cx.setPassed(true);
                 }
                 // 验证不通过
-                else if(propertyRes.endsWith(" is false")){
+                else if(propertyRes.contains(" is false")){
                     String property = line.substring("-- specification".length(), propertyRes.length() - " is false".length());
                     int traceLength = 0;    // 反例路径长度
-                    List<List<Map<String, String>>> traceList = new ArrayList<>();   // 反例路径
+                    List<Map<String, String>> assignments = new ArrayList<>();   // 反例路径
                     while(i < lines.length && !lines[i].startsWith("-- specification")){
                         if(lines[i].startsWith("  -> ")){
                             traceLength++;
                             i++;
-                            List<Map<String, String>> oneState = new ArrayList<>();
+                            Map<String, String> oneState = new HashMap<>();
                             while(i < lines.length
                                     && !lines[i].startsWith("  -> ")
                                     && !lines[i].startsWith("-- specification")
                                     && !lines[i].startsWith("  -- Loop starts here")){
                                 String[] variableAndValue = lines[i].split(" = ");
-                                Map<String, String> assign = new HashMap<>();
-                                assign.put(variableAndValue[0].substring(4), variableAndValue[1]);
-                                oneState.add(assign);
+                                oneState.put(variableAndValue[0].substring(4), variableAndValue[1]);
                                 i++;
                             }
-                            traceList.add(oneState);
+                            assignments.add(oneState);
                         }
                         else if(lines[i].startsWith("  -- Loop starts here")){
                             cx.setExistLoop(true);
@@ -106,10 +93,10 @@ public class SmvVerifyHandler {
                     cx.setProperty(property);
                     cx.setPassed(false);
                     cx.setTraceLength(traceLength);
-                    cx.setTraceList(traceList);
+                    cx.setAssignments(assignments);
                 }
                 else {
-                    vr.setHasError(false);
+                    vr.setHasError(true);
                     vr.setErrMsg(Msg.UNKNOWN_ERROR);
                     break;
                 }
@@ -126,20 +113,41 @@ public class SmvVerifyHandler {
     }
 
     /**
+     * 通过命令行执行验证
+     * @param originalSmvFilePath
+     * @param addProperties
+     * @param properties
+     * @return
+     */
+    public static String doCMD(String originalSmvFilePath, boolean addProperties, List<String> properties) throws IOException {
+        return execute(generateVerifyCmd(originalSmvFilePath, addProperties, properties));
+    }
+
+    /**
+     * 从文件中读取验证结果
+     * @param filePath
+     * @return
+     * @throws IOException
+     */
+    public static String getResultFromFile(String filePath) throws IOException {
+        return Files.readString(new File(filePath).toPath(), StandardCharsets.UTF_8);
+    }
+
+    /**
      * 执行验证命令，并将验证结果以字符串形式返回
      * @param verifyCmd
      * @return
      * @throws IOException
      */
-    public static String execute(String verifyCmd) throws IOException {
+    private static String execute(String verifyCmd) throws IOException {
         Process process = Runtime.getRuntime().exec(verifyCmd);
 
         // 用于读取执行结果流
-        InputStream inStream = process.getInputStream();
-        InputStream errStream = process.getErrorStream();
-        SequenceInputStream sequenceIs = new SequenceInputStream(inStream, errStream);
-        BufferedInputStream bufStream = new BufferedInputStream(sequenceIs);
-        Reader reader = new InputStreamReader(bufStream, getDefaultEncoding());
+        InputStream is = process.getInputStream();
+        InputStream es = process.getErrorStream();
+        SequenceInputStream sis = new SequenceInputStream(is, es);
+        BufferedInputStream bis = new BufferedInputStream(sis);
+        Reader reader = new InputStreamReader(bis, getDefaultEncoding());
         BufferedReader bufReader = new BufferedReader(reader);
 
         // 读取执行结果
@@ -158,7 +166,7 @@ public class SmvVerifyHandler {
      * @param properties
      * @return
      */
-    public static String generateVerifyCmd(String originalSmvFilePath, boolean addProperties, List<String> properties){
+    private static String generateVerifyCmd(String originalSmvFilePath, boolean addProperties, List<String> properties){
         String smvFilePath = copySmvFile(originalSmvFilePath, addProperties, properties);
         if(smvFilePath == null)
             return null;
@@ -172,7 +180,7 @@ public class SmvVerifyHandler {
      * @param properties
      * @return
      */
-    public static String copySmvFile(String originalSmvFilePath, boolean addProperties, List<String> properties) {
+    private static String copySmvFile(String originalSmvFilePath, boolean addProperties, List<String> properties) {
         File originalSmvFile = new File(originalSmvFilePath);
         if(originalSmvFile.isFile() && originalSmvFile.exists()){
             String copiedSmvFilePath = PathUtils.getSmvFilePath(originalSmvFile.getName());
@@ -205,7 +213,7 @@ public class SmvVerifyHandler {
      * 根据操作系统获取默认编码
      * @return
      */
-    public static String getDefaultEncoding(){
+    private static String getDefaultEncoding(){
         if (getOS().trim().toLowerCase().startsWith("win"))
             return "GBK";
         else
@@ -216,7 +224,7 @@ public class SmvVerifyHandler {
      * 获取操作系统名称
      * @return
      */
-    public static String getOS(){
+    private static String getOS(){
         return System.getProperty("os.name");
     }
 }

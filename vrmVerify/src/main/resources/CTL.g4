@@ -1,12 +1,13 @@
 grammar CTL;
 
 options {
-  language = Java;
+    language = Java;
 }
 
 @header {
-import com.nuaa.art.vrmverify.model.formula.expression.*;
-import com.nuaa.art.vrmverify.model.formula.ctl.*;
+    import com.nuaa.art.vrmverify.model.formula.expression.*;
+    import com.nuaa.art.vrmverify.model.formula.ctl.*;
+    import com.nuaa.art.vrmverify.model.formula.TreeNode;
 }
 
 @parser::members {
@@ -91,32 +92,34 @@ arithmetic_expression3 returns[BaseExpression f]
     ;
 
 arithmetic_expression2 returns[BaseExpression f]
-    : f1=arithmetic_expression3 { $f = $f1.f; String op; }
+    : f1=arithmetic_expression3 { String op; $f = $f1.f; }
         (('*' { op = "*"; } | '/' { op = "/"; } | 'mod' { op = "mod"; })
-      f2=arithmetic_expression3 { $f = new BinaryOperator(op, $f, $f2.f); })*
+      f2=arithmetic_expression3 { $f = new BinaryOperator(op, $f1.f, $f2.f); })*
     ;
 
 arithmetic_expression1 returns[BaseExpression f]
-    : f1=arithmetic_expression2 { $f = $f1.f; String op; } (('+' { op = "+"; } | '-' { op = "-"; })
-      f2=arithmetic_expression2 { $f = new BinaryOperator(op, $f, $f2.f); })*
+    : f1=arithmetic_expression2 { String op; $f = $f1.f; }
+        (('+' { op = "+"; } | '-' { op = "-"; })
+      f2=arithmetic_expression2 { $f = new BinaryOperator(op, $f1.f, $f2.f); })*
     ;
 
 comparison_expression returns[BaseExpression f]
-    : f1=arithmetic_expression1 { $f = $f1.f; } (comparison_operator_sign f2=arithmetic_expression1
-        { $f = new ComparisonOperator($comparison_operator_sign.text, $f, $f2.f); })?
+    : f1=arithmetic_expression1 { $f = $f1.f; }
+        (comparison_operator_sign f2=arithmetic_expression1
+        { $f = new ComparisonOperator($comparison_operator_sign.text, $f1.f, $f2.f); })?
     ;
 
 ////////////////////
 
 and_arithmetic_expression returns[BaseExpression f]
-    : f1=comparison_expression { $f = $f1.f; } ('&' f2=comparison_expression
-        { $f = new BinaryOperator("&", $f, $f2.f); })?
+    : f1=comparison_expression { $f = $f1.f; }
+        ('&' f2=comparison_expression { $f = new BinaryOperator("&", $f1.f, $f2.f); })?
     ;
 
 or_arithmetic_expression returns[BaseExpression f]
     : f1=and_arithmetic_expression { $f = $f1.f; String op; }
         (('|' { op = "|"; } | 'xor' { op = "xor"; } | 'xnor' { op = "xnor"; })
-        f2=and_arithmetic_expression { $f = new BinaryOperator(op, $f, $f2.f); })?
+      f2=and_arithmetic_expression { $f = new BinaryOperator(op, $f1.f, $f2.f); })?
     ;
 
 ternary_arithmetic_expression returns[BaseExpression f]
@@ -126,12 +129,12 @@ ternary_arithmetic_expression returns[BaseExpression f]
 
 eq_arithmetic_expression returns[BaseExpression f]
     : f1=ternary_arithmetic_expression { $f = $f1.f; } ('<->' f2=ternary_arithmetic_expression
-        { $f = new BinaryOperator("<->", $f, $f2.f); })?
+        { $f = new BinaryOperator("<->", $f1.f, $f2.f); })?
     ;
 
 implies_arithmetic_expression returns[BaseExpression f]
     : f1=eq_arithmetic_expression { $f = $f1.f; } ('->' f2=implies_arithmetic_expression
-        { $f = new BinaryOperator("->", $f, $f2.f); })?
+        { $f = new BinaryOperator("->", $f1.f, $f2.f); })?
     ;
 
 ////////////////////
@@ -151,34 +154,38 @@ atom returns[CTLFormula f]
 
 unary_operator returns[CTLFormula f]
     : atom { $f = $atom.f; }
-    | unary_operator_sign unary_operator { $f = new CTLUnaryOperator($unary_operator_sign.text, $unary_operator.f); }
-    | unary_operator_sign binary_operator5 { $f = new CTLUnaryOperator($unary_operator_sign.text, $binary_operator5.f); }
+    | unary_operator_sign unary_operator
+        { CTLFormula t = $unary_operator.f;
+          $f = new CTLUnaryOperator($unary_operator_sign.text, t); }
+    | unary_operator_sign binary_operator5
+        { CTLFormula t = $binary_operator5.f;
+          $f = new CTLUnaryOperator($unary_operator_sign.text, t); }
     ;
 
 binary_operator5 returns[CTLFormula f]
     : f1=unary_operator { $f = $f1.f; }
     | p=path_quantifier_sign '[' f1=unary_operator {$f = $f1.f; } binary_operator_sign5 f2=unary_operator
-      { $f = new CTLBinaryOperator($p.text+$binary_operator_sign5.text, $f, $f2.f); } ']'
+      { $f = new CTLBinaryOperator($p.text+$binary_operator_sign5.text, $f1.f, $f2.f); } ']'
     ;
 
 binary_operator4 returns[CTLFormula f]
     : f1=binary_operator5 { $f = $f1.f; } (binary_operator_sign4 f2=binary_operator5
-      { $f = new CTLBinaryOperator($binary_operator_sign4.text, $f, $f2.f); })*
+      { $f = new CTLBinaryOperator($binary_operator_sign4.text, $f1.f, $f2.f); })*
     ;
 
 binary_operator3 returns[CTLFormula f]
     : f1=binary_operator4 { $f = $f1.f; } (binary_operator_sign3 f2=binary_operator4
-      { $f = new CTLBinaryOperator($binary_operator_sign3.text, $f, $f2.f); })*
+      { $f = new CTLBinaryOperator($binary_operator_sign3.text, $f1.f, $f2.f); })*
     ;
 
 binary_operator2 returns[CTLFormula f]
     : f1=binary_operator3 { $f = $f1.f; } (binary_operator_sign2 f2=binary_operator3
-      { $f = new CTLBinaryOperator($binary_operator_sign2.text, $f, $f2.f); })*
+      { $f = new CTLBinaryOperator($binary_operator_sign2.text, $f1.f, $f2.f); })*
     ;
 
 binary_operator1 returns[CTLFormula f]
     : f1=binary_operator2 { $f = $f1.f; } (binary_operator_sign1 f2=binary_operator1
-      { $f = new CTLBinaryOperator($binary_operator_sign1.text, $f, $f2.f); })?
+      { $f = new CTLBinaryOperator($binary_operator_sign1.text, $f1.f, $f2.f); })?
     ;
 
 formula returns[CTLFormula f]

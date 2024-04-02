@@ -17,7 +17,9 @@ public abstract class BaseExpression extends TreeNode {
     final String name;
 
     BaseExpression(String name) {
+        name = name.trim();
         this.name = name;
+        setName(name);
     }
 
     public abstract Object calculate(Map<String, List<String>> values, int position);
