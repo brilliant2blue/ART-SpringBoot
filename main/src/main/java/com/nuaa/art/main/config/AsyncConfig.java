@@ -1,11 +1,14 @@
 package com.nuaa.art.main.config;
 
 import com.nuaa.art.common.task.ContextTaskDecorator;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 
 /**
@@ -15,6 +18,7 @@ import java.util.concurrent.Executor;
  * @date 2023/09/05
  */
 @Configuration
+@EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
     @Override
     @Bean("AsyncTask")
@@ -29,5 +33,15 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setTaskDecorator(new ContextTaskDecorator());
         executor.initialize();
         return executor;
+    }
+
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new AsyncUncaughtExceptionHandler() {
+            @Override
+            public void handleUncaughtException(Throwable throwable, Method method, Object... objects) {
+                throw new RuntimeException(throwable);
+            }
+        };
     }
 }

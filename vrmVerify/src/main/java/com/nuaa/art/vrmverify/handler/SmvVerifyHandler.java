@@ -30,6 +30,9 @@ public class SmvVerifyHandler {
      * @return
      */
     public static VerifyResult handleVerifyRes(String result){
+        if(result == null)
+            return null;
+
         String[] lines = result.split("\n");
         int propertyCount = 0;  // 记录验证属性的个数
         List<Counterexample> cxList = new ArrayList<>();
@@ -140,6 +143,9 @@ public class SmvVerifyHandler {
      * @throws IOException
      */
     private static String execute(String verifyCmd) throws IOException {
+        if(verifyCmd == null)
+            return null;
+
         Process process = Runtime.getRuntime().exec(verifyCmd);
 
         // 用于读取执行结果流
