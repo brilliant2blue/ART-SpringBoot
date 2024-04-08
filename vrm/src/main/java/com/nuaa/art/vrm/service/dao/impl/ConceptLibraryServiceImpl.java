@@ -93,7 +93,7 @@ public class ConceptLibraryServiceImpl extends ServiceImpl<ConceptLibraryMapper,
     @Override
     public boolean insertConcept(ConceptLibrary conceptLibrary) {
         boolean res = save(conceptLibrary);
-        if(res){
+        if(res && conceptLibrary.isValid()){
             return relateRequirement.insertRelationOfConcept(conceptLibrary);
         } else {
             return res;

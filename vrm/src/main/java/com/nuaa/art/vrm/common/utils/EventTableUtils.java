@@ -143,10 +143,11 @@ public class EventTableUtils {
             for (String s1 : andContents) {
                 String subEvent = s1.replaceAll("\\{", "").replaceAll("}", "");
                 boolean subEventTrue = true;
-                if (subEvent.contains("!")) {
+                if (subEvent.charAt(0)=='!') {
                     subEventTrue = false;
-                    subEvent = subEvent.replaceAll("!", "");
+                    subEvent = subEvent.replaceFirst("!", "");
                 }
+                //LogUtils.warn(subEvent);
                 if(!subEvents.contains(subEvent)){
                     ArrayList<String> orList = new ArrayList<>(eventResult.getOrNum()); //新建or行
                     for (int i = 0; i < eventResult.getOrNum(); i++) {    //初始化orList行
@@ -192,7 +193,7 @@ public class EventTableUtils {
         String guardOp = "";
         String guardCondition = "";
 
-        System.out.println("完整事件："+singleEvent);
+        LogUtils.info("完整事件："+singleEvent);
 
         if (singleEvent.contains("@T")) {
             eventOp = "@T";
@@ -201,7 +202,7 @@ public class EventTableUtils {
         } else if (singleEvent.contains("@C")) {
             eventOp = "@C";
         }
-        int guardid = 2;
+        int guardid = 3;
         if(eventOp.isBlank()) guardid = 0;
         if (singleEvent.contains("WHERE")) {
             eventCondition = singleEvent.substring(guardid, singleEvent.indexOf("WHERE")).replace("{", "")

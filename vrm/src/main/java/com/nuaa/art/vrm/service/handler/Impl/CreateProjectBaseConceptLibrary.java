@@ -106,7 +106,7 @@ public class CreateProjectBaseConceptLibrary extends CreateProjectAsNew {
 
     public void copyConceptItem(Integer oldsysId, Integer newsysId) {
         // 领域概念元素插入
-        List<ConceptLibrary> conceptItems = daoHandler.getDaoService(ConceptLibraryService.class).listConstVariableBySystemId(oldsysId);
+        List<ConceptLibrary> conceptItems = daoHandler.getDaoService(ConceptLibraryService.class).listAllConceptBySystemId(oldsysId);
         if (conceptItems != null) {
             ConceptLibrary variable = new ConceptLibrary();
             for (ConceptLibrary item : conceptItems) {

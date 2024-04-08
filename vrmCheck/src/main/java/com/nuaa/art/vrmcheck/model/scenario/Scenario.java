@@ -69,8 +69,9 @@ public class Scenario {
                 return false;
             else {
                 boolean isEquals = true;
+                // 左串该为为0，右串任意；或 右串该为为0，左串任意。 这些情况都是近似相等的。只有两个都不为0且不相等的情况是严格不等的。
                 for (int i = 0; i < this.variableNumber; i++) {
-                    if (otherScenario.scenario[i] != 0 && this.scenario[i] != otherScenario.scenario[i])
+                    if (otherScenario.scenario[i] != 0 && this.scenario[i] != 0 && this.scenario[i] != otherScenario.scenario[i])
                         isEquals = false;
                 }
                 return isEquals;
@@ -79,5 +80,16 @@ public class Scenario {
         } else {
             return false;
         }
+    }
+
+    public Scenario merge(Scenario another){
+        if(another.variableNumber != this.variableNumber) return null;
+        Scenario res = new Scenario(this.variableNumber);
+        for(int i = 0; i<res.variableNumber;i++){
+            if(this.scenario[i] == 0 || another.scenario[i]==0) res.scenario[i]= this.scenario[i]+another.scenario[i];
+            else if(this.scenario[i] == another.scenario[i]) res.scenario[i] = this.scenario[i];
+            else return null;
+        }
+        return res;
     }
 }

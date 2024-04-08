@@ -99,6 +99,31 @@ public class ModelCreateObjectImpl implements ModelCreateHandler {
 
         List<StandardRequirement> SReq = daoHandler.getDaoService(StandardRequirementService.class).listStandardRequirementBySystemId(systemId);
 
+        //将领域概念模式集、模式和模式转换信息 转换为 模式转换表
+        List<ModeClass> modeClasses = daoHandler.getDaoService(ModeClassService.class).listModeClassBySystemId(systemId);
+        List<Mode> modes = daoHandler.getDaoService(ModeService.class).listModeBySystemId(systemId);
+        List<StateMachine> modeTrans = daoHandler.getDaoService(StateMachineService.class).listStateMachineBySystemId(systemId);
+
+        for (ModeClass mc : modeClasses) {
+            ModeClassOfVRM MC = new ModeClassOfVRM();
+            MC.setModeClass(mc);
+
+            //添加节点stateList
+            for (Mode m : modes) {
+                if (m.getModeClassName().equals(mc.getModeClassName())) {
+                    MC.getModes().add(m);
+                }
+            }
+
+            //添加节点stateTransition
+            for (StateMachine stateM : modeTrans) {
+                if (stateM.getDependencyModeClass().equals(mc.getModeClassName())) {
+                    MC.getModeTrans().add(stateM);
+                }
+            }
+            vrm.getModeClass().add(MC);
+        }
+
         HashMap<String, HashSet<Integer>> inPort = new HashMap<>();
         HashMap<String, HashSet<Integer>> outPort = new HashMap<>();
         for (Module md: modules) {
@@ -111,6 +136,11 @@ public class ModelCreateObjectImpl implements ModelCreateHandler {
         //处理未分配给模块的需求
         extractTable(vrm, null, terms, SReq, inPort, outPort);
         extractTable(vrm, null, outputs, SReq, inPort, outPort);
+
+        getValidVariableFromModeTrans(vrm, terms, inPort);
+        getValidVariableFromModeTrans(vrm, outputs, inPort);
+
+
 
 
         //填充有效的变量元素
@@ -163,32 +193,6 @@ public class ModelCreateObjectImpl implements ModelCreateHandler {
         vrm.setOutputs(outputVar);
 
 
-
-
-        //将领域概念模式集、模式和模式转换信息 转换为 模式转换表
-        List<ModeClass> modeClasses = daoHandler.getDaoService(ModeClassService.class).listModeClassBySystemId(systemId);
-        List<Mode> modes = daoHandler.getDaoService(ModeService.class).listModeBySystemId(systemId);
-        List<StateMachine> modeTrans = daoHandler.getDaoService(StateMachineService.class).listStateMachineBySystemId(systemId);
-
-        for (ModeClass mc : modeClasses) {
-            ModeClassOfVRM MC = new ModeClassOfVRM();
-            MC.setModeClass(mc);
-
-            //添加节点stateList
-            for (Mode m : modes) {
-                if (m.getModeClassName().equals(mc.getModeClassName())) {
-                    MC.getModes().add(m);
-                }
-            }
-
-            //添加节点stateTransition
-            for (StateMachine stateM : modeTrans) {
-                if (stateM.getDependencyModeClass().equals(mc.getModeClassName())) {
-                    MC.getModeTrans().add(stateM);
-                }
-            }
-            vrm.getModeClass().add(MC);
-        }
 
         return vrm;
     }
@@ -266,44 +270,37 @@ public class ModelCreateObjectImpl implements ModelCreateHandler {
         return model;
     }
 
-    private void extractTable(HVRM vrm, List<ConceptLibrary> concept, List<StandardRequirement> SReq) {
-        for (ConceptLibrary item : concept) {
-            ArrayList<TableRow> conditions = new ArrayList<>();
-            ArrayList<TableRow> events = new ArrayList<>();
-            for (StandardRequirement standardReq : SReq) {
-                if (standardReq.getStandardReqVariable().equals(item.getConceptName())) {
-                    TableRow row = new TableRow(standardReq);
-                    if(standardReq.getTemplateType().contains("Condition")){
-                        conditions.add(row);
-                    }
-                    else {
-                        events.add(row);
-                    }
-                    //break;
-                }
-            }
-            if(!conditions.isEmpty()) {
-                TableOfModule ct = new TableOfModule();
-                ct.setName(item.getConceptName());
-                ct.setRelateVar(item);
-                ct.setRows(conditions);
-                vrm.getConditions().add(ct);
-            }
-            if(!events.isEmpty()) {
-                TableOfModule et = new TableOfModule();
-                et.setName(item.getConceptName());
-                et.setRelateVar(item);
-                et.setRows(events);
-                vrm.getEvents().add(et);
-            }
-        }
-    }
-
     private void MapSetAction(HashMap<String, HashSet<Integer>> map, String key, Integer value){
         if(!map.containsKey(key)){
             map.put(key, new HashSet<>());
         }
         map.get(key).add(value);
+    }
+
+    private void getValidVariableFromModeTrans(HVRM vrm, List<ConceptLibrary> concept, HashMap<String, HashSet<Integer>> inPort) {
+        for (ConceptLibrary item : concept) {
+            ArrayList<TableRow> conditions = new ArrayList<>();
+            ArrayList<TableRow> events = new ArrayList<>();
+            Integer moduleId = -1; //表示 模块中使用
+            for(ModeClassOfVRM mc : vrm.getModeClass()){
+                for (StateMachine sm: mc.getModeTrans()) {
+                    // 填充输入端口
+                    EventTable es = etool.ConvertStringToTable(sm.getEvent());
+                    for(EventItem ei: es.getEvents()){
+                        if(ei.getEventCondition() != null)
+                            for(ConditionItem ci: ei.getEventCondition().getConditionItems()){
+                                MapSetAction(inPort, ci.getVar1(), moduleId);
+                                MapSetAction(inPort, ci.getVar2(), moduleId);
+                            }
+                        if(ei.getGuardCondition() != null)
+                            for(ConditionItem ci: ei.getGuardCondition().getConditionItems()){
+                                MapSetAction(inPort, ci.getVar1(), moduleId);
+                                MapSetAction(inPort, ci.getVar2(), moduleId);
+                            }
+                    }
+                }
+            }
+        }
     }
 
     // 读取数据库生成表函数。同时读取每一行，填充变量的输入输出端口。

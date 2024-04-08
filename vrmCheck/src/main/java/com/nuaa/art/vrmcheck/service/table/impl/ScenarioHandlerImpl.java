@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-@Service("V1")
+@Service("ScenarioV1")
 public class ScenarioHandlerImpl implements ScenarioHandler{
 
 

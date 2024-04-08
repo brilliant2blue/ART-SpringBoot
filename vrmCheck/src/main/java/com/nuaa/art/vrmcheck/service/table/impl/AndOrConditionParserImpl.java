@@ -51,7 +51,7 @@ public class AndOrConditionParserImpl implements ConditionParser {
             ci.outputRanges = (ArrayList<String>) typeUtils.GetRangeList(thisType);
         }
         // 获取每行的赋值
-        ci.assignmentForEachRow = (ArrayList<String>) table.getRows().stream().map(TableRow::getAssignment).collect(Collectors.toList());
+        //ci.assignmentForEachRow = (ArrayList<String>) table.getRows().stream().map(TableRow::getAssignment).collect(Collectors.toList());
     }
 
 

@@ -446,6 +446,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             daoHandler.getDaoService(ProperNounService.class).deleteProperNounById(systemId);
             daoHandler.getDaoService(StateMachineService.class).deleteStateMachineById(systemId);
             daoHandler.getDaoService(TypeService.class).deleteTypeById(systemId);
+            daoHandler.getDaoService(ModuleService.class).deleteModulesBySystemId(systemId);
             return true;
         } catch (Exception e) {
             throw new RuntimeException();

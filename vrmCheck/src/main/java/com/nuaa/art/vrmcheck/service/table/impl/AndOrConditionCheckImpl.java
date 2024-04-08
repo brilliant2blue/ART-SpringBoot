@@ -20,14 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service("ConditionCheckV1")
 public class AndOrConditionCheckImpl implements ConditionCheck {
     @Resource
     DataTypeUtils typeUtils;
 
     @Resource
     AndOrConditionParserImpl conditionPraser;
-    @Resource(name = "V1")
+    @Resource(name = "ScenarioV1")
     ScenarioHandler scenarioHandler;
 
     @Override
@@ -81,7 +81,7 @@ public class AndOrConditionCheckImpl implements ConditionCheck {
                     }
                     isObeyConsistency = !obeyScenariosOfConsistency.isEmpty();
                     isObeyIntegrity = !obeyScenariosOfIntegrity.isEmpty();
-                } else { //判断同源但是不同输出的多个条件中是否具有多个永真式（如所有条件中均不涉及变量取值情况判断的话）
+                } else { //判断同源但是不同输出的多个条件中是否具有多个永真式（如所有条件中均不涉及变量取值情况判断的话），没有限定条件，则default退化为True
                     for (int i = 0; i < ci.nuclearTreeForEachRow.size(); i++) {
                         if (ci.nuclearTreeForEachRow.get(i).get(0).get(0).isTrue || ci.nuclearTreeForEachRow.get(i).get(0).get(0).isDefault)
                             tureConditionNum++;

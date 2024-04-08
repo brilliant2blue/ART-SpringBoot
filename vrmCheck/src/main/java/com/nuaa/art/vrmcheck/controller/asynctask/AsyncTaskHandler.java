@@ -6,8 +6,6 @@ import com.nuaa.art.common.utils.PathUtils;
 import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrm.model.hvrm.HVRM;
 import com.nuaa.art.vrm.model.vrm.VRM;
-import com.nuaa.art.vrm.service.dao.DaoHandler;
-import com.nuaa.art.vrm.service.dao.SystemProjectService;
 import com.nuaa.art.vrm.service.handler.ModelCreateHandler;
 import com.nuaa.art.vrm.service.handler.ModelHandler;
 import com.nuaa.art.vrmcheck.model.repoter.CheckErrorReporter;
@@ -16,7 +14,7 @@ import com.nuaa.art.vrmcheck.service.table.*;
 import jakarta.annotation.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +73,7 @@ public class AsyncTaskHandler {
     @Resource
     OutputCheck outputCheck;
 
-    @Resource
+    @Resource(name = "ConditionCheckV2")
     ConditionCheck conditionCheck;
 
     @Resource(name = "AndOrEvent")
@@ -106,25 +104,29 @@ public class AsyncTaskHandler {
         }
 
         if (reporter.isBasicRight()) {
-            webSocket.sendMsg(SocketMessage.asText("vrm-check","模块一致性完整性分析中"));
-            moduleCheck.checkModuleIntegrityAndConsistency(vrmModel,reporter);
-            //if(reporter.isModuleRight()){
-            List<VRM> subModel = new ArrayList<>();
-            modelHandler.getModuleModels(vrmModel, subModel, VRM.class);
-            for (VRM model: subModel){
-                webSocket.sendMsg(SocketMessage.asText("vrm-check","分析模块"+model.getSystem().getSystemName()));
-                originCheckProcess(model, reporter);
+            webSocket.sendMsg(SocketMessage.asText("vrm-check","模式转换输入完整性分析中"));
+            VRM tModel = modelHandler.convert(vrmModel, VRM.class);
+            if(inputCheck.checkInputIntegrityOfModeTrans(tModel, reporter)){
+                webSocket.sendMsg(SocketMessage.asText("vrm-check","模块一致性完整性分析中"));
+                moduleCheck.checkModuleIntegrityAndConsistency(vrmModel,reporter);
+                if(reporter.isModuleRight()){
+                    List<VRM> subModel = new ArrayList<>();
+                    modelHandler.getModuleModels(vrmModel, subModel, VRM.class);
+                    for (VRM model: subModel){
+                        webSocket.sendMsg(SocketMessage.asText("vrm-check","分析模块"+model.getSystem().getSystemName()));
+                        originCheckProcess(model, reporter);
+                    }
+                }
+                LogUtils.info("模式转换一致性分析");
+                webSocket.sendMsg(SocketMessage.asText("vrm-check","模式转换一致性分析中"));
+                sleep(500);
+                eventCheck.checkModeTransConsistency(tModel, reporter);
             }
-            //}
+
+
+
         }
 
-        webSocket.sendMsg(SocketMessage.asText("vrm-check","模式转换输入完整性分析中"));
-        var tModel = modelHandler.convert(vrmModel, VRM.class);
-        inputCheck.checkInputIntegrityOfModeTrans(tModel, reporter);
-        LogUtils.info("模式转换一致性分析");
-        webSocket.sendMsg(SocketMessage.asText("vrm-check","模式转换一致性分析中"));
-        sleep(500);
-        eventCheck.checkModeTransConsistency(tModel, reporter);
 
         reportHandler.saveCheckReport(reporter, PathUtils.DefaultPath() + vrmModel.getSystem().getSystemName() + "CheckReport.xml");
         webSocket.sendMsg(SocketMessage.asText("vrm-check","模型分析结束，共发现错误数目："+reporter.getErrorCount().toString()));
@@ -135,31 +137,30 @@ public class AsyncTaskHandler {
         // 输入完整性分析
         LogUtils.info("输入完整性分析中");
         webSocket.sendMsg(SocketMessage.asText("vrm-check","输入完整性分析中"));
-        sleep(500);
+        //sleep(500);
         reporter.setInputIntegrityRight(true);
         inputCheck.checkInputIntegrityOfCondition(model, reporter);
         inputCheck.checkInputIntegrityOfEvent(model, reporter);
-
 
         if (reporter.isInputIntegrityRight()) {
             // 表函数分析
 
             LogUtils.info("条件一致性完整性分析");
             webSocket.sendMsg(SocketMessage.asText("vrm-check","条件一致性完整性分析中"));
-            sleep(500);
+            //sleep(500);
 
             conditionCheck.checkConditionIntegrityAndConsistency(model, reporter);
 
             LogUtils.info("事件一致性分析");
             webSocket.sendMsg(SocketMessage.asText("vrm-check","事件一致性分析中"));
-            sleep(500);
+            //sleep(500);
             eventCheck.checkEventConsistency(model, reporter);
 
         }
 
         LogUtils.info("输出完整性分析中");
         webSocket.sendMsg(SocketMessage.asText("vrm-check","输出完整性分析中"));
-        sleep(500);
+        //sleep(500);
         outputCheck.checkOutputIntegrityOfEvent(model, reporter);
         outputCheck.checkOutputIntegrityOfCondition(model, reporter);
     }
