@@ -5,6 +5,7 @@ import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrmverify.model.VerifyResult;
 import com.nuaa.art.vrmverify.model.explanation.Cause;
 import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;
+import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
 import com.nuaa.art.vrmverify.model.visualization.VariableTable;
 import com.nuaa.art.vrmverify.service.CxHandlerService;
 import com.nuaa.art.vrmverify.service.ModelVerifyService;
@@ -41,8 +42,8 @@ public class AsyncVerifyTask {
     @Async("AsyncTask")
     public void asyncModelVerify(String smvFilePath, boolean addProperties, List<String> properties) {
         webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-        VerifyResult verifyResult = modelVerifyService.verifyModel(smvFilePath, addProperties, properties);
-        webSocketService.sendMsg(SocketMessage.asObject("model_verify", verifyResult));
+        ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModel(smvFilePath, addProperties, properties);
+        webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
     }
 
     /**
@@ -55,7 +56,10 @@ public class AsyncVerifyTask {
         VariableTable variableTable = cxHandlerService.computeVariableTable(verifyResult, propertyIndex);
         webSocketService.sendMsg(SocketMessage.asObject("cx_handle", variableTable));
         if(variableTable != null){
-            CTLFormula f = cxHandlerService.parseCTLFormula(verifyResult, propertyIndex, false);
+            CTLFormula f = cxHandlerService.parseCTLFormula(
+                    verifyResult.getCxList().get(propertyIndex).getProperty(),
+                    variableTable.getVariableValues(),
+                    false);
             webSocketService.sendMsg(SocketMessage.asObject("cx_handle", f));
             Set<Cause> causeSet = cxHandlerService.explainCx(variableTable, f);
             webSocketService.sendMsg(SocketMessage.asObject("cx_handle", causeSet));

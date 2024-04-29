@@ -13,8 +13,9 @@ import java.util.List;
 @Data
 public abstract class TreeNode {
 
-    private String name;
+    private String nodeName;
+    private boolean isBooleanVal;
+    private List<Object> values = new ArrayList<>();
     private List<TreeNode> childList = new ArrayList<>();
     private boolean isLeaf;
-
 }

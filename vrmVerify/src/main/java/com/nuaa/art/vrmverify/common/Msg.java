@@ -11,6 +11,7 @@ public class Msg {
     public static final String FILE_TYPE_ERROR = "文件类型错误！";
     public static final String INDEX_ERROR = "索引错误！";
     public static final String PARSE_ERROR = "模型解析失败，存在语法错误！";
+    public static final String TYPE_ERROR = "模型检查失败，存在变量类型错误！";
     public static final String UNKNOWN_ERROR = "未知错误！";
 
     public static final String INVALID_INPUT_ARGUMENTS = "输入参数非法！";

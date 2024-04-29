@@ -41,15 +41,18 @@ public class SmvVerifyHandler {
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             // 报错
-            if(line.startsWith("file")){
+            if(line.contains("file")){
                 vr.setHasError(true);
                 vr.setDetails(line);
                 // 1.文件找不到
-                if(line.contains("cannot open input file"))
+                String t = line.toLowerCase();
+                if(t.contains("cannot open input file"))
                     vr.setErrMsg(Msg.FILE_NOT_FOUND);
                 // 2.文件中存在语法错误
-                else if(line.contains("syntax error"))
+                else if(t.contains("syntax error"))
                     vr.setErrMsg(Msg.PARSE_ERROR);
+                else if(t.contains("type error"))
+                    vr.setErrMsg(Msg.TYPE_ERROR);
                 break;
             }
             // 定位到验证结果
@@ -70,7 +73,9 @@ public class SmvVerifyHandler {
                     String property = line.substring("-- specification".length(), propertyRes.length() - " is false".length());
                     int traceLength = 0;    // 反例路径长度
                     List<Map<String, String>> assignments = new ArrayList<>();   // 反例路径
-                    while(i < lines.length && !lines[i].startsWith("-- specification")){
+                    while(i < lines.length
+                            && !lines[i].startsWith("-- specification")
+                            && !lines[i].startsWith("WARNING")){
                         if(lines[i].startsWith("  -> ")){
                             traceLength++;
                             i++;
@@ -78,7 +83,8 @@ public class SmvVerifyHandler {
                             while(i < lines.length
                                     && !lines[i].startsWith("  -> ")
                                     && !lines[i].startsWith("-- specification")
-                                    && !lines[i].startsWith("  -- Loop starts here")){
+                                    && !lines[i].startsWith("  -- Loop starts here")
+                                    && !lines[i].startsWith("WARNING")){
                                 String[] variableAndValue = lines[i].split(" = ");
                                 oneState.put(variableAndValue[0].substring(4), variableAndValue[1]);
                                 i++;
@@ -161,7 +167,6 @@ public class SmvVerifyHandler {
         String line;
         while((line = bufReader.readLine()) != null)
             execRes.append(line).append("\n");
-
         return execRes.toString();
     }
 

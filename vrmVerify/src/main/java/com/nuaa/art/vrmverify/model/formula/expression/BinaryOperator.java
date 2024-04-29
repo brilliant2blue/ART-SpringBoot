@@ -70,7 +70,6 @@ public class BinaryOperator extends BaseExpression {
             if (leftValue instanceof Boolean || rightValue instanceof Boolean) {
                 throw arithmeticException();
             }
-            // ensure that both are rationals
             final BigRational l = (BigRational) intToRational(leftValue);
             final BigRational r = (BigRational) intToRational(rightValue);
             return switch (name) {

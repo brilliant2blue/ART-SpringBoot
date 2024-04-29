@@ -1,6 +1,9 @@
 package com.nuaa.art.vrmverify.handler;
 
+import com.nuaa.art.vrmverify.common.utils.TreeTraverseUtils;
 import com.nuaa.art.vrmverify.model.Counterexample;
+import com.nuaa.art.vrmverify.model.explanation.Cause;
+import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;
 import com.nuaa.art.vrmverify.model.visualization.VariableTable;
 
 import java.util.*;
@@ -45,12 +48,36 @@ public class CxVisualizationHandler {
             });
             for (Map.Entry<String, String> assignment : curAssignmentSet) {
                 List<String> values = variable2Values.get(assignment.getKey());
+                if(values == null)
+                    continue;
                 // 更新变量值
                 values.remove(values.size() - 1);
                 values.add(assignment.getValue());
             }
         }
 
-        return new VariableTable(cx.getTraceLength(), variable2Values);
+        return new VariableTable(
+                cx.getProperty(),
+                cx.getTraceLength(),
+                cx.isExistLoop(),
+                cx.getLoopStartsState(),
+                variable2Values);
+    }
+
+    /**
+     * 生成每一反例步上html形式的属性视图
+     * @param f
+     * @param causeSet
+     * @return
+     */
+    public static List<String> genHighlightedProperty(CTLFormula f, Set<Cause> causeSet){
+        List<String> highlightedProperties = new ArrayList<>();
+        if(f.getValues() == null || f.getValues().isEmpty())
+            return highlightedProperties;
+        int traceLength = f.getValues().size();
+        for (int i = 0; i < traceLength; i++) {
+            highlightedProperties.add(TreeTraverseUtils.traverseToGenHighlightedProperty(f, i, causeSet));
+        }
+        return highlightedProperties;
     }
 }

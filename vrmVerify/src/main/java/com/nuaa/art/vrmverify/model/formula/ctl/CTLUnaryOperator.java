@@ -20,12 +20,11 @@ public class CTLUnaryOperator extends CTLFormula{
         name = name.trim();
         this.name = name;
         this.argument = argument;
-        setName(name);
+        setNodeName(name);
         getChildList().add(argument);
         registerFormula(this);
     }
 
-    @Override
     public String getName() {
         return name;
     }

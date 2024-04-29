@@ -22,14 +22,13 @@ public class CTLBinaryOperator extends CTLFormula{
         this.name = name;
         this.leftArgument = leftArgument;
         this.rightArgument = rightArgument;
-        setName(name);
+        setNodeName(name);
         List<TreeNode> childList = getChildList();
         childList.add(leftArgument);
         childList.add(rightArgument);
         registerFormula(this);
     }
 
-    @Override
     public String getName() {
         return name;
     }
@@ -45,7 +44,7 @@ public class CTLBinaryOperator extends CTLFormula{
     @Override
     public String toString() {
         if(name.equals("EU") || name.equals("AU"))
-            return ExpressionUtils.par(name.charAt(0) + " [" + leftArgument + " " + name.charAt(1) + " " + rightArgument);
+            return ExpressionUtils.par(name.charAt(0) + " [" + leftArgument + " " + name.charAt(1) + " " + rightArgument + " ]");
         else
             return ExpressionUtils.par(leftArgument + " " + name + " " + rightArgument);
     }

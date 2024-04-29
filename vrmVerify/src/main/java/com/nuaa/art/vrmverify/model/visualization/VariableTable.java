@@ -18,7 +18,10 @@ import java.util.Map;
 @NoArgsConstructor
 public class VariableTable {
 
+    private String property;
     private int traceLength;
+    private boolean existLoop;
+    private int loopStartsState;
     private Map<String, List<String>> variableValues = new HashMap<>();
 
 }

@@ -14,8 +14,16 @@ import java.util.Set;
  */
 public class Constant extends BaseExpression{
 
+    boolean isEnumValue;
+
     public Constant(String name) {
         super(name);
+        setLeaf(true);
+    }
+
+    public Constant(String name, boolean isEnumValue){
+        super(name);
+        this.isEnumValue = isEnumValue;
         setLeaf(true);
     }
 
@@ -32,19 +40,32 @@ public class Constant extends BaseExpression{
             final BigRational result;
             final String strValue = name.toLowerCase();
             if (strValue.contains(".") || strValue.contains("e")) {
-                final BigDecimal x = new BigDecimal(strValue);
-                BigInteger numerator = x.unscaledValue();
-                BigInteger denominator = BigInteger.ONE;
-                if (x.scale() <= 0) {
-                    numerator = numerator.multiply(BigInteger.TEN.pow(-x.scale()));
-                } else {
-                    denominator = denominator.multiply(BigInteger.TEN.pow(x.scale()));
+                try {
+                    final BigDecimal x = new BigDecimal(strValue);
+                    BigInteger numerator = x.unscaledValue();
+                    BigInteger denominator = BigInteger.ONE;
+                    if (x.scale() <= 0) {
+                        numerator = numerator.multiply(BigInteger.TEN.pow(-x.scale()));
+                    } else {
+                        denominator = denominator.multiply(BigInteger.TEN.pow(x.scale()));
+                    }
+                    result = new BigRational(numerator, denominator);
                 }
-                result = new BigRational(numerator, denominator);
+                catch (NumberFormatException e){
+                    isEnumValue = true;
+                    return name;
+                }
             } else if (strValue.startsWith("f'") || strValue.startsWith("-f'")) {
-                result = new BigRational(strValue.replace("f'", ""));
+                try {
+                    result = new BigRational(strValue.replace("f'", ""));
+                }
+                catch (NumberFormatException e){
+                    isEnumValue = true;
+                    return name;
+                }
             } else {
-                throw new RuntimeException("未知的常量类型：" + name);
+                isEnumValue = true;
+                return name;
             }
             return result;
         }

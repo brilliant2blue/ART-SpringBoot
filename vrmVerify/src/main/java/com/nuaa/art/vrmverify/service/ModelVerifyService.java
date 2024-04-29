@@ -1,8 +1,7 @@
 package com.nuaa.art.vrmverify.service;
 
-import com.nuaa.art.vrmverify.model.VerifyResult;
+import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -17,6 +16,6 @@ public interface ModelVerifyService {
      * @param smvFilePath
      * @return
      */
-    public VerifyResult verifyModel(String smvFilePath, boolean addProperties, List<String> properties) ;
+    public ReturnVerifyResult verifyModel(String smvFilePath, boolean addProperties, List<String> properties) ;
 
 }

@@ -49,6 +49,7 @@ public class Test {
 
         Counterexample cx = verifyResult.getCxList().get(0);
         CTLFormula f = CTLParseUtils.parseCTLStr(cx.getProperty());
+         System.out.println(f);
         VariableTable variableTable = CxVisualizationHandler.computeVariableTable(cx);
         System.out.println(CxExplanationHandler.computeCauseSet(variableTable, 0, f, false));
     }

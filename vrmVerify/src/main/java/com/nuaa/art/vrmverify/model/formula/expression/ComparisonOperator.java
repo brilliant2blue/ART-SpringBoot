@@ -15,8 +15,8 @@ import java.util.TreeSet;
  */
 public class ComparisonOperator extends BaseExpression{
 
-    private final BaseExpression leftArgument;
-    private final BaseExpression rightArgument;
+    private BaseExpression leftArgument;
+    private BaseExpression rightArgument;
 
     public ComparisonOperator(String name, BaseExpression leftArgument, BaseExpression rightArgument) {
         super(name);
@@ -31,8 +31,16 @@ public class ComparisonOperator extends BaseExpression{
         return leftArgument;
     }
 
+    public void setLeftArgument(BaseExpression leftArgument) {
+        this.leftArgument = leftArgument;
+    }
+
     public BaseExpression getRightArgument(){
         return rightArgument;
+    }
+
+    public void setRightArgument(BaseExpression rightArgument){
+        this.rightArgument = rightArgument;
     }
 
     @Override
@@ -44,7 +52,6 @@ public class ComparisonOperator extends BaseExpression{
     public Object calculate(Map<String, List<String>> values, int position) {
         final Object leftValue = intToRational(leftArgument.calculate(values, position));
         final Object rightValue = intToRational(rightArgument.calculate(values, position));
-
         switch (name) {
             case "=":
                 return leftValue.equals(rightValue);
