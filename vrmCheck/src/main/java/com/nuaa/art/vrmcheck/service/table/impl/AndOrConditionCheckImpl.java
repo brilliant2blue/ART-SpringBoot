@@ -71,8 +71,8 @@ public class AndOrConditionCheckImpl implements ConditionCheck {
                         if (!s.containsZero() && ci.equivalentScenarioSet.get(i).size() > 1) { //如果场景不为空，且场景对应不只一行， 则发生条件一致性错误
                             obeyScenariosOfConsistency.add(s);
                             ArrayList<String> assign = new ArrayList<>();
-                            for (Integer line : ci.equivalentScenarioSet.get(i))
-                               assign.add(ci.outputRanges.get(line));
+                            for (long line : ci.equivalentScenarioSet.get(i))
+                               assign.add(ci.outputRanges.get((int) line));
                             obeyAssignmentOfConsistency.add(assign);
                         }
                         if (!s.containsZero() && ci.equivalentScenarioSet.get(i).size() == 0) { //如果场景不为空，且场景不对应任何行， 则发生条件完整性错误

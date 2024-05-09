@@ -56,5 +56,6 @@ public class AndOrEventsInformation {
         criticalVariables = new CriticalVariables();
         assignmentForEachRow = new ArrayList<>();
         scenarioSetPairsOfEachRow = new HashMap<>();
+        nuclearTreeForEachRow = new ArrayList<>();
     }
 }

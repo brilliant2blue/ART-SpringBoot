@@ -1,5 +1,6 @@
 package com.nuaa.art.vrmcheck.service.table.impl;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.common.ConceptItemType;
 import com.nuaa.art.vrm.entity.StateMachine;
 import com.nuaa.art.vrm.model.vrm.ModeClassOfVRM;
@@ -44,7 +45,6 @@ public class AndOrEventCheckImpl implements EventCheck {
             List<String> modes = event.getRows().stream().map(TableRow::getMode).distinct().collect(Collectors.toList());
 
             for (String sourceMode : modes) {// 对同模式的条件进行一致性完整性判断
-
                 List<TableRow> subTable = new ArrayList<>();
                 ArrayList<Integer> wrongRowReqID = new ArrayList<Integer>();// 对应每行的需求编号
                 for (TableRow row : event.getRows()) {
@@ -53,14 +53,14 @@ public class AndOrEventCheckImpl implements EventCheck {
                         wrongRowReqID.add(row.getRelateReq());
                     }
                 }
-                System.out.println("事件"+subTable.stream().map(TableRow::getDetails).collect(Collectors.joining()));
+                LogUtils.debug("事件"+subTable.stream().map(TableRow::getDetails).collect(Collectors.joining()));
 
-                //测试新函数用
                 AndOrEventsInformation ei = eventPraser.emptyEventsInformationFactory();
                 eventPraser.setParentRangeAndValueOfEachRow(vrmModel, event, ei);
                 eventPraser.praserInformationInTables(vrmModel, subTable, ei);
                 ei.scenarioCorpusCoder = scenarioHandler.constructScenarioCorpus(ei.criticalVariables.size(), ei.variableRanges);
                 scenarioHandler.buildEquivalentScenarioSetPair(ei);
+
                 int specialError = checkSpeciaError(ei);
                 ArrayList<EventConsistencyError> errors = checkSubEventTableConsistency(ei);
 
@@ -68,7 +68,7 @@ public class AndOrEventCheckImpl implements EventCheck {
                     if(specialError == 4){
                         String outputString = "";
                         errorReporter.addErrorCount();
-                        outputString = outputString = "错误定位：表格" + event.getName()
+                        outputString = outputString = "错误定位：表格" + event.getName() + "\n系统："+vrmModel.getSystem().getSystemName()
                                 + "\n错误内容：";
                         if (!sourceMode.isBlank())
                             outputString += "处于模式" + sourceMode + "下时，\n";
@@ -93,7 +93,7 @@ public class AndOrEventCheckImpl implements EventCheck {
                     if(specialError == 1 || specialError == 3){
                         String outputString = "";
                         errorReporter.addErrorCount();
-                        outputString = outputString = "错误定位：表格" + event.getName()
+                        outputString = outputString = "错误定位：表格" + event.getName() + "\n系统："+vrmModel.getSystem().getSystemName()
                                 + "\n错误内容：";
                         if (!sourceMode.isBlank())
                             outputString += "处于模式" + sourceMode + "下时，\n";
@@ -118,7 +118,7 @@ public class AndOrEventCheckImpl implements EventCheck {
                     if(specialError == 2 || specialError == 3){
                         String outputString = "";
                         errorReporter.addErrorCount();
-                        outputString = outputString = "错误定位：表格" + event.getName()
+                        outputString = outputString = "错误定位：表格" + event.getName() + "\n系统："+vrmModel.getSystem().getSystemName()
                                 + "\n错误内容：";
                         if (!sourceMode.isBlank())
                             outputString += "处于模式" + sourceMode + "下时，\n";
@@ -148,7 +148,7 @@ public class AndOrEventCheckImpl implements EventCheck {
                         for(ArrayList<Scenario>[] obeyScenario: eces.obeyScenarios){
                             errorReporter.addErrorCount();
                             //errorString = "错误" + errorCount + "-错误类型：第三范式检查，违反事件一致性";
-                            outputString = "错误定位：表格" + event.getName()
+                            outputString = "错误定位：表格" + event.getName() + "\n系统："+vrmModel.getSystem().getSystemName()
                                     + "\n错误内容：";
                             if (!sourceMode.isBlank())
                                 outputString += "处于模式" + sourceMode + "下时，\n";
@@ -218,6 +218,7 @@ public class AndOrEventCheckImpl implements EventCheck {
                         thisRow.setAssignment(row.getEndState());
                         thisRow.setDetails(row.getEvent());
                         subTable.add(thisRow);
+                        //System.err.println(thisRow.getDetails());
                         //wrongRowReqID.add(row.getRelateReq());
                     }
                 }

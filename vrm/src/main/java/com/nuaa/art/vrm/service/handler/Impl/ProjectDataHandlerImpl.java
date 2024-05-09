@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Service
+@Service("projectV1")
 public class ProjectDataHandlerImpl implements ProjectDataHandler {
     @Resource
     DaoHandler daoHandler;
@@ -174,7 +174,7 @@ public class ProjectDataHandlerImpl implements ProjectDataHandler {
             StandardRequirement standard = new StandardRequirement();
             for (Element standardNode : standardList) {
                 standard.setStandardRequirementId(null);
-                //这里现在修改为了对应的需求excelId
+
                 standard.setNaturalLanguageReqId(Integer.valueOf(standardNode.elementText("naturalLanguageReqId")));
                 standard.setStandardReqVariable(
                         standardNode.elementText("standardReqVariable"));

@@ -181,11 +181,11 @@ public class AndOrConditionParserImpl implements ConditionParser {
             mc = vrmModel.getModeClass().stream()
                     .filter(item-> item.getModeClass().getModeClassName().equals(condition.getVar1()))
                     .findFirst().orElse(mc);
-            if(!cv.discreteVariables.contains(condition.getVar1())){
+            if(mc != null && !cv.discreteVariables.contains(condition.getVar1())){
                 ArrayList<String> thisDiscreteRanges = new ArrayList<String>();
-                if (mc != null) {
-                    thisDiscreteRanges.addAll(mc.getModes().stream().map(Mode::getModeName).toList());
-                }
+                cv.discreteVariables.add(condition.getVar1());
+                thisDiscreteRanges.addAll(mc.getModes().stream().map(Mode::getModeName).toList());
+
                 cv.discreteRanges.add(thisDiscreteRanges);
             }
         }

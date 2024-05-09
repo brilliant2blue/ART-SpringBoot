@@ -14,6 +14,7 @@ import com.nuaa.art.vrm.service.handler.RequirementDataHandler;
 import jakarta.annotation.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 
@@ -90,7 +91,7 @@ public class AsyncTaskHandler {
         }
     }
 
-    @Resource
+    @Resource(name = "projectV2")
     ProjectDataHandler projectDataHandler;
 
     @Async("AsyncTask")
@@ -109,6 +110,11 @@ public class AsyncTaskHandler {
             e.printStackTrace();
             webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
         }
+    }
+
+    @Async("AsyncTask")
+    public void importProject(String systemName, String fileUrl){
+        projectDataHandler.importProjectFromFile(systemName,fileUrl);
     }
 
     @Resource

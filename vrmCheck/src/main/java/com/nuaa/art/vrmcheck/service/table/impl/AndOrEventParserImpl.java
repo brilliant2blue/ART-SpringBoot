@@ -1,5 +1,6 @@
 package com.nuaa.art.vrmcheck.service.table.impl;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.common.utils.ConditionTableUtils;
 import com.nuaa.art.vrm.common.utils.DataTypeUtils;
 import com.nuaa.art.vrm.common.utils.EventTableUtils;
@@ -129,7 +130,7 @@ public class AndOrEventParserImpl {
             }
             orTree.add(andTree);
         }
-
+        //System.err.println(orTree.get(0).size());
         return orTree;
     }
 
@@ -147,7 +148,8 @@ public class AndOrEventParserImpl {
         for(EventItem event: eventItems){
             CoreEvent coreEvent = new CoreEvent();
             coreEvent.eventOperator= event.getEventOperator();
-            coreEvent.eventCondition = conditionParser.praserConditionTree(event.getEventCondition());
+            if(event.getEventCondition()!=null)
+                coreEvent.eventCondition = conditionParser.praserConditionTree(event.getEventCondition());
             if(event.getGuardOperator().isBlank()){
                 coreEvent.guardOperator = "WHEN";
                 coreEvent.guardCondition = conditionParser.praserConditionTree(conditionUtils.ConvertStringToTable("true"));
@@ -155,11 +157,12 @@ public class AndOrEventParserImpl {
                 coreEvent.guardOperator = event.getGuardOperator();
                 coreEvent.guardCondition = conditionParser.praserConditionTree(event.getGuardCondition());
             }
-
-            for(ConditionItem c: event.getEventCondition().getConditionItems())
-                conditionParser.findCriticalVariableAndKeyValues(vrm,cie, c);
-            for(ConditionItem c: event.getGuardCondition().getConditionItems())
-                conditionParser.findCriticalVariableAndKeyValues(vrm,cie, c);
+            if(event.getEventCondition()!=null)
+                for(ConditionItem c: event.getEventCondition().getConditionItems())
+                    conditionParser.findCriticalVariableAndKeyValues(vrm,cie, c);
+            if(event.getGuardCondition()!=null)
+                for(ConditionItem c: event.getGuardCondition().getConditionItems())
+                    conditionParser.findCriticalVariableAndKeyValues(vrm,cie, c);
 
             coreEventsTrees.add(coreEvent);
         }

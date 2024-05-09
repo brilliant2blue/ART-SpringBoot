@@ -1,5 +1,6 @@
 package com.nuaa.art.vrmcheck.service.table.impl;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrm.common.ConceptItemType;
 import com.nuaa.art.vrm.model.vrm.TableOfVRM;
 import com.nuaa.art.vrm.model.vrm.TableRow;
@@ -13,6 +14,7 @@ import com.nuaa.art.vrmcheck.model.table.AndOrConditionsInformation;
 import com.nuaa.art.vrmcheck.service.table.ConditionCheck;
 import com.nuaa.art.vrmcheck.service.table.ScenarioHandler;
 import jakarta.annotation.Resource;
+import org.apache.juli.logging.Log;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -52,73 +54,82 @@ public class AndOrConditionCheckImplV2 implements ConditionCheck {
                 // 生成等价场景集， 并自动存储
                 scenarioHandler.buildEquivalentScenarioSet(ci);
 
-                checkConditionIntegrity(condition,ci,sourceMode,wrongRowReqID,errorReporter);
-                checkConditionConsistency(condition,ci,sourceMode,wrongRowReqID,errorReporter);
-
+                LogUtils.info("一致性分析中...");
+                checkConditionConsistency(vrmModel.getSystem().getSystemName(),condition,ci,sourceMode,wrongRowReqID,errorReporter);
+                LogUtils.info("完整性分析中...");
+                checkConditionIntegrity(vrmModel.getSystem().getSystemName(),condition,ci,sourceMode,wrongRowReqID,errorReporter);
             }
         }
         return errorReporter.isConditionRight();
     }
 
-    void checkConditionIntegrity(TableOfVRM original, AndOrConditionsInformation ci, String sourceMode, ArrayList<Integer> wrongRowReqID, CheckErrorReporter reporter) {
+    void checkConditionIntegrity(String modelname, TableOfVRM original, AndOrConditionsInformation ci, String sourceMode, ArrayList<Integer> wrongRowReqID, CheckErrorReporter reporter) {
         if (ci.rowsForTrueScenarioSet.size() + ci.rowsForDefaultScenarioSet.size() >= 1) {
             // 有永真式或默认式，肯定覆盖所有场景
+            LogUtils.debug(original.getRelateVar().getConceptName());
             return ;
         }
         if (ci.criticalVariables.size() > 0) {
             HashSet<Scenario> scenarios = new HashSet<>();
-            for(HashSet<Integer> scenarioSet : ci.equivalentScenarioSet){
-                for(Integer code : scenarioSet){
+            for(HashSet<Long> scenarioSet : ci.equivalentScenarioSet){
+                for(Long code : scenarioSet){
                     scenarios.add(ci.scenarioCorpusCoder.decode(code));
                 }
             }
             ArrayList<Scenario> obeyScenariosOfIntegrity = new ArrayList<>();
             int cnt = 0;
+            Scenario pre = null;
             for(int i = 1; i<ci.scenarioCorpusCoder.codeLimit && cnt < 10;i++){
+                //LogUtils.warn(String.valueOf(i));
                 Scenario one = ci.scenarioCorpusCoder.decode(i);
                 boolean flag = false;
                 for(Scenario in : scenarios){
-                    if(in.almostEquals(flag)){
+                    if(in.almostEquals(one)){
                         flag = true;
                     }
                 }
                 if(!flag){
-                    cnt++;
-                    obeyScenariosOfIntegrity.add(one);
+                    if(pre == null || !pre.almostEquals(one)){
+                        cnt++;
+                        obeyScenariosOfIntegrity.add(one);
+                        pre = one;
+                    }
                 }
             }
-            String variableSet = OutputUtils.getVariableSetHeader(ci.criticalVariables.continualVariables, ci.criticalVariables.discreteVariables);
 
-            ConditionErrorRefresh(reporter);
-            String outputString = "";// 输出文本
-            outputString = "错误定位：表格" + original.getName() + "\n错误内容：";
-            if (!(sourceMode.isBlank() || sourceMode.equals("null")))
-                outputString += "处于模式" + sourceMode + "下时，\n";
-            outputString += "当变量取值为下表任意一行的组合时";
-            if (original.getRelateVar().getConceptType().equals(ConceptItemType.Output.getNameEN()))
-                outputString += "输出变量";
-            else
-                outputString += "中间变量";
-            outputString += "无值\n" + variableSet;
-            for (Scenario s : obeyScenariosOfIntegrity) {
-                outputString += "|";
-                for (String value : scenarioHandler.getScenarioDetails(ci.criticalVariables, s)) {
-                    outputString += String.format("%-15s", value) + "|";
+            if(!obeyScenariosOfIntegrity.isEmpty()) {
+                String variableSet = OutputUtils.getVariableSetHeader(ci.criticalVariables.continualVariables, ci.criticalVariables.discreteVariables);
+
+                ConditionErrorRefresh(reporter);
+                String outputString = "";// 输出文本
+                outputString = "错误定位：表格" + original.getName() + "\n系统："+ modelname + "\n错误内容：";
+                if (!(sourceMode.isBlank() || sourceMode.equals("null")))
+                    outputString += "处于模式" + sourceMode + "下时，\n";
+                outputString += "当变量取值为下表任意一行的组合时";
+                if (original.getRelateVar().getConceptType().equals(ConceptItemType.Output.getNameEN()))
+                    outputString += "输出变量";
+                else
+                    outputString += "中间变量";
+                outputString += "无值\n" + variableSet;
+                for (Scenario s : obeyScenariosOfIntegrity) {
+                    outputString += "|";
+                    for (String value : scenarioHandler.getScenarioDetails(ci.criticalVariables, s)) {
+                        outputString += String.format("%-15s", value) + "|";
+                    }
+                    outputString += "\n";
                 }
-                outputString += "\n";
+                outputString = outputString.substring(0, outputString.length() - 1);
+                reporter.addErrorList(new CheckErrorInfo(
+                        reporter.getErrorCount(),
+                        CheckErrorType.ConditionIntegrityValue,
+                        original.getName(),
+                        wrongRowReqID, original.getRelateVar().getConceptDependencyModeClass(), outputString));
             }
-            outputString = outputString.substring(0, outputString.length() - 1);
-            reporter.addErrorList(new CheckErrorInfo(
-                    reporter.getErrorCount(),
-                    CheckErrorType.ConditionIntegrityValue,
-                    original.getName(),
-                    wrongRowReqID, original.getRelateVar().getConceptDependencyModeClass(), outputString));
-
         } else {
             if (ci.rowsForTrueScenarioSet.size() + ci.rowsForDefaultScenarioSet.size() < 1){
                 ConditionErrorRefresh(reporter);
                 String outputString = "";// 输出文本
-                outputString = "错误定位：表格" + original.getName() + "\n错误内容：";
+                outputString = "错误定位：表格" + original.getName() + "\n系统："+ modelname  + "\n错误内容：";
                 if (!(sourceMode.isBlank() || sourceMode.equals("null")))
                     outputString += "处于模式" + sourceMode + "下时，\n";
                 outputString += "表格中只存在永假条件";
@@ -131,12 +142,12 @@ public class AndOrConditionCheckImplV2 implements ConditionCheck {
         }
     }
 
-    void checkConditionConsistency(TableOfVRM original, AndOrConditionsInformation ci, String sourceMode, ArrayList<Integer> wrongRowReqID, CheckErrorReporter reporter) {
+    void checkConditionConsistency(String modelname, TableOfVRM original, AndOrConditionsInformation ci, String sourceMode, ArrayList<Integer> wrongRowReqID, CheckErrorReporter reporter) {
         if (ci.rowsForTrueScenarioSet.size() + ci.rowsForDefaultScenarioSet.size() > 1) {
             // 多个永真式或默认式错误
             ConditionErrorRefresh(reporter);
             String outputString = "";// 输出文本
-            outputString = "错误定位：表格" + original.getName() + "\n错误内容：";
+            outputString = "错误定位：表格" + original.getName() + "\n系统："+ modelname  + "\n错误内容：";
             if (!(sourceMode.isBlank() || sourceMode.equals("null")))
                 outputString += "处于模式" + sourceMode + "下时，\n";
             outputString += "表格中有多个输出值冲突的永真条件或默认条件";
@@ -154,38 +165,42 @@ public class AndOrConditionCheckImplV2 implements ConditionCheck {
             HashMap<int[], ArrayList<Scenario>> obeyScenariosOfConsistency = new HashMap<>();
             for (int i = 0; i < len - 1; i++) {
                 // 不全是永真式的两行
-                ArrayList<Integer> seti = new ArrayList<>(ci.equivalentScenarioSet.get(i));
-                if(seti.size() > 0 || ci.rowsForTrueScenarioSet.contains(i)) {
+                ArrayList<Long> setOfLineI = new ArrayList<>(ci.equivalentScenarioSet.get(i));
+                if(setOfLineI.size() > 0 || ci.rowsForTrueScenarioSet.contains(i)) {
+                    //LogUtils.error(ci.outputRanges.get(i));
                     for (int j = i + 1; j < len; j++) {
                         int[] key = {i, j};
-                        ArrayList<Integer> setj = new ArrayList<>(ci.equivalentScenarioSet.get(j));
-                        if (setj.size() > 0) {
+                        ArrayList<Long> setOfLineJ = new ArrayList<>(ci.equivalentScenarioSet.get(j));
+                        if (setOfLineJ.size() > 0) {
                             if (ci.rowsForTrueScenarioSet.contains(i)) { // 永真式与其他表达式冲突, 则直接复制冲突场景
-                                ArrayList<Scenario> scj = new ArrayList<>(setj.size());
-                                for (Integer l : setj) {
+                                ArrayList<Scenario> scj = new ArrayList<>(setOfLineJ.size());
+                                for (Long l : setOfLineJ) {
                                     scj.add(ci.scenarioCorpusCoder.decode(l));
                                 }
                                 obeyScenariosOfConsistency.put(key, scj);
                                 continue;
                             }
                             // 遍历每组场景进行匹配
-                            for (int si = 0; si < seti.size(); si++) {
-                                Scenario sci = ci.scenarioCorpusCoder.decode(seti.get(si));
-                                for (int sj = 0; sj < setj.size(); sj++) {
-                                    if (!(obeyScenariosOfConsistency.get(key).size() < 10)) { //反例足够多了，跳出循环
-                                        si = seti.size();
-                                        sj = setj.size();
+                            for (int si = 0; si < setOfLineI.size(); si++) {
+                                Scenario sci = ci.scenarioCorpusCoder.decode(setOfLineI.get(si));
+                                for (int sj = 0; sj < setOfLineJ.size(); sj++) {
+                                    if (obeyScenariosOfConsistency.containsKey(key)
+                                            &&(!(obeyScenariosOfConsistency.get(key).size() < 10))) { //反例足够多了，跳出循环
+                                        si = setOfLineI.size();
+                                        sj = setOfLineJ.size();
                                         break;
                                     }
-                                    Scenario scj = ci.scenarioCorpusCoder.decode(setj.get(sj));
-                                    Scenario res = sci.merge(scj);
-                                    if (res != null) {
-                                        if (obeyScenariosOfConsistency.containsKey(key)) {
-                                            if (!obeyScenariosOfConsistency.get(key).contains(res))
+                                    Scenario scj = ci.scenarioCorpusCoder.decode(setOfLineJ.get(sj));
+                                    if(sci.almostEquals(scj)) {
+                                        Scenario res = sci.merge(scj);
+                                        if (res != null) {
+                                            if (obeyScenariosOfConsistency.containsKey(key)) {
+                                                if (!obeyScenariosOfConsistency.get(key).contains(res))
+                                                    obeyScenariosOfConsistency.get(key).add(res);
+                                            } else {
+                                                obeyScenariosOfConsistency.put(key, new ArrayList<>());
                                                 obeyScenariosOfConsistency.get(key).add(res);
-                                        } else {
-                                            obeyScenariosOfConsistency.put(key, new ArrayList<>());
-                                            obeyScenariosOfConsistency.get(key).add(res);
+                                            }
                                         }
                                     }
                                 }
@@ -202,7 +217,7 @@ public class AndOrConditionCheckImplV2 implements ConditionCheck {
                 ConditionErrorRefresh(reporter);
 
                 String outputString = "";// 输出文本
-                outputString = "错误定位：表格" + original.getName()
+                outputString = "错误定位：表格" + original.getName()  + "\n系统："+ modelname
                         + "\n错误内容：";
                 if (!(sourceMode.isBlank() || sourceMode.equals("null")))
                     outputString += "处于模式" + sourceMode + "下时，\n";

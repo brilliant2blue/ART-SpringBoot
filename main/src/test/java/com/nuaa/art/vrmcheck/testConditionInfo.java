@@ -97,83 +97,14 @@ public class testConditionInfo {
 
     @Resource
     ConditionParser conditionPraser;
-    @Resource(name = "V1")
-    ScenarioHandler scenarioHandler;
+    @Resource(name="ConditionCheckV2")
+    ConditionCheck conditionCheck;
     @Test
     public void testConditionScenario(){
-        HVRM vrmModel = (HVRM) modelObjectCreate.modelFile(null, "D:\\CodePath\\ART\\ART-SpringBoot\\cache\\fgcsmmodel.xml");
+        HVRM vrmModel = (HVRM) modelObjectCreate.modelFile(null, "D:\\CodePath\\ART\\ART-SpringBoot\\cache\\condition_test.xml");
 
         CheckErrorReporter checkErrorReporter = new CheckErrorReporter();
-        for (TableOfVRM condition: vrmModel.getConditions()) {
-
-            // 获取在表中出现的所有源模式
-            List<String> modes = condition.getRows().stream().map(TableRow::getMode).distinct().collect(Collectors.toList());
-
-            for (String sourceMode : modes) {// 对同模式的条件进行一致性完整性判断
-
-                List<TableRow> subTable = new ArrayList<>();
-                ArrayList<Integer> wrongRowReqID = new ArrayList<Integer>();// 对应每行的需求编号
-                for (TableRow row : condition.getRows()) {
-                    if (row.getMode().equals(sourceMode)) {
-                        subTable.add(row);
-                        wrongRowReqID.add(row.getRelateReq());
-                    }
-                }
-
-                //解析条件信息
-                AndOrConditionsInformation ci = conditionPraser.emptyInformationFactory();
-                conditionPraser.setParentRangeAndValueOfEachRow(vrmModel.convertToVRM(), condition, ci);
-                conditionPraser.praserInformationInCondtions(vrmModel.convertToVRM(), subTable, ci);
-                // 生成场景编码器， 并自动存储
-                ci.scenarioCorpusCoder = scenarioHandler.constructScenarioCorpus(ci.criticalVariables.size(), ci.variableRanges);
-                // 生成等价场景集， 并自动存储
-                //scenarioHandler.buildEquivalentScenarioSet(ci);
-                HashSet<Scenario> equivalentScenarioSet = new HashSet<>();
-
-                HashSet<Integer> defaultRow = new HashSet<>();
-                HashSet<Integer> trueRow = new HashSet<>();
-                for (int i=0; i< ci.nuclearTreeForEachRow.size(); i++) {// 遍历每行的析取范式树
-                    ArrayList<ArrayList<NuclearCondition>> orTree = ci.nuclearTreeForEachRow.get(i); //获取一行条件
-                    //System.out.println(orTree.toString());
-                    if (orTree.get(0).get(0).isTrue()) {// 如果第一个合取式的第一个原子条件为true，则整个条件就是true
-//                for (Set<Integer> outputForThisState : equivalentScenarioSet) { //遍历场景全集，将永真式的赋值与全部场景编号进行对应。
-//                    outputForThisState.add(
-//                            ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
-//                }
-                        trueRow.add(ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
-                        continue;
-                    } else if (orTree.get(0).get(0).isFalse()) {// 如果第一个合取式的第一个原子条件为false，则整个条件就是false
-                        continue;
-                    } else if (orTree.get(0).get(0).isDefault()){
-                        // 此时需要先记录默认行
-                        defaultRow.add(ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
-                        continue;
-                    }
-
-                    ArrayList<Scenario> scenarioCollection = new ArrayList<Scenario>();// 为每行创建一个等价场景集
-                    for (ArrayList<NuclearCondition> andTree : orTree) {// 遍历析取范式树的每个合取式
-                        for (Scenario thisScenario : buildAndTreeEquivalentScenarioSet(ci, andTree)) {
-                            if (!scenarioCollection.contains(thisScenario))
-                                scenarioCollection.add(thisScenario);
-                        }
-                    }
-
-                    long count = 0;
-                    Scenario thisScenario = scenarioCollection.get(0);  // 将每行对应的赋值与场景集关联。
-                        for (long l = 0; l < ci.scenarioCorpusCoder.codeLimit; l++) {
-                            Scenario s = ci.scenarioCorpusCoder.decode(l);
-                            if (!s.containsZero() && s.almostEquals(thisScenario)) {
-                                count++;
-//                        System.out.println(equivalentScenarioSet.get((int) l).size());
-//                        System.out.println(i);
-//                        System.out.println(ci.assignmentForEachRow.get(i));
-                            }
-                        }
-
-                    System.out.println(count);
-                }
-            }
-        }
+        conditionCheck.checkConditionIntegrityAndConsistency(vrmModel.convertToVRM(), checkErrorReporter);
 
     }
 

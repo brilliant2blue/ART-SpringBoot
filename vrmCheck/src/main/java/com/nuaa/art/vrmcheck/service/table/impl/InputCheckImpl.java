@@ -133,7 +133,7 @@ public class InputCheckImpl implements InputCheck {
             }
             if (depend == null) {
                 InputErrorRefresh(errorReporter);
-                String outputString = "错误定位：表格" + table.getName() + "\n错误内容：该表格依赖的模式集"
+                String outputString = "错误定位：表格" + table.getName()+ "\n系统："+vrmModel.getSystem().getSystemName() + "\n错误内容：该表格依赖的模式集"
                         + referencedStateMachine + "未在模式集字典中定义";
                 if(isEvent){
                     errorReporter.addErrorList(new CheckErrorInfo(errorReporter.errorCount, CheckErrorType.InputIntegrityEventModeClassMiss,table.getName(),outputString));
@@ -163,7 +163,7 @@ public class InputCheckImpl implements InputCheck {
                 }
                 if (isModeNotExist) {
                     InputErrorRefresh(errorReporter);
-                    String outputString = "错误定位：表格" + table.getName() + "\n错误内容：该表格依赖的模式";
+                    String outputString = "错误定位：表格" + table.getName() + "\n系统："+vrmModel.getSystem().getSystemName() + "\n错误内容：该表格依赖的模式";
                     for (String modeNotExist : modesNotExist) {
                         outputString += modeNotExist + "、";
                     }
@@ -178,7 +178,7 @@ public class InputCheckImpl implements InputCheck {
                 if (isModeNotAll) {
                     InputErrorRefresh(errorReporter);
                     //String errorString = "错误" + errorCount + "-错误类型：第一范式检查，违反输入完整性";
-                    String outputString = "错误定位：表格" + table.getName() + "\n错误内容：该表格依赖的模式集的模式";
+                    String outputString = "错误定位：表格" + table.getName() + "\n系统："+vrmModel.getSystem().getSystemName() + "\n错误内容：该表格依赖的模式集的模式";
                     for (String modeNotContained : modesNotContained) {
                         outputString += modeNotContained + "、";
                     }

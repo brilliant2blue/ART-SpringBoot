@@ -2,22 +2,34 @@ package com.nuaa.art.vrm.common.utils;
 
 import com.nuaa.art.common.utils.ListUtils;
 import com.nuaa.art.vrm.entity.*;
+import com.nuaa.art.vrm.entity.Module;
+import org.apache.xmlbeans.xml.stream.events.ElementTypeNames;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EntityXmlConvert {
+    public <T> String  notNullString(T value){
+        if(value==null) return "";
+        else return String.valueOf(value);
+    }
+
+    public Integer  toInt(String value){
+        if(value==null||value.isBlank()||value.equals("null")) return null;
+        else return Integer.valueOf(value);
+    }
+
     public Element NReq(NaturalLanguageRequirement nreq){
         Element requirementNode= DocumentHelper.createElement("requirement");//添加节点requirement
-        requirementNode.addAttribute("id", nreq.getReqId() + "");
+        requirementNode.addAttribute("id", String.valueOf(nreq.getReqId()));
         Element reqContent=requirementNode.addElement("reqContent");
         Element reqExcelId=requirementNode.addElement("reqExcelId");
         Element reqModuleId=requirementNode.addElement("reqModuleId");
         reqContent.setText(nreq.getReqContent());
         //System.out.println(nreq.getReqContent());
-        reqExcelId.setText(nreq.getReqExcelId()+"");
-        reqModuleId.setText(nreq.getModuleId()+"");
+        reqExcelId.setText(notNullString(nreq.getReqExcelId()));
+        reqModuleId.setText(notNullString(nreq.getModuleId()));
         return requirementNode;
     }
 
@@ -28,9 +40,8 @@ public class EntityXmlConvert {
         requirement.setReqExcelId(
                 Integer.valueOf(node.elementText("reqExcelId")));
 
-        String moduleId = node.attributeValue("reqModuleId");
-        if(moduleId.isBlank()) requirement.setModuleId(null);
-        else requirement.setModuleId(Integer.valueOf(moduleId));
+        String moduleId = node.elementText("reqModuleId");
+        requirement.setModuleId(toInt(moduleId));
 
         requirement.setReqContent(node.elementText("reqContent"));
         return  requirement;
@@ -44,7 +55,7 @@ public class EntityXmlConvert {
 
     public Element Variable(ConceptLibrary variable){
         Element variableNode=DocumentHelper.createElement("variable");//添加节点variable
-        variableNode.addAttribute("conceptId", variable.getConceptId()+"");//添加属性conceptId
+        variableNode.addAttribute("id", String.valueOf(variable.getConceptId()));//添加属性conceptId
         Element conceptName=variableNode.addElement("conceptName");
         Element conceptDataType=variableNode.addElement("conceptDataType");
         Element conceptRange=variableNode.addElement("conceptRange");
@@ -54,21 +65,21 @@ public class EntityXmlConvert {
         Element conceptType=variableNode.addElement("conceptType");
         Element conceptDescription=variableNode.addElement("conceptDescription");
         Element conceptRelateReq=variableNode.addElement("relateReq");
-        conceptName.setText(variable.getConceptName()+"");
-        conceptDataType.setText(variable.getConceptDatatype()+"");
-        conceptRange.setText(variable.getConceptRange()+"");
-        conceptValue.setText(variable.getConceptValue()+"");
-        conceptAccuracy.setText(variable.getConceptAccuracy()+"");
-        conceptDependency.setText(variable.getConceptDependencyModeClass()+"");
-        conceptType.setText(variable.getConceptType()+"");
-        conceptDescription.setText(variable.getConceptDescription()+"");
-        conceptRelateReq.setText(variable.getSourceReqId()+"");
+        conceptName.setText(variable.getConceptName());
+        conceptDataType.setText(notNullString(variable.getConceptDatatype()));
+        conceptRange.setText(notNullString(variable.getConceptRange()));
+        conceptValue.setText(notNullString(variable.getConceptValue()));
+        conceptAccuracy.setText(notNullString(variable.getConceptAccuracy()));
+        conceptDependency.setText(notNullString(variable.getConceptDependencyModeClass()));
+        conceptType.setText(notNullString(variable.getConceptType()));
+        conceptDescription.setText(notNullString(variable.getConceptDescription()));
+        conceptRelateReq.setText(notNullString(variable.getSourceReqId()));
         return variableNode;
     }
 
     public ConceptLibrary Variable(Element variableNode) {
         ConceptLibrary variable = new ConceptLibrary();
-        variable.setConceptId(null);
+        variable.setConceptId(Integer.valueOf(variableNode.attributeValue("id")));
         variable.setSystemId(null);
         variable.setConceptName(variableNode.elementText("conceptName"));
         variable.setConceptDatatype(variableNode.elementText("conceptDataType"));
@@ -96,10 +107,10 @@ public class EntityXmlConvert {
         Element dataType=typeNode.addElement("baseType");
         Element typeRange=typeNode.addElement("range");
         Element typeAccuracy=typeNode.addElement("accuracy");
-        typeName.setText(type.getTypeName()+"");
-        dataType.setText(type.getDataType()+"");
-        typeRange.setText(type.getTypeRange()+"");
-        typeAccuracy.setText(type.getTypeAccuracy()+"");
+        typeName.setText(notNullString(type.getTypeName()));
+        dataType.setText(notNullString(type.getDataType()));
+        typeRange.setText(notNullString(type.getTypeRange()));
+        typeAccuracy.setText(notNullString(type.getTypeAccuracy()));
         return typeNode;
     }
 
@@ -131,13 +142,11 @@ public class EntityXmlConvert {
         Element properNoun = DocumentHelper.createElement("properNoun");
         //添加properNoun属性
         Element name = properNoun.addElement("name");
-        if (prop.getProperNounName() != null) {
-            name.setText(prop.getProperNounName());
-        }
+        name.setText(notNullString(prop.getProperNounName()));
+
         Element description = properNoun.addElement("description");
-        if (prop.getProperNounDescription() != null) {
-            description.setText(prop.getProperNounDescription() + "");
-        }
+        description.setText(notNullString(prop.getProperNounDescription()));
+
         return properNoun;
     }
 
@@ -164,20 +173,20 @@ public class EntityXmlConvert {
      */
     public Element ModeClass(ModeClass modeClass){
         Element modeClassNode=DocumentHelper.createElement("modeClass");//添加节点modeClass
-        modeClassNode.addAttribute("modeClassId", modeClass.getModeClassId()+"");//添加属性modeClassId
+        modeClassNode.addAttribute("id", notNullString(modeClass.getModeClassId()));//添加属性modeClassId
         Element modeClassName=modeClassNode.addElement("modeClassName");
         Element modeClassDescription=modeClassNode.addElement("modeClassDescription");
-        modeClassName.setText(modeClass.getModeClassName()+"");
+        modeClassName.setText(notNullString(modeClass.getModeClassName()));
         modeClassDescription.setText(modeClass.getModeClassDescription());
         Element parentMode = modeClassNode.addElement("parentMode");
-        parentMode.addAttribute("modeClass", modeClass.getParentName()+"");
-        parentMode.addAttribute("mode", modeClass.getParentModeName()+"");
+        parentMode.addAttribute("modeClass", notNullString(modeClass.getParentName()));
+        parentMode.addAttribute("mode", notNullString(modeClass.getParentModeName()));
         return modeClassNode;
     }
 
     public ModeClass ModeClass(Element modeClassNode){
         ModeClass modeClass = new ModeClass();
-        modeClass.setModeClassId(Integer.valueOf(modeClassNode.attributeValue("modeClassId")));
+        modeClass.setModeClassId(Integer.valueOf(modeClassNode.attributeValue("id")));
         modeClass.setModeClassName(modeClassNode.elementText("modeClassName"));
         modeClass.setModeClassDescription(
                 modeClassNode.elementText("modeClassDescription"));
@@ -208,19 +217,13 @@ public class EntityXmlConvert {
         Element modeClassId=modeNode.addElement("modeClassId");
         Element modeClassName=modeNode.addElement("modeClassName");
         Element modeDescription=modeNode.addElement("modeDescription");
-        modeName.setText(mode.getModeName()+"");
-        if(mode.getInitialStatus()!=null)
-            initialStatus.setText(mode.getInitialStatus()+"");
-        else
-            initialStatus.setText("");
-        if(mode.getFinalStatus()!=null)
-            finalStatus.setText(mode.getFinalStatus()+"");
-        else
-            finalStatus.setText("");
-        value.setText(mode.getValue()+"");
-        modeClassId.setText(mode.getModeClassId()+"");
-        modeClassName.setText(mode.getModeClassName()+"");
-        modeDescription.setText(mode.getModeDescription());
+        modeName.setText(notNullString(mode.getModeName()));
+        initialStatus.setText(notNullString(mode.getInitialStatus()));
+        finalStatus.setText(notNullString(mode.getFinalStatus()));
+        value.setText(notNullString(mode.getValue()));
+        modeClassId.setText(notNullString(mode.getModeClassId()));
+        modeClassName.setText(notNullString(mode.getModeClassName()));
+        modeDescription.setText(notNullString(mode.getModeDescription()));
         return modeNode;
     }
 
@@ -245,6 +248,7 @@ public class EntityXmlConvert {
             mode.setFinalStatus(0);
         mode.setValue(Integer.valueOf(modeNode.elementText("value")));
         mode.setModeClassName(modeNode.elementText("modeClassName"));
+        mode.setModeClassId(null);
         mode.setModeDescription(modeNode.elementText("modeDescription"));
         return mode;
     }
@@ -261,10 +265,12 @@ public class EntityXmlConvert {
         Element endState=stmNode.addElement("endState");
         Element event=stmNode.addElement("event");
         Element dependencyModeClass=stmNode.addElement("dependencyModeClass");
+        Element dependencyModeClassId=stmNode.addElement("dependencyModeClassId");
         sourceState.setText(stm.getSourceState());
         endState.setText(stm.getEndState());
         event.setText(stm.getEvent());
-        dependencyModeClass.setText(stm.getDependencyModeClass()+"");
+        dependencyModeClass.setText(notNullString(stm.getDependencyModeClass()));
+        dependencyModeClassId.setText(notNullString(stm.getDependencyModeClassId()));
         return stmNode;
     }
 
@@ -298,7 +304,7 @@ public class EntityXmlConvert {
      */
     public Element SReq(StandardRequirement standard){
         Element standardNode=DocumentHelper.createElement("standard");//添加节点standard
-        standardNode.addAttribute("standardrequirementId", standard.getStandardRequirementId()+"");//添加属性standardrequirementId
+        standardNode.addAttribute("id", notNullString(standard.getStandardRequirementId()));//添加属性standardrequirementId
         Element naturalLanguageReqId=standardNode.addElement("naturalLanguageReqId");
         Element standardReqVariable=standardNode.addElement("standardReqVariable");
         Element standardReqFunction=standardNode.addElement("standardReqFunction");
@@ -309,26 +315,26 @@ public class EntityXmlConvert {
         Element templateType=standardNode.addElement("templateType");
         Element mode=standardNode.addElement("mode");
         Element moduleId = standardNode.addElement("moduleId");
-        naturalLanguageReqId.setText(standard.getNaturalLanguageReqId()+"");
-        standardReqVariable.setText(standard.getStandardReqVariable()+"");
-        standardReqFunction.setText(standard.getStandardReqFunction()+"");
-        standardReqValue.setText(standard.getStandardReqValue()+"");
-        standardReqCondition.setText(standard.getStandardReqCondition()+"");
-        standardReqEvent.setText(standard.getStandardReqEvent()+"");
-        standardReqContent.setText(standard.getStandardReqContent()+"");
-        templateType.setText(standard.getTemplateType()+"");
-        mode.setText(standard.getMode()+"");
-        moduleId.setText(standard.getModuleId()+"");
+        naturalLanguageReqId.setText(notNullString(standard.getNaturalLanguageReqId()));
+        standardReqVariable.setText(notNullString(standard.getStandardReqVariable()));
+        standardReqFunction.setText(notNullString(standard.getStandardReqFunction()));
+        standardReqValue.setText(notNullString(standard.getStandardReqValue()));
+        standardReqCondition.setText(notNullString(standard.getStandardReqCondition()));
+        standardReqEvent.setText(notNullString(standard.getStandardReqEvent()));
+        standardReqContent.setText(notNullString(standard.getStandardReqContent()));
+        templateType.setText(notNullString(standard.getTemplateType()));
+        mode.setText(notNullString(standard.getMode()));
+        moduleId.setText(notNullString(standard.getModuleId()));
         return standardNode;
     }
 
     public StandardRequirement SReq(Element standardNode){
         StandardRequirement standard = new StandardRequirement();
-        String sReqId = standardNode.attributeValue("standardrequirementId");
+        String sReqId = standardNode.attributeValue("id");
 
         standard.setStandardRequirementId(sReqId.isBlank() ? null : Integer.valueOf(sReqId));
         //这里现在修改为了对应的需求excelId
-        standard.setNaturalLanguageReqId(Integer.valueOf(standardNode.elementText("naturalLanguageReqId")));
+        standard.setNaturalLanguageReqId(toInt(standardNode.elementText("naturalLanguageReqId")));
         standard.setStandardReqVariable(
                 standardNode.elementText("standardReqVariable"));
         standard.setStandardReqFunction(
@@ -341,8 +347,8 @@ public class EntityXmlConvert {
         standard.setTemplateType(standardNode.elementText("templateType"));
         standard.setMode(standardNode.elementText("mode"));
 
-        String moduleId = standardNode.attributeValue("moduleId");
-        standard.setStandardRequirementId(moduleId.isBlank() ? 0 : Integer.valueOf(moduleId));
+        String moduleId = standardNode.elementText("moduleId");
+        standard.setModuleId(toInt(moduleId));
 
         return standard;
     }
@@ -351,6 +357,26 @@ public class EntityXmlConvert {
         StandardRequirement standard = SReq(standardNode);
         standard.setSystemId(systemId);
         return standard;
+    }
+
+
+    public Element Module(Module module){
+        Element moduleNode=DocumentHelper.createElement("module");
+        moduleNode.addAttribute("id", notNullString(module.getId()));
+        Element name = moduleNode.addElement("name");
+        Element parent = moduleNode.addElement("parent");
+        name.setText(notNullString(module.getName()));
+        parent.setText(notNullString(module.getParentId()));
+        return moduleNode;
+    }
+
+    public  Module Module(Element node){
+        Module module = new Module();
+        module.setSystemId(null);
+        module.setId(toInt(node.attributeValue("id")));
+        module.setName(node.elementText("name"));
+        module.setParentId(toInt(node.elementText("parent")));
+        return module;
     }
 
 }
