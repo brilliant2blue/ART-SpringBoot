@@ -16,6 +16,16 @@ public interface ModelVerifyService {
      * @param smvFilePath
      * @return
      */
-    public ReturnVerifyResult verifyModel(String smvFilePath, boolean addProperties, List<String> properties) ;
+    public ReturnVerifyResult verifyModelFromSmvFile(String smvFilePath, boolean addProperties, List<String> properties) ;
+
+    /**
+     * 对smv字符串进行验证
+     * @param systemName
+     * @param smvStr
+     * @param addProperties
+     * @param properties
+     * @return
+     */
+    public ReturnVerifyResult verifyModelFromSmvStr(String systemName, String smvStr, boolean addProperties, List<String> properties) ;
 
 }

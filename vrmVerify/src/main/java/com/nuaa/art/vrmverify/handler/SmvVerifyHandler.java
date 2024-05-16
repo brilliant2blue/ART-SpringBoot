@@ -122,14 +122,28 @@ public class SmvVerifyHandler {
     }
 
     /**
-     * 通过命令行执行验证
-     * @param originalSmvFilePath
+     * 通过命令行执行验证（smv文件路径）
+     * @param originalFilePath
      * @param addProperties
      * @param properties
      * @return
+     * @throws IOException
      */
-    public static String doCMD(String originalSmvFilePath, boolean addProperties, List<String> properties) throws IOException {
-        return execute(generateVerifyCmd(originalSmvFilePath, addProperties, properties));
+    public static String doCMDFromSmvFile(String originalFilePath, boolean addProperties, List<String> properties) throws IOException {
+        return execute(generateVerifyCmdFromSmvFile(originalFilePath, addProperties, properties));
+    }
+
+    /**
+     * 通过命令行执行验证（smv字符串）
+     * @param systemName
+     * @param smvStr
+     * @param addProperties
+     * @param properties
+     * @return
+     * @throws IOException
+     */
+    public static String doCMDFromSmvStr(String systemName, String smvStr, boolean addProperties, List<String> properties) throws IOException {
+        return execute(generateVerifyCmdFromSmvStr(systemName, smvStr, addProperties, properties));
     }
 
     /**
@@ -171,43 +185,57 @@ public class SmvVerifyHandler {
     }
 
     /**
-     * 拼接验证命令
-     * @param originalSmvFilePath
+     * 拼接验证命令（smv文件路径）
+     * @param originalFilePath
      * @param addProperties
      * @param properties
      * @return
      */
-    private static String generateVerifyCmd(String originalSmvFilePath, boolean addProperties, List<String> properties){
-        String smvFilePath = copySmvFile(originalSmvFilePath, addProperties, properties);
+    private static String generateVerifyCmdFromSmvFile(String originalFilePath, boolean addProperties, List<String> properties){
+        String smvFilePath = copySmvFileFromFile(originalFilePath, addProperties, properties);
         if(smvFilePath == null)
             return null;
         return PathUtils.getNuxmvPath() + " " + VERIFY_OPTIONS + " " + smvFilePath;
     }
 
     /**
-     * 将选择的 smv 文件复制到指定文件夹，并根据情况添加验证属性
-     * @param originalSmvFilePath
+     * 拼接验证命令（smv字符串）
+     * @param systemName
+     * @param smvStr
      * @param addProperties
      * @param properties
      * @return
      */
-    private static String copySmvFile(String originalSmvFilePath, boolean addProperties, List<String> properties) {
-        File originalSmvFile = new File(originalSmvFilePath);
+    private static String generateVerifyCmdFromSmvStr(String systemName, String smvStr, boolean addProperties, List<String> properties){
+        String smvFilePath = copySmvFileFromStr(systemName, smvStr, addProperties, properties);
+        if(smvFilePath == null)
+            return null;
+        return PathUtils.getNuxmvPath() + " " + VERIFY_OPTIONS + " " + smvFilePath;
+    }
+
+    /**
+     * 根据文件路径将smv文件复制到指定文件夹，并添加验证属性
+     * @param originalFilePath
+     * @param addProperties
+     * @param properties
+     * @return
+     */
+    private static String copySmvFileFromFile(String originalFilePath, boolean addProperties, List<String> properties) {
+        File originalSmvFile = new File(originalFilePath);
         if(originalSmvFile.isFile() && originalSmvFile.exists()){
             String copiedSmvFilePath = PathUtils.getSmvFilePath(originalSmvFile.getName());
             File copiedSmvFile = new File(copiedSmvFilePath);
             try {
-                // 复制 smv 文件到指定文件夹
+                // 复制smv文件到指定文件夹
                 Files.copy(originalSmvFile.toPath(), copiedSmvFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 copiedSmvFile = new File(copiedSmvFilePath);
                 // 给文件追加验证属性
                 if(addProperties){
-                    try (FileOutputStream fos = new FileOutputStream(copiedSmvFile, true)) {
-                        OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
-                        for (String property : properties)
-                            osw.write("\r\n" + PROPERTY_TYPE + property);
-                        osw.close();
-                    }
+                    FileOutputStream fos = new FileOutputStream(copiedSmvFile, true);
+                    OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    for (String property : properties)
+                        osw.write("\r\n" + PROPERTY_TYPE + property);
+                    osw.close();
                 }
             }
             catch (IOException e){
@@ -217,6 +245,34 @@ public class SmvVerifyHandler {
         }
         else
             return null;
+    }
+
+    /**
+     * 将smv字符串复制到指定文件夹，并添加验证属性
+     * @param systemName
+     * @param smvStr
+     * @param addProperties
+     * @param properties
+     * @return
+     */
+    private static String copySmvFileFromStr(String systemName, String smvStr, boolean addProperties, List<String> properties) {
+        String copiedSmvFilePath = PathUtils.getSmvFilePath(systemName + ".smv");
+        File copiedSmvFile = new File(copiedSmvFilePath);
+        try (FileOutputStream fos = new FileOutputStream(copiedSmvFile, false)) {
+            OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+            // 复制smv字符串到指定文件夹
+            osw.write(smvStr);
+            // 给文件追加验证属性
+            if(addProperties) {
+                for (String property : properties)
+                    osw.write("\r\n" + PROPERTY_TYPE + property);
+            }
+            osw.close();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        return copiedSmvFilePath;
     }
 
 

@@ -23,6 +23,7 @@ public class Proposition extends CTLFormula{
         this.expression = expression;
         this.originalVersion = originalVersion;
         this.negated = negated;
+        this.setProposition(true);
     }
 
     public Proposition(BaseExpression expression) {

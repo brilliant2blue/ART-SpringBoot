@@ -17,6 +17,13 @@
     <dependencies>
         <dependency>
             <groupId>com.nuaa.art</groupId>
+            <artifactId>vrm</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nuaa.art</groupId>
             <artifactId>common</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>

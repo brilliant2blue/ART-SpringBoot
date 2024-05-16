@@ -1,6 +1,5 @@
 package com.nuaa.art.vrmverify.service.impl;
 
-import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrmverify.common.Msg;
 import com.nuaa.art.vrmverify.common.utils.CTLParseUtils;
 import com.nuaa.art.vrmverify.common.utils.TreeTraverseUtils;
@@ -38,19 +37,13 @@ public class CxHandlerServiceImpl implements CxHandlerService {
         int propertyCount = verifyResult.getPropertyCount();
         if(propertyCount == 0)
             return null;
-        try {
-            if(propertyIndex >= propertyCount || propertyIndex < 0)
-                throw new RuntimeException(Msg.INDEX_ERROR);
-            List<Counterexample> cxList = verifyResult.getCxList();
-            Counterexample cx = cxList.get(propertyIndex);
-            if(cx.isPassed())
-                return null;
-            return CxVisualizationHandler.computeVariableTable(cx);
-        }
-        catch (Exception e){
-            LogUtils.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+        if(propertyIndex >= propertyCount || propertyIndex < 0)
+            throw new RuntimeException(Msg.INDEX_ERROR);
+        List<Counterexample> cxList = verifyResult.getCxList();
+        Counterexample cx = cxList.get(propertyIndex);
+        if(cx.isPassed())
+            return null;
+        return CxVisualizationHandler.computeVariableTable(cx);
     }
 
     /**
@@ -82,13 +75,7 @@ public class CxHandlerServiceImpl implements CxHandlerService {
      * @return
      */
     public Set<Cause> explainCx(VariableTable vt, CTLFormula f){
-        try {
-            return CxExplanationHandler.computeCauseSet(vt, 0, f, false);
-        }
-        catch (Exception e){
-            LogUtils.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        }
+        return CxExplanationHandler.computeCauseSet(vt, 0, f, false);
     }
 
 

@@ -2,30 +2,35 @@ package com.nuaa.art.vrmverify.controller;
 
 import com.nuaa.art.common.model.HttpResult;
 import com.nuaa.art.common.model.SocketMessage;
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrmverify.common.Msg;
 import com.nuaa.art.vrmverify.common.utils.TreeTraverseUtils;
 import com.nuaa.art.vrmverify.model.explanation.Cause;
 import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;
 import com.nuaa.art.vrmverify.model.receive.SmvFileWIthProperties;
+import com.nuaa.art.vrmverify.model.receive.VrmModelWithProperties;
 import com.nuaa.art.vrmverify.model.send.ReturnExplainResult;
 import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
 import com.nuaa.art.vrmverify.model.visualization.VariableTable;
 import com.nuaa.art.vrmverify.service.CxHandlerService;
 import com.nuaa.art.vrmverify.service.ModelVerifyService;
 import com.nuaa.art.vrmverify.model.VerifyResult;
+import com.nuaa.art.vrmverify.service.Vrm2SmvService;
 import com.nuaa.art.vrmverify.service.async.AsyncVerifyTask;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.Resource;
+import net.sf.jsqlparser.expression.DateTimeLiteralExpression;
 import org.apache.commons.io.FileUtils;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 验证视图层
@@ -44,6 +49,8 @@ public class verifyController {
     @Resource
     private ModelVerifyService modelVerifyService;
     @Resource
+    private Vrm2SmvService vrm2SmvService;
+    @Resource
     private CxHandlerService cxHandlerService;
 
 
@@ -56,41 +63,46 @@ public class verifyController {
     public HttpResult<String> smvFileVerify(SmvFileWIthProperties smvFileWIthProperties){
         try{
             webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModel(smvFileWIthProperties.getSmvFilePath(),
+            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvFile(
+                    smvFileWIthProperties.getSmvFilePath(),
                     smvFileWIthProperties.getPropertyCount() > 0,
                     smvFileWIthProperties.getProperties());
-
             webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
             return HttpResult.success();
         }
         catch (Exception e){
             e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText(e.getMessage()));
+            LogUtils.error(e.getMessage());
             return HttpResult.fail(e.getMessage());
         }
     }
 
     /**
-     * VRM模型检查 TODO
-     * @param systemId
-     * @param propertyCount
-     * @param properties
+     * vrm模型检查
+     * @param vrmModelWithProperties
      * @return
      */
     @PostMapping("/vrmModelVerify")
     @Operation(summary = "vrm模型检查")
-    public HttpResult<String> vrmModelVerify(int systemId, Integer propertyCount, @RequestParam("properties") List<String> properties) {
+    public HttpResult<String> vrmModelVerify(VrmModelWithProperties vrmModelWithProperties, String user) {
         try{
-            // TODO VRM模型转换为smv文件
+            webSocketService.sendMsg(SocketMessage.asText("model_verify", "vrm模型转为smv模型中..."));
+            String smvStr = vrm2SmvService.transformVrm2Smv(
+                    vrmModelWithProperties.getSystemId(),
+                    vrmModelWithProperties.getSystemName(),
+                    user);
             webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-            String smvFilePath = "";
-            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModel(smvFilePath, propertyCount == 1, properties);
+            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
+                    vrmModelWithProperties.getSystemName(),
+                    smvStr,
+                    vrmModelWithProperties.getPropertyCount() > 0,
+                    vrmModelWithProperties.getProperties());
             webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
             return HttpResult.success();
         }
         catch (Exception e){
             e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText(e.getMessage()));
+            LogUtils.error(e.getMessage());
             return HttpResult.fail(e.getMessage());
         }
     }
@@ -133,7 +145,7 @@ public class verifyController {
         }
         catch (Exception e){
             e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText(e.getMessage()));
+            LogUtils.error(e.getMessage());
             return HttpResult.fail(e.getMessage());
         }
     }
@@ -152,6 +164,7 @@ public class verifyController {
         }
         catch (Exception e){
             e.printStackTrace();
+            LogUtils.error(e.getMessage());
             return HttpResult.fail(Msg.FILE_NOT_FOUND);
         }
     }

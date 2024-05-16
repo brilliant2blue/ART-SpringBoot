@@ -27,21 +27,45 @@ public class ModelVerifyServiceImpl implements ModelVerifyService {
      * @return
      */
     @Override
-    public ReturnVerifyResult verifyModel(String smvFilePath, boolean addProperties, List<String> properties) {
+    public ReturnVerifyResult verifyModelFromSmvFile(String smvFilePath, boolean addProperties, List<String> properties) {
         try {
             if(!isSmvFile(smvFilePath)){
                 String errorTxt = Msg.FILE_NOT_FOUND + "或" + Msg.FILE_TYPE_ERROR;
                 throw new RuntimeException(errorTxt);
             }
-            String verifyResultStr = SmvVerifyHandler.doCMD(smvFilePath, addProperties, properties);
+            String verifyResultStr = SmvVerifyHandler.doCMDFromSmvFile(smvFilePath, addProperties, properties);
             VerifyResult verifyResult = SmvVerifyHandler.handleVerifyRes(verifyResultStr);
             if(verifyResult.isHasError())
                 throw new RuntimeException(verifyResult.getErrMsg() + " " + verifyResult.getDetails());
-            return new ReturnVerifyResult(PathUtils.getSmvFilePath(new File(smvFilePath).getName()),
+            return new ReturnVerifyResult(
+                    PathUtils.getSmvFilePath(new File(smvFilePath).getName()),
                     verifyResultStr,
                     verifyResult);
         } catch (Exception e) {
-            LogUtils.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    /**
+     * 对smv字符串进行验证
+     * @param systemName
+     * @param smvStr
+     * @param addProperties
+     * @param properties
+     * @return
+     */
+    @Override
+    public ReturnVerifyResult verifyModelFromSmvStr(String systemName, String smvStr, boolean addProperties, List<String> properties) {
+        try {
+            String verifyResultStr = SmvVerifyHandler.doCMDFromSmvStr(systemName, smvStr, addProperties, properties);
+            VerifyResult verifyResult = SmvVerifyHandler.handleVerifyRes(verifyResultStr);
+            if(verifyResult.isHasError())
+                throw new RuntimeException(verifyResult.getErrMsg() + " " + verifyResult.getDetails());
+            return new ReturnVerifyResult(
+                    PathUtils.getSmvFilePath(systemName + ".smv"),
+                    verifyResultStr,
+                    verifyResult);
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }

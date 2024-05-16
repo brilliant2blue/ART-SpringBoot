@@ -49,6 +49,7 @@ public class TreeTraverseUtils {
             if(!values.containsKey(name)){
                 return new Constant(name, true);
             }
+            root.setVariable(true);
         }
         List<TreeNode> childList = root.getChildList();
         for (int i = 0; i < childList.size(); i++) {

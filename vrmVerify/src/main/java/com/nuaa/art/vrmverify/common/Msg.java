@@ -19,6 +19,7 @@ public class Msg {
     public static final String WRONG_ARITHMETIC_TYPE = "运算类型错误：";
     public static final String UNKNOWN_UNARY_OPERATOR = "未知一元操作符：";
     public static final String UNKNOWN_BINARY_OPERATOR = "未知二元操作符：";
+    public static final String NOT_CTL_FORMULA = "含有非CTL属性公式，无法解析！";
 
 
 }

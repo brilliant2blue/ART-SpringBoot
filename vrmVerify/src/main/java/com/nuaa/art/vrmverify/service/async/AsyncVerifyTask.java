@@ -42,7 +42,7 @@ public class AsyncVerifyTask {
     @Async("AsyncTask")
     public void asyncModelVerify(String smvFilePath, boolean addProperties, List<String> properties) {
         webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-        ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModel(smvFilePath, addProperties, properties);
+        ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvFile(smvFilePath, addProperties, properties);
         webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
     }
 
