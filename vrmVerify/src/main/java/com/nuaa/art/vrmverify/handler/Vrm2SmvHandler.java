@@ -8,7 +8,6 @@ import com.nuaa.art.vrm.model.hvrm.VariableWithPort;
 import com.nuaa.art.vrm.model.vrm.ModeClassOfVRM;
 import com.nuaa.art.vrm.model.vrm.TableOfVRM;
 import com.nuaa.art.vrm.model.vrm.TableRow;
-import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -20,7 +19,23 @@ import java.util.*;
  */
 public class Vrm2SmvHandler {
 
-    public final String EVENT_SIGNAL = "@T|@F|@C|WHEN|WHILE|WHERE";
+    public static final String EVENT_SIGNAL = "@T|@F|@C|WHEN|WHILE|WHERE";
+    public static Set<String> SMV_KEYWORDS_SET; //smv中保留关键字
+
+    static {
+        SMV_KEYWORDS_SET = new HashSet<>(Arrays.asList(
+            "@F~", "@O~", "A", "ABF", "ABG", "abs", "AF", "AG", "array", "ASSIGN", "at next", "at last", "AX", "bool",
+            "boolean", "BU", "case", "Clock", "clock", "COMPASSION", "COMPID", "COMPUTE", "COMPWFF", "CONSTANTS",
+            "CONSTARRAY","CONSTRAINT", "cos", "count", "CTLSPEC", "CTLWFF", "DEFINE", "E", "EBF", "EBG", "EF", "EG", "esac",
+            "EX", "exp", "extend", "F", "FAIRNESS", "FALSE", "floor", "FROZENVAR", "FUN", "G", "H", "IN", "in", "INIT", "init",
+            "Integer", "integer", "INVAR", "INVARSPEC", "ISA", "ITYPE", "IVAR", "JUSTICE", "ln", "LTLSPEC", "LTLWFF",
+            "MAX", "max", "MDEFINE", "MIN", "min", "MIRROR", "mod", "MODULE", "NAME", "next", "NEXTWFF", "noncontinuous",
+            "O", "of", "PRED", "PREDICATES", "pi", "pow", "PSLSPEC", "PARSYNTH", "READ", "Real", "real", "resize", "S", "SAT",
+            "self", "signed", "SIMPWFF", "sin", "sizeof", "SPEC", "swconst", "T", "tan", "time", "time since", "time until",
+            "toint", "TRANS", "TRUE", "typeof", "U", "union", "unsigned", "URGENT", "uwconst", "V", "VALID", "VAR", "Word",
+            "word", "word1", "WRITE", "X", "xnor", "xor", "X~ Y", "Y~", "Z"
+        ));
+    }
 
     private HVRM model;
     private String systemName;
@@ -78,8 +93,8 @@ public class Vrm2SmvHandler {
      * 预处理
      */
     private void preHandle(){
-        // 变量类型和初始值预处理
-        preHandleDatatypeAndValueOfVars();
+        // 变量预处理
+        preHandleVars();
         // 条件表预处理
         preHandleCT();
         // 事件表预处理
@@ -89,24 +104,29 @@ public class Vrm2SmvHandler {
     }
 
     /**
-     * 预处理变量的类型和初始值
+     * 预处理变量
      */
-    private void preHandleDatatypeAndValueOfVars(){
+    private void preHandleVars(){
         for(int i = 0; i < 3; i++)
-            preHandleDatatypeAndValueOfVars(i);
+            preHandleVars(i);
     }
 
-    private void preHandleDatatypeAndValueOfVars(int flag){
+    private void preHandleVars(int flag){
         List<VariableWithPort> vars = switch (flag) {
             case 0 -> model.inputs;
             case 1 -> model.terms;
             default -> model.outputs;
         };
         for (VariableWithPort var : vars) {
+            String name = var.getConceptName();
+            if(SMV_KEYWORDS_SET.contains(name)){
+                name = "_" + name;
+                var.setConceptName(name);
+            }
             if(flag == 1)
-                termsSet.add(var.getConceptName());
+                termsSet.add(name);
             if(flag == 2)
-                outputsSet.add(var.getConceptName());
+                outputsSet.add(name);
             String datatype = var.getConceptDatatype();
             String conceptRange = var.getConceptRange();
             String value = var.getConceptValue();
@@ -116,12 +136,23 @@ public class Vrm2SmvHandler {
                     var.setConceptValue(value.toUpperCase());
                 }
                 case "Integer" -> var.setConceptDatatype("integer");
-                case "Float" -> var.setConceptDatatype("unsigned word[32]");
+                case "Float" -> var.setConceptDatatype("real");
                 default -> {
-                    if (conceptRange.contains(".."))
-                        var.setConceptDatatype(conceptRange);
-                    else
+                    if (conceptRange.contains("..")){
+                        String[] split = conceptRange.split("\\.\\.");
+                        if(split[0].matches("^(0|-?[1-9]\\\\d*)$"))
+                            var.setConceptDatatype(conceptRange);
+                        else
+                            var.setConceptDatatype("real");
+                    }
+                    else{
+                        String[] split = conceptRange.split(",");
+                        for (String s : split) {
+                            if(SMV_KEYWORDS_SET.contains(s))
+                                conceptRange = conceptRange.replace(s, "_" + s);
+                        }
                         var.setConceptDatatype("{" + conceptRange + "}");
+                    }
                 }
             }
         }
@@ -132,7 +163,12 @@ public class Vrm2SmvHandler {
      */
     private void preHandleCT(){
         for (TableOfModule ct : model.conditions) {
-            vars2CTMap.put(ct.getName(), ct);
+            String name = ct.getName();
+            if(SMV_KEYWORDS_SET.contains(name)){
+                name = "_" + name;
+                ct.setName(name);
+            }
+            vars2CTMap.put(name, ct);
             Set<String> args = new HashSet<>();
             for (TableRow row : ct.getRows()) {
                 String condition = row.getDetails();
@@ -141,8 +177,10 @@ public class Vrm2SmvHandler {
                 String assignment = row.getAssignment();
                 if(assignment.equalsIgnoreCase("True") || assignment.equalsIgnoreCase("False"))
                     row.setAssignment(assignment.toUpperCase());
+                else if(SMV_KEYWORDS_SET.contains(assignment))
+                    row.setAssignment("_" + assignment);
             }
-            paramsOfVarsMap.put(ct.getName(), args);
+            paramsOfVarsMap.put(name, args);
         }
     }
 
@@ -151,13 +189,20 @@ public class Vrm2SmvHandler {
      */
     private void preHandleET(){
         for (TableOfModule et : model.events) {
-            vars2ETMap.put(et.getName(), et);
+            String name = et.getName();
+            if(SMV_KEYWORDS_SET.contains(name)){
+                name = "_" + name;
+                et.setName(name);
+            }
+            vars2ETMap.put(name, et);
             Set<String> args = new HashSet<>();
             ArrayList<TableRow> newRows = new ArrayList<>();
             for (TableRow row : et.getRows()) {
                 String assignment = row.getAssignment();
                 if(assignment.equalsIgnoreCase("True") || assignment.equalsIgnoreCase("False"))
                    assignment = assignment.toUpperCase();
+                else if(SMV_KEYWORDS_SET.contains(assignment))
+                    row.setAssignment("_" + assignment);
                 String[] events = row.getDetails().split("}\\|\\|\\{");
                 for (String event : events){
                     TableRow newRow = new TableRow();
@@ -170,7 +215,7 @@ public class Vrm2SmvHandler {
                     newRows.add(newRow);
                 }
             }
-            paramsOfVarsMap.put(et.getName(), args);
+            paramsOfVarsMap.put(name, args);
             et.setRows(newRows);
         }
     }
@@ -181,7 +226,39 @@ public class Vrm2SmvHandler {
      * @return
      */
     private String modifyConditionAndEvent(String str){
-        return str.replaceAll("\\|\\|", "|")
+        StringBuilder result = new StringBuilder(str);
+        String prefix = "(|&!>=<", suffix = ")|&>=<";
+        for (int i = 0; i < result.length(); i++) {
+            String curCh = result.charAt(i) + "";
+            if(prefix.contains(curCh)){
+                while(i < result.length() && prefix.contains(curCh))
+                    curCh = result.charAt(i++) + "";
+                int start = i - 1;
+                while(i < result.length() && !suffix.contains(curCh))
+                    curCh = result.charAt(i++) + "";
+                if(i == result.length())
+                    break;
+                int end = i - 1;
+                String v = result.substring(start, end);
+                if(SMV_KEYWORDS_SET.contains(v))
+                    result.insert(start, "_");
+            }
+        }
+        prefix = "(@";
+        suffix = ")|&";
+        for (int i = 0; i < result.length(); i++) {
+            String curCh = result.charAt(i) + "";
+            if(curCh.equals("!")){
+                if(prefix.contains(result.charAt(i + 1) + ""))
+                    continue;
+                result.insert(i + 1, "(");
+                while(i < result.length() && !suffix.contains(curCh))
+                    curCh = result.charAt(i++) + "";
+                result.insert(i - 1, ")");
+            }
+        }
+        return result.toString()
+                .replaceAll("\\|\\|", "|")
                 .replaceAll("=False", "=FALSE")
                 .replaceAll("=false", "=FALSE")
                 .replaceAll("=True", "=TRUE")
@@ -193,25 +270,39 @@ public class Vrm2SmvHandler {
      */
     private void preHandleModeClasses(){
         for (ModeClassOfVRM mc : model.modeClass) {
-            modeClassesSet.add(mc.getModeClass().getModeClassName());
+            String name = mc.getModeClass().getModeClassName();
+            if(SMV_KEYWORDS_SET.contains(name)){
+                name = "_" + name;
+                mc.getModeClass().setModeClassName(name);
+            }
+            modeClassesSet.add(name);
+            for (Mode mode : mc.getModes()) {
+                String modeName = mode.getModeName();
+                if(SMV_KEYWORDS_SET.contains(modeName))
+                    mode.setModeName("_" + modeName);
+            }
             Set<String> args = new HashSet<>();
             ArrayList<StateMachine> newModeTrans = new ArrayList<>();
             for (StateMachine modeTran : mc.getModeTrans()) {
                 String[] events = modeTran.getEvent().split("}\\|\\|\\{");
                 for (String event : events){
                     StateMachine newModeTran = new StateMachine();
-                    event = event.replaceAll("\\{", "").replaceAll("}", "");
-                    args.addAll(getVarsFromEvent(event));
-                    newModeTran.setEvent(modifyConditionAndEvent(event));
                     newModeTran.setDependencyModeClassId(modeTran.getDependencyModeClassId());
                     newModeTran.setDependencyModeClass(modeTran.getDependencyModeClass());
                     newModeTran.setSystemId(modeTran.getSystemId());
-                    newModeTran.setSourceState(modeTran.getSourceState());
-                    newModeTran.setEndState(modeTran.getEndState());
+                    String sourceState = modeTran.getSourceState();
+                    if(SMV_KEYWORDS_SET.contains(sourceState))
+                        newModeTran.setSourceState("_" + sourceState);
+                    String endState = modeTran.getEndState();
+                    if(SMV_KEYWORDS_SET.contains(endState))
+                        newModeTran.setEndState("_" + endState);
+                    event = modifyConditionAndEvent(event.replaceAll("\\{", "").replaceAll("}", ""));
+                    newModeTran.setEvent(event);
+                    args.addAll(getVarsFromEvent(event));
                     newModeTrans.add(newModeTran);
                 }
             }
-            paramsOfModeClassesMap.put(mc.getModeClass().getModeClassName(), args);
+            paramsOfModeClassesMap.put(name, args);
             mc.setModeTrans(newModeTrans);
         }
     }
@@ -565,17 +656,42 @@ public class Vrm2SmvHandler {
     private String genIvarOfInputs(){
         StringBuilder result = new StringBuilder();
 
-        for (VariableWithPort input : model.inputs) {
-            String name = input.getConceptName();
-            result.append("IVAR ")
-                    .append(name)
-                    .append(" : ")
-                    .append(input.getConceptDatatype())
-                    .append(";\nINIT ")
-                    .append(name)
-                    .append(" = ")
-                    .append(input.getConceptValue())
-                    .append("\n\n");
+//        if(model.inputs != null && !model.inputs.isEmpty()){
+//            for (VariableWithPort input : model.inputs) {
+//                String name = input.getConceptName();
+//                result.append("IVAR ")
+//                        .append(name)
+//                        .append(" : ")
+//                        .append(input.getConceptDatatype())
+//                        .append(";\nINIT ")
+//                        .append(name)
+//                        .append(" = ")
+//                        .append(input.getConceptValue())
+//                        .append("\n\n");
+//            }
+//        }
+
+        if(model.inputs != null && !model.inputs.isEmpty()){
+            for (VariableWithPort input : model.inputs) {
+                String name = input.getConceptName();
+                String value = input.getConceptValue();
+                result.append("VAR ")
+                        .append(name)
+                        .append(" : ")
+                        .append(input.getConceptDatatype())
+                        .append(";\nASSIGN\n")
+                        .append("\tinit(")
+                        .append(name)
+                        .append(") := ")
+                        .append(value)
+                        .append(";\n")
+                        .append("\tnext(")
+                        .append(name)
+                        .append(") := ")
+                        .append(value)
+                        .append(";\n\n");
+            }
+
         }
 
         return result.toString();
@@ -589,8 +705,10 @@ public class Vrm2SmvHandler {
     private String genVarOfTermsOrOutputs(boolean isTerm){
         StringBuilder result = new StringBuilder();
 
-        result.append("VAR\n");
         List<VariableWithPort> vars = isTerm ? model.terms : model.outputs;
+        if(vars == null || vars.isEmpty())
+            return result.toString();
+        result.append("VAR\n");
         for (VariableWithPort var : vars) {
             String name = var.getConceptName();
             result.append("\t")
@@ -619,6 +737,8 @@ public class Vrm2SmvHandler {
     private String genVarOfModeClasses(){
         StringBuilder result = new StringBuilder();
 
+        if(model.modeClass == null || model.modeClass.isEmpty())
+            return result.toString();
         result.append("VAR\n");
         for (ModeClassOfVRM mc : model.modeClass) {
             String name = mc.getModeClass().getModeClassName();

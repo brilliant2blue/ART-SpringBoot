@@ -61,50 +61,57 @@ public class verifyController {
     @PostMapping("/smvFileVerify")
     @Operation(summary = "smv文件模型检查")
     public HttpResult<String> smvFileVerify(SmvFileWIthProperties smvFileWIthProperties){
-        try{
-            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvFile(
-                    smvFileWIthProperties.getSmvFilePath(),
-                    smvFileWIthProperties.getPropertyCount() > 0,
-                    smvFileWIthProperties.getProperties());
-            webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
-            return HttpResult.success();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            LogUtils.error(e.getMessage());
-            return HttpResult.fail(e.getMessage());
-        }
+        asyncVerifyTask.asyncSmvFileVerify(smvFileWIthProperties);
+        return HttpResult.success();
+
+//        try{
+//            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
+//            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvFile(
+//                    smvFileWIthProperties.getSmvFilePath(),
+//                    smvFileWIthProperties.getPropertyCount() > 0,
+//                    smvFileWIthProperties.getProperties());
+//            webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
+//            return HttpResult.success();
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//            LogUtils.error(e.getMessage());
+//            return HttpResult.fail(e.getMessage());
+//        }
     }
 
     /**
      * vrm模型检查
      * @param vrmModelWithProperties
+     * @param user
      * @return
      */
     @PostMapping("/vrmModelVerify")
     @Operation(summary = "vrm模型检查")
     public HttpResult<String> vrmModelVerify(VrmModelWithProperties vrmModelWithProperties, String user) {
-        try{
-            webSocketService.sendMsg(SocketMessage.asText("model_verify", "vrm模型转为smv模型中..."));
-            String smvStr = vrm2SmvService.transformVrm2Smv(
-                    vrmModelWithProperties.getSystemId(),
-                    vrmModelWithProperties.getSystemName(),
-                    user);
-            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
-                    vrmModelWithProperties.getSystemName(),
-                    smvStr,
-                    vrmModelWithProperties.getPropertyCount() > 0,
-                    vrmModelWithProperties.getProperties());
-            webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
-            return HttpResult.success();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            LogUtils.error(e.getMessage());
-            return HttpResult.fail(e.getMessage());
-        }
+        asyncVerifyTask.asyncSmvStrVerify(vrmModelWithProperties, user);
+        return HttpResult.success();
+
+//        try{
+//            webSocketService.sendMsg(SocketMessage.asText("model_verify", "vrm模型转为smv模型中..."));
+//            String smvStr = vrm2SmvService.transformVrm2Smv(
+//                    vrmModelWithProperties.getSystemId(),
+//                    vrmModelWithProperties.getSystemName(),
+//                    user);
+//            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
+//            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
+//                    vrmModelWithProperties.getSystemName(),
+//                    smvStr,
+//                    vrmModelWithProperties.getPropertyCount() > 0,
+//                    vrmModelWithProperties.getProperties());
+//            webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
+//            return HttpResult.success();
+//        }
+//        catch (Exception e){
+//            e.printStackTrace();
+//            LogUtils.error(e.getMessage());
+//            return HttpResult.fail(e.getMessage());
+//        }
     }
 
     /**

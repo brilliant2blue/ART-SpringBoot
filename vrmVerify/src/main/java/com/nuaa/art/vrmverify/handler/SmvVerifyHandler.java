@@ -51,8 +51,16 @@ public class SmvVerifyHandler {
                 // 2.文件中存在语法错误
                 else if(t.contains("syntax error"))
                     vr.setErrMsg(Msg.PARSE_ERROR);
+                // 3.存在变量类型错误
                 else if(t.contains("type error"))
                     vr.setErrMsg(Msg.TYPE_ERROR);
+                break;
+            }
+            // 超出内存异常
+            if(line.contains("Out of memory allocating")){
+                vr.setHasError(true);
+                vr.setDetails(line);
+                vr.setErrMsg(Msg.OUT_OF_MEMORY);
                 break;
             }
             // 定位到验证结果

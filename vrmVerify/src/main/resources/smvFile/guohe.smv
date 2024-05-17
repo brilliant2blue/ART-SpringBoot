@@ -59,5 +59,3 @@ CTLSPEC !E [(((goat=wolf)->(goat=ferrymen)) & ((goat=cabbage)->(goat=ferrymen)))
 CTLSPEC AF (wolf=TRUE)
 
 LTLSPEC F wolf = TRUE
-
-CTLSPEC AG wolf = FALSE
