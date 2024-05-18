@@ -1,5 +1,6 @@
 package com.nuaa.art.vrmcheck.service.table.impl;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrmcheck.model.scenario.ScenarioCorpusCoder;
 import com.nuaa.art.vrmcheck.model.table.*;
 import com.nuaa.art.vrmcheck.model.scenario.Scenario;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-@Service("V1")
+@Service("ScenarioV1")
 public class ScenarioHandlerImpl implements ScenarioHandler{
 
 
@@ -76,16 +77,17 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
      * 将条件转换为场景集与行号的映射关系
      * 1.将每个合取式转换为一个或多个含0的场景
      * 2.将每行的行号填入对应的场景索引位置（相同赋值视为一行）
+     * 这种方式，场景全集很大时（数量超过INT_MAX 出错）
      *
      * @param ci {@link AndOrConditionsInformation} 条件信息
      */
     @Override
     public void buildEquivalentScenarioSet(AndOrConditionsInformation ci){
-        ArrayList<HashSet<Integer>> equivalentScenarioSet = new ArrayList<>(); // 场景编码为索引， 行的输出值为索引值. 使用哈希表是因为可以去重
+        ArrayList<HashSet<Long>> equivalentScenarioSet = new ArrayList<>(); // 场景编码为索引， 行的输出值为索引值. 使用哈希表是因为可以去重
 
         for (long l = 0; l < ci.scenarioCorpusCoder.codeLimit; l++) { //初始化每个场景对应的输出值号为空
             if (!ci.scenarioCorpusCoder.decode(l).containsZero())
-                equivalentScenarioSet.add(new HashSet<Integer>());
+                equivalentScenarioSet.add(new HashSet<Long>());
             else
                 equivalentScenarioSet.add(null);
         }
@@ -94,8 +96,8 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
             ci.equivalentScenarioSet = equivalentScenarioSet;
             return;
         }
-        HashSet<Integer> defaultRow = new HashSet<>();
-        HashSet<Integer> trueRow = new HashSet<>();
+        HashSet<Long> defaultRow = new HashSet<>();
+        HashSet<Long> trueRow = new HashSet<>();
         for (int i=0; i< ci.nuclearTreeForEachRow.size(); i++) {// 遍历每行的析取范式树
             ArrayList<ArrayList<NuclearCondition>> orTree = ci.nuclearTreeForEachRow.get(i); //获取一行条件
             //System.out.println(orTree.toString());
@@ -104,13 +106,13 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
 //                    outputForThisState.add(
 //                            ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
 //                }
-                trueRow.add(ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
+                trueRow.add((long) ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
                 continue;
             } else if (orTree.get(0).get(0).isFalse()) {// 如果第一个合取式的第一个原子条件为false，则整个条件就是false
                 continue;
             } else if (orTree.get(0).get(0).isDefault()){
             // 此时需要先记录默认行
-                defaultRow.add(ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
+                defaultRow.add((long) ci.outputRanges.indexOf(ci.assignmentForEachRow.get(ci.nuclearTreeForEachRow.indexOf(orTree))));
                 continue;
             }
 
@@ -126,7 +128,7 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
                 for (long l = 0; l < ci.scenarioCorpusCoder.codeLimit; l++) {
                     Scenario s = ci.scenarioCorpusCoder.decode(l);
                     if (!s.containsZero() && s.almostEquals(thisScenario)) {
-                        equivalentScenarioSet.get((int) l).add(ci.outputRanges
+                        equivalentScenarioSet.get((int) l).add((long) ci.outputRanges
                                 .indexOf(ci.assignmentForEachRow.get(i)));
 //                        System.out.println(equivalentScenarioSet.get((int) l).size());
 //                        System.out.println(i);
@@ -137,12 +139,12 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
         }
         // 填充默认行永真行对应的等价场景
         if(!defaultRow.isEmpty())
-            for (Set<Integer> outputForThisState : equivalentScenarioSet) { //遍历场景全集，将默认行的赋值与剩余编号进行对应。
+            for (Set<Long> outputForThisState : equivalentScenarioSet) { //遍历场景全集，将默认行的赋值与剩余编号进行对应。
                 if(outputForThisState.isEmpty())
                     outputForThisState.addAll(defaultRow);
             }
         if(!trueRow.isEmpty())
-            for (Set<Integer> outputForThisState : equivalentScenarioSet) { //遍历场景全集，将永真式的赋值与全部场景编号进行对应。
+            for (Set<Long> outputForThisState : equivalentScenarioSet) { //遍历场景全集，将永真式的赋值与全部场景编号进行对应。
                 outputForThisState.addAll(trueRow);
             }
         ci.equivalentScenarioSet = equivalentScenarioSet;
@@ -253,6 +255,7 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
                 }
             } else {// 该原子条件为离散型变量
                 int variableIndex = cv.discreteVariables.indexOf(nuclear.getVar1());// 得到变量在离散变量集合里的索引值
+                //LogUtils.error(nuclear.getVar1()+variableIndex);
                 variableIndexInState = variableIndex + cv.continualVariables.size();// 变量在状态中的索引值，因为连续变量和离散变量共同组成状态，所以该索引值应该在离散变量索引的基础上加上连续变量的个数
                 if (nuclear.getOperator().equals("=")) {// 等于变量对应的取值集合中第n个值，等价于变量等于离散值n
                     thisVariableValues.add(
@@ -441,7 +444,9 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
         for (int k = 0; k < s.variableNumber; k++) {
             if (k < c.continualVariables.size()) {
                 int value = s.scenario[k];
-                if (value == 1) {
+                if( value == 0){
+                    concreteScenario[k] ="-";
+                } else if (value == 1) {
                     concreteScenario[k] = "(" + c.continualRanges.get(k).get(0) + ","
                             + c.continualValues.get(k).get((value + 1) / 2 - 1) + ")";
                 } else if (value == c.continualValues.get(k).size() * 2 + 1) {
@@ -457,8 +462,12 @@ public class ScenarioHandlerImpl implements ScenarioHandler{
                 }
             } else {
                 int value = s.scenario[k];
-                concreteScenario[k] = c.discreteRanges.get(k - c.continualVariables.size())
-                        .get(value - 1);
+                if(value == 0){
+                    concreteScenario[k] ="-";
+                } else {
+                    concreteScenario[k] = c.discreteRanges.get(k - c.continualVariables.size())
+                            .get(value - 1);
+                }
             }
         }
         return new ArrayList<>(List.of(concreteScenario));

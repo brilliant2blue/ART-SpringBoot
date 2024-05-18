@@ -2,13 +2,15 @@ package com.nuaa.art.vrm.model.hvrm;
 
 import com.nuaa.art.vrm.entity.Module;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ModuleTree extends Module {
-    public ArrayList<ModuleTree> children;
+    public ArrayList<ModuleTree> children = new ArrayList<>();
 
     public ModuleTree(){
         super();
@@ -19,6 +21,6 @@ public class ModuleTree extends Module {
         this.setName(module.getName());
         this.setParentId(module.getParentId());
         this.setSystemId(module.getSystemId());
-        this.children = new ArrayList();
+        this.children = new ArrayList<>();
     }
 }

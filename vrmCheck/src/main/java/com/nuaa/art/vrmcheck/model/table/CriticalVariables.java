@@ -65,12 +65,12 @@ public class CriticalVariables {
     }
 
     public CriticalVariables merge(CriticalVariables Source){
-        for (int i = 0; i < Source.continualVariables.size(); i++) {
-            if (!this.continualVariables.contains(Source.continualVariables.get(i))) {
+        for (int i = 0; i < Source.continualVariables.size(); i++) { //合并连续值
+            if (!this.continualVariables.contains(Source.continualVariables.get(i))) { //不存在，新增条目
                 this.continualVariables.add(Source.continualVariables.get(i));
                 this.continualValues.add(Source.continualValues.get(i));
                 this.continualRanges.add(Source.continualRanges.get(i));
-            } else {
+            } else { //存在，添加关键值
                 int variableIndex = this.continualVariables.indexOf(Source.continualVariables.get(i));
                 ArrayList<String> thisContinualValues = Source.continualValues.get(i);
                 ArrayList<String> continualValuesOfVariable = this.continualValues.get(variableIndex);

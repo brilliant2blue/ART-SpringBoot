@@ -37,8 +37,11 @@ public class ModelVerifyServiceImpl implements ModelVerifyService {
             VerifyResult verifyResult = SmvVerifyHandler.handleVerifyRes(verifyResultStr);
             if(verifyResult.isHasError())
                 throw new RuntimeException(verifyResult.getErrMsg() + " " + verifyResult.getDetails());
+            String fileName = new File(smvFilePath).getName();
             return new ReturnVerifyResult(
-                    PathUtils.getSmvFilePath(new File(smvFilePath).getName()),
+                    ReturnVerifyResult.SMV_FILE,
+                    fileName,
+                    PathUtils.getSmvFilePath(fileName),
                     verifyResultStr,
                     verifyResult);
         } catch (Exception e) {
@@ -62,6 +65,8 @@ public class ModelVerifyServiceImpl implements ModelVerifyService {
             if(verifyResult.isHasError())
                 throw new RuntimeException(verifyResult.getErrMsg() + " " + verifyResult.getDetails());
             return new ReturnVerifyResult(
+                    ReturnVerifyResult.VRM_MODEL,
+                    systemName,
                     PathUtils.getSmvFilePath(systemName + ".smv"),
                     verifyResultStr,
                     verifyResult);

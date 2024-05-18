@@ -17,6 +17,8 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class ReturnExplainResult {
+    Integer type;
+    String name;
     private int count;
     private List<CTLFormula> ctlFormulaList;
     private List<List<String>> highlightedPropertiesList;

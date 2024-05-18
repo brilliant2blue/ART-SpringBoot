@@ -8,6 +8,7 @@ import com.nuaa.art.vrmverify.model.explanation.Cause;
 import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;
 import com.nuaa.art.vrmverify.model.receive.SmvFileWIthProperties;
 import com.nuaa.art.vrmverify.model.receive.VrmModelWithProperties;
+import com.nuaa.art.vrmverify.model.send.ReturnExplainResult;
 import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
 import com.nuaa.art.vrmverify.model.visualization.VariableTable;
 import com.nuaa.art.vrmverify.service.CxHandlerService;
@@ -17,6 +18,7 @@ import jakarta.annotation.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -89,21 +91,45 @@ public class AsyncVerifyTask {
 
     /**
      * 异步反例处理
-     * @param propertyIndex
+     * @param verifyResult
+     * @param type
+     * @param name
      */
     @Async("AsyncTask")
-    public void asyncHandleCx(VerifyResult verifyResult, int propertyIndex){
-        webSocketService.sendMsg(SocketMessage.asText("cx_handle", "反例分析及可视化中..."));
-        VariableTable variableTable = cxHandlerService.computeVariableTable(verifyResult, propertyIndex);
-        webSocketService.sendMsg(SocketMessage.asObject("cx_handle", variableTable));
-        if(variableTable != null){
-            CTLFormula f = cxHandlerService.parseCTLFormula(
-                    verifyResult.getCxList().get(propertyIndex).getProperty(),
-                    variableTable.getVariableValues(),
-                    false);
-            webSocketService.sendMsg(SocketMessage.asObject("cx_handle", f));
-            Set<Cause> causeSet = cxHandlerService.explainCx(variableTable, f);
-            webSocketService.sendMsg(SocketMessage.asObject("cx_handle", causeSet));
+    public void asyncHandleCx(VerifyResult verifyResult, Integer type, String name){
+        try{
+            webSocketService.sendMsg(SocketMessage.asText("cx_handle", "反例分析及可视化中..."));
+            List<VariableTable> variableTableList = cxHandlerService.computeVariableTables(verifyResult);
+            if(variableTableList != null && !variableTableList.isEmpty()) {
+                List<CTLFormula> ctlFormulaList = new ArrayList<>();
+                List<List<String>> highlightedPropertiesList = new ArrayList<>();
+                List<Set<Cause>> causeSetList = new ArrayList<>();
+                for (int i = 0; i < variableTableList.size(); i++) {
+                    VariableTable variableTable = variableTableList.get(i);
+                    CTLFormula f = cxHandlerService.parseCTLFormula(
+                            variableTable.getProperty(),
+                            variableTable.getVariableValues(),
+                            false);
+                    ctlFormulaList.add(f);
+                    cxHandlerService.computeFormulaValues(f, variableTable);
+                    Set<Cause> causeSet = cxHandlerService.explainCx(variableTable, f);
+                    causeSetList.add(causeSet);
+                    highlightedPropertiesList.add(cxHandlerService.genHighlightedProperty(f, causeSet));
+                }
+                ReturnExplainResult returnExplainResult = new ReturnExplainResult(
+                        type,
+                        name,
+                        variableTableList.size(),
+                        ctlFormulaList,
+                        highlightedPropertiesList,
+                        variableTableList,
+                        causeSetList);
+                webSocketService.sendMsg(SocketMessage.asObject("cx_handle", returnExplainResult));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            LogUtils.error(e.getMessage());
+            webSocketService.sendMsg(SocketMessage.asError(e.getMessage()));
         }
     }
 

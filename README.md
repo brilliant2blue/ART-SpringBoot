@@ -29,3 +29,49 @@ API DOC： http://localhost:10287/doc.html
 5. 在ART父模块的pom.xml中的<modules>增加模块名。
 6. 复制VRM模块下的pom文件到模块文件中，并修改<artifactId>、<name>、<description>为模块对应的属性。
 7. 在main的pom.xml中添加对新模块的<dependency>
+
+## 关于项目打包？
+打包工具链配置已经在主模块中配置完成，直接进行maven compile即可。打包目录为out文件夹。
+对于项目中其他模块，打包配置如下即可。
+```xml
+<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <!-- 用来传递编译器自身不包含但是却支持的参数选项 -->
+                    <!--                    <compilerArguments>-->
+                    <!--                        <verbose/>-->
+                    <!--                        &lt;!&ndash; windows环境（二选一） &ndash;&gt;-->
+                    <!--                        <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jce.jar</bootclasspath>-->
+                    <!--                        &lt;!&ndash; Linux环境（二选一） &ndash;&gt;-->
+                    <!--                        <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jce.jar</bootclasspath>-->
+                    <!--                    </compilerArguments>-->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+```
+
+## 怎么在菜单栏添加功能菜单？(前端项目)
+首先在menu/index.ts文件中添加菜单属性。
+```js
+MenuItem {
+  name: string //菜单标识（必须）
+  label: string // 菜单标签（必须）
+  component?: any //菜单响应弹窗（非必须）
+  route?: string //菜单响应URL（非必须）
+    // component、route必须有一项不为空才能保证菜单正常响应
+  params?: any // 传递参数（非必须）
+  diasble?: boolean //已弃用
+    // （通过后端返回的用户权限来决定该项菜单是否可用，具体实现看MenuView组件）
+  children?: MenuItem[] // 子菜单
+}
+```
+在前端添加菜单代码后，在root用户下选择用户管理进行用户权限的修改即可。
+

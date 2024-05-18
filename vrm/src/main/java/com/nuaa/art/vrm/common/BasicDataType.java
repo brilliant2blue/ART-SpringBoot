@@ -7,13 +7,14 @@ package com.nuaa.art.vrm.common;
  * @date 2023/06/10
  */
 public enum BasicDataType {
-    IntegerType("integer","int","",""),
-    DoubleType("double","double","",""),
-    FloatType("float","float","",""),
+    // 20240125: 补充预置类型值域
+    IntegerType("integer","int",Integer.MIN_VALUE+".."+ Integer.MAX_VALUE,""),
+    DoubleType("double","double","0..10E308","0.1"),
+    FloatType("float","float","0..10E38","0.1"),
     CharacterType("character","char","",""),
     EnumeratedType("enumerated","enum","",""),
     StringType("string","string","",""),
-    BooleanType("boolean","bool","",""),
+    BooleanType("boolean","bool","true,false",""),
     UnsignedType("unsigned","unsigned","","");
     private String typeName;
     private String dataType;

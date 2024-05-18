@@ -292,10 +292,12 @@ public class Vrm2SmvHandler {
                     newModeTran.setSystemId(modeTran.getSystemId());
                     String sourceState = modeTran.getSourceState();
                     if(SMV_KEYWORDS_SET.contains(sourceState))
-                        newModeTran.setSourceState("_" + sourceState);
+                        sourceState = "_" + sourceState;
+                    newModeTran.setSourceState(sourceState);
                     String endState = modeTran.getEndState();
                     if(SMV_KEYWORDS_SET.contains(endState))
-                        newModeTran.setEndState("_" + endState);
+                        endState = "_" + endState;
+                    newModeTran.setEndState(endState);
                     event = modifyConditionAndEvent(event.replaceAll("\\{", "").replaceAll("}", ""));
                     newModeTran.setEvent(event);
                     args.addAll(getVarsFromEvent(event));
@@ -619,6 +621,7 @@ public class Vrm2SmvHandler {
                             .append(modeTran.getEndState())
                             .append(";\n");
                 }
+                varAssignment.append("\t\t\tTRUE : result;\n");
                 varAssignment.append("\t\tesac;\n");
             }
         }
@@ -638,7 +641,7 @@ public class Vrm2SmvHandler {
 
         result.append("MODULE main\n");
         // 输入变量声明及赋初始值
-        result.append(genIvarOfInputs());
+        result.append(genVarOfInputs());
         // 中间变量声明
         result.append("\n").append(genVarOfTermsOrOutputs(true));
         // 输出变量声明
@@ -653,23 +656,8 @@ public class Vrm2SmvHandler {
      * 生成输入变量在main模块中的声明及初始化
      * @return
      */
-    private String genIvarOfInputs(){
+    private String genVarOfInputs(){
         StringBuilder result = new StringBuilder();
-
-//        if(model.inputs != null && !model.inputs.isEmpty()){
-//            for (VariableWithPort input : model.inputs) {
-//                String name = input.getConceptName();
-//                result.append("IVAR ")
-//                        .append(name)
-//                        .append(" : ")
-//                        .append(input.getConceptDatatype())
-//                        .append(";\nINIT ")
-//                        .append(name)
-//                        .append(" = ")
-//                        .append(input.getConceptValue())
-//                        .append("\n\n");
-//            }
-//        }
 
         if(model.inputs != null && !model.inputs.isEmpty()){
             for (VariableWithPort input : model.inputs) {
@@ -679,13 +667,7 @@ public class Vrm2SmvHandler {
                         .append(name)
                         .append(" : ")
                         .append(input.getConceptDatatype())
-                        .append(";\nASSIGN\n")
-                        .append("\tinit(")
-                        .append(name)
-                        .append(") := ")
-                        .append(value)
-                        .append(";\n")
-                        .append("\tnext(")
+                        .append(";\nASSIGN init(")
                         .append(name)
                         .append(") := ")
                         .append(value)

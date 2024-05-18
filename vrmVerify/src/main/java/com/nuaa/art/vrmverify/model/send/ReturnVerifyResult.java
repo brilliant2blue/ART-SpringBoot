@@ -12,7 +12,14 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ReturnVerifyResult {
-    private String smvFilePath;
+
+    public static final int SMV_FILE = 0;
+    public static final int VRM_MODEL = 1;
+    public static final int XML_FILE = 2;
+
+    private Integer type;
+    private String name;
+    private String filePath;
     private String verifyResultStr;
     private VerifyResult verifyResult;
 }

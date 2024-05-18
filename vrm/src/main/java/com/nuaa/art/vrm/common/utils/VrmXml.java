@@ -483,8 +483,8 @@ public class VrmXml extends EntityXmlConvert {
 
         //添加节点stateList
         Element stateList = stateMachine.addElement("stateList");
-        ArrayList<Mode> mdoes = mcv.getModes();
-        for (Mode m : mdoes) {
+        ArrayList<Mode> modes = mcv.getModes();
+        for (Mode m : modes) {
             if (m.getModeClassName().equals(mc.getModeClassName())) {
                 //添加节点state
                 Element state = stateList.addElement("state");
@@ -519,9 +519,9 @@ public class VrmXml extends EntityXmlConvert {
                 if (stateM.getEvent() != null) {
                     Event.setText(stateM.getEvent());
                 }
-                Element destinate = row.addElement("destination");
+                Element designate = row.addElement("destination");
                 if (stateM.getEndState() != null) {
-                    destinate.setText(stateM.getEndState());
+                    designate.setText(stateM.getEndState());
                 }
             }
         }
@@ -532,7 +532,7 @@ public class VrmXml extends EntityXmlConvert {
     public ModeClassOfVRM ModeClassVRM(Element mcv) {
         ModeClassOfVRM item = new ModeClassOfVRM();
         ModeClass mc = new ModeClass();
-        ArrayList<Mode> mdoes = new ArrayList<>();
+        ArrayList<Mode> modes = new ArrayList<>();
         ArrayList<StateMachine> sts = new ArrayList<>();
 
 
@@ -562,7 +562,7 @@ public class VrmXml extends EntityXmlConvert {
             String v = se.attributeValue("enum");
             if (v != null && !v.isEmpty())
                 m.setValue(Integer.valueOf(v));
-            mdoes.add(m);
+            modes.add(m);
         }
 
         //添加节点stateTransition
@@ -578,7 +578,7 @@ public class VrmXml extends EntityXmlConvert {
         }
 
         item.setModeClass(mc);
-        item.setModes(mdoes);
+        item.setModes(modes);
         item.setModeTrans(sts);
 
         return item;

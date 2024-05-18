@@ -18,7 +18,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-@Service
+//@Service
+// 废弃代码
 public class AndEventParserImpl implements EventParser {
 
     @Resource

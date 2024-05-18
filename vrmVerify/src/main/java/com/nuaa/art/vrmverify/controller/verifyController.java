@@ -46,13 +46,6 @@ public class verifyController {
     private AsyncVerifyTask asyncVerifyTask;
     @Resource
     private WebSocketService webSocketService;
-    @Resource
-    private ModelVerifyService modelVerifyService;
-    @Resource
-    private Vrm2SmvService vrm2SmvService;
-    @Resource
-    private CxHandlerService cxHandlerService;
-
 
     /**
      * smv文件模型检查
@@ -63,21 +56,6 @@ public class verifyController {
     public HttpResult<String> smvFileVerify(SmvFileWIthProperties smvFileWIthProperties){
         asyncVerifyTask.asyncSmvFileVerify(smvFileWIthProperties);
         return HttpResult.success();
-
-//        try{
-//            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-//            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvFile(
-//                    smvFileWIthProperties.getSmvFilePath(),
-//                    smvFileWIthProperties.getPropertyCount() > 0,
-//                    smvFileWIthProperties.getProperties());
-//            webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
-//            return HttpResult.success();
-//        }
-//        catch (Exception e){
-//            e.printStackTrace();
-//            LogUtils.error(e.getMessage());
-//            return HttpResult.fail(e.getMessage());
-//        }
     }
 
     /**
@@ -91,27 +69,6 @@ public class verifyController {
     public HttpResult<String> vrmModelVerify(VrmModelWithProperties vrmModelWithProperties, String user) {
         asyncVerifyTask.asyncSmvStrVerify(vrmModelWithProperties, user);
         return HttpResult.success();
-
-//        try{
-//            webSocketService.sendMsg(SocketMessage.asText("model_verify", "vrm模型转为smv模型中..."));
-//            String smvStr = vrm2SmvService.transformVrm2Smv(
-//                    vrmModelWithProperties.getSystemId(),
-//                    vrmModelWithProperties.getSystemName(),
-//                    user);
-//            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
-//            ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
-//                    vrmModelWithProperties.getSystemName(),
-//                    smvStr,
-//                    vrmModelWithProperties.getPropertyCount() > 0,
-//                    vrmModelWithProperties.getProperties());
-//            webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
-//            return HttpResult.success();
-//        }
-//        catch (Exception e){
-//            e.printStackTrace();
-//            LogUtils.error(e.getMessage());
-//            return HttpResult.fail(e.getMessage());
-//        }
     }
 
     /**
@@ -121,40 +78,9 @@ public class verifyController {
      */
     @PostMapping("/handleCx")
     @Operation(summary = "反例处理")
-    public HttpResult<String> handleCx(@RequestBody VerifyResult verifyResult){
-        try {
-            webSocketService.sendMsg(SocketMessage.asText("cx_handle", "反例分析及可视化中..."));
-            List<VariableTable> variableTableList = cxHandlerService.computeVariableTables(verifyResult);
-            if(variableTableList != null && !variableTableList.isEmpty()){
-                List<CTLFormula> ctlFormulaList = new ArrayList<>();
-                List<List<String>> highlightedPropertiesList = new ArrayList<>();
-                List<Set<Cause>> causeSetList = new ArrayList<>();
-                for (int i = 0; i < variableTableList.size(); i++) {
-                    VariableTable variableTable = variableTableList.get(i);
-                    CTLFormula f = cxHandlerService.parseCTLFormula(
-                            variableTable.getProperty(),
-                            variableTable.getVariableValues(),
-                            false);
-                    ctlFormulaList.add(f);
-                    cxHandlerService.computeFormulaValues(f, variableTable);
-                    Set<Cause> causeSet = cxHandlerService.explainCx(variableTable, f);
-                    causeSetList.add(causeSet);
-                    highlightedPropertiesList.add(cxHandlerService.genHighlightedProperty(f, causeSet));
-                }
-                ReturnExplainResult returnExplainResult = new ReturnExplainResult(variableTableList.size(),
-                        ctlFormulaList,
-                        highlightedPropertiesList,
-                        variableTableList,
-                        causeSetList);
-                webSocketService.sendMsg(SocketMessage.asObject("cx_handle", returnExplainResult));
-            }
-            return HttpResult.success();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            LogUtils.error(e.getMessage());
-            return HttpResult.fail(e.getMessage());
-        }
+    public HttpResult<String> handleCx(@RequestBody VerifyResult verifyResult, Integer type, String name){
+        asyncVerifyTask.asyncHandleCx(verifyResult, type, name);
+        return HttpResult.success();
     }
 
     /**
