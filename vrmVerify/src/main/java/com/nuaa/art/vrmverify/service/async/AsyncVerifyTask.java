@@ -1,5 +1,6 @@
 package com.nuaa.art.vrmverify.service.async;
 
+import com.nuaa.art.common.EventLevelEnum;
 import com.nuaa.art.common.model.SocketMessage;
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.websocket.WebSocketService;
@@ -58,7 +59,7 @@ public class AsyncVerifyTask {
         }catch (Exception e){
             e.printStackTrace();
             LogUtils.error(e.getMessage());
-            webSocketService.sendMsg(SocketMessage.asError(e.getMessage()));
+            webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
     }
 
@@ -85,7 +86,7 @@ public class AsyncVerifyTask {
         }catch (Exception e){
             e.printStackTrace();
             LogUtils.error(e.getMessage());
-            webSocketService.sendMsg(SocketMessage.asError(e.getMessage()));
+            webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
     }
 
@@ -129,7 +130,7 @@ public class AsyncVerifyTask {
         }catch (Exception e){
             e.printStackTrace();
             LogUtils.error(e.getMessage());
-            webSocketService.sendMsg(SocketMessage.asError(e.getMessage()));
+            webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
     }
 

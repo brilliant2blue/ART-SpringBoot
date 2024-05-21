@@ -63,6 +63,12 @@ public class SmvVerifyHandler {
                 vr.setErrMsg(Msg.OUT_OF_MEMORY);
                 break;
             }
+            if(line.contains("batch mode is not available with models containing infinite domain variables")){
+                vr.setHasError(true);
+                vr.setDetails(line);
+                vr.setErrMsg(Msg.INFINITE_DOMAIN);
+                break;
+            }
             // 定位到验证结果
             if(line.startsWith("-- specification")){
                 vr.setHasError(false);
