@@ -65,25 +65,18 @@ public class ModelController {
     @PostMapping("vrm/{id}/model/xml")
     @Operation(summary = "生成模型的xml文件")
     public HttpResult<String> create(@PathVariable(value = "id") Integer systemId, @PathParam("user")String user){
-        try {
+
             asyncTaskHandler.createlocal(systemId);
-            return new HttpResult<>(HttpCodeEnum.SUCCESS,"模型创建成功");
-        } catch (Exception e){
-            LogUtils.error(e.getMessage());
-            e.printStackTrace();
-            return new HttpResult<>(HttpCodeEnum.NOT_MODIFIED,"模型创建失败");
-        }
+            return new HttpResult<>(HttpCodeEnum.SUCCESS);
+
     }
 
 
     @GetMapping("vrm/{id}/model/xml")
     @Operation(summary = "导出模型的完整xml文件")
     public HttpResult<String> export(@PathVariable(value = "id") Integer systemId){
-        try {
-            asyncTaskHandler.creatFull(systemId);
-            return HttpResult.success();
-        } catch (Exception e){
-            return HttpResult.fail();
-        }
+        asyncTaskHandler.creatFull(systemId);
+        return HttpResult.success();
+
     }
 }
