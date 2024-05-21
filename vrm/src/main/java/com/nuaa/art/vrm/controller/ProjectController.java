@@ -73,7 +73,7 @@ public class ProjectController {
     }
 
 
-    @Resource
+    @Resource(name = "projectV2")
     ProjectDataHandler projectDataHandler;
     @DeleteMapping("vrm/{id}")
     @Operation(summary = "删除项目")
@@ -134,14 +134,11 @@ public class ProjectController {
                 .getSystemProjectByName(systemName);
         if (sProject != null) {
             LogUtils.info("已存在此系统名称，请重新输入名称！");
-            new HttpResult<>(HttpCodeEnum.NOT_FOUND, "已存在此系统名称，请重新输入名称！",-1);
+            return HttpResult.fail("已存在此系统名称，请重新输入名称！");
         }
-        int id =  projectDataHandler.importProjectFromFile(systemName, fileUrl);
-        if( id > 0){
-            return new HttpResult<>(HttpCodeEnum.SUCCESS,id);
-        } else  {
-            return new HttpResult<>(HttpCodeEnum.NOT_FOUND,0);
-        }
+        asyncTaskHandler.importProject(systemName,fileUrl);
+
+        return HttpResult.success();
     }
 
 

@@ -24,7 +24,10 @@ public class AndOrConditionsInformation {
 
     public ArrayList<String> assignmentForEachRow;// 每行的赋值
     public ArrayList<String> outputRanges;// 关联变量的值域
-    public ArrayList<HashSet<Integer>> equivalentScenarioSet;// 每个场景对应的输出值号
+
+    public ArrayList<Integer> rowsForTrueScenarioSet; //永真行
+    public ArrayList<Integer> rowsForDefaultScenarioSet; //默认行
+    public ArrayList<HashSet<Long>> equivalentScenarioSet;// 每个场景对应的输出值号， V2版本为 每行对应的等价场景集
     public int[] variableRanges;
     public ScenarioCorpusCoder scenarioCorpusCoder;
 

@@ -11,6 +11,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 层次化VRM 与xml转换
+ *
+ * @author konsin
+ * @date 2024/04/12
+ */
 @Component
 public class VrmModuleXml extends VrmXml{
     /**

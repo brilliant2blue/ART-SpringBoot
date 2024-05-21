@@ -96,7 +96,7 @@ public class ConditionTableUtils {
 
     public ConditionTable ConvertStringToTable(String condition) {
         ConditionTable conditionTable = new ConditionTable();
-        System.out.println("完整的条件语句:   " + condition);
+        LogUtils.info("完整的条件语句:   " + condition);
         if (condition.equalsIgnoreCase("") || condition.equalsIgnoreCase("default")) {
             conditionTable.getConditionItems().add(new ConditionItem());
             conditionTable.addAndNum();

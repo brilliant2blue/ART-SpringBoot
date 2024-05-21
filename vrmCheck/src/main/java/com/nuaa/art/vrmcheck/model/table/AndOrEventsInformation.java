@@ -39,7 +39,7 @@ public class AndOrEventsInformation {
     public ArrayList<String> outputRanges;// 每行对应变量的值域
 
     public ArrayList<Integer> rowsForTrueScenarioSet; //永真行
-    public ArrayList<Integer> rowsForDefaultScenarioSet; //永真行
+    public ArrayList<Integer> rowsForDefaultScenarioSet; //默认行
 
     // 每行事件对应等价场景集序偶(两个前后场景集合)的集合
     public HashMap<Integer, ArrayList<ArrayList<Long>[]>> scenarioSetPairsOfEachRow;
@@ -56,5 +56,6 @@ public class AndOrEventsInformation {
         criticalVariables = new CriticalVariables();
         assignmentForEachRow = new ArrayList<>();
         scenarioSetPairsOfEachRow = new HashMap<>();
+        nuclearTreeForEachRow = new ArrayList<>();
     }
 }

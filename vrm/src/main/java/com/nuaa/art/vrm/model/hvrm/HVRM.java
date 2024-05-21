@@ -5,6 +5,7 @@ import com.nuaa.art.vrm.entity.SystemProject;
 import com.nuaa.art.vrm.entity.Type;
 import com.nuaa.art.vrm.model.vrm.ModeClassOfVRM;
 import com.nuaa.art.vrm.model.vrm.VRM;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.BeanUtils;
 import lombok.Data;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
  * @author konsin
  * @date 2023/11/20
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class HVRM extends com.nuaa.art.vrm.model.VariableRelationModel<SystemProject, Type, ConceptLibrary, VariableWithPort, TableOfModule, ModeClassOfVRM> {
     private ArrayList<ModuleTree> modules;

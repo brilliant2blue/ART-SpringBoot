@@ -20,14 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service("ConditionCheckV1")
 public class AndOrConditionCheckImpl implements ConditionCheck {
     @Resource
     DataTypeUtils typeUtils;
 
     @Resource
     AndOrConditionParserImpl conditionPraser;
-    @Resource(name = "V1")
+    @Resource(name = "ScenarioV1")
     ScenarioHandler scenarioHandler;
 
     @Override
@@ -71,8 +71,8 @@ public class AndOrConditionCheckImpl implements ConditionCheck {
                         if (!s.containsZero() && ci.equivalentScenarioSet.get(i).size() > 1) { //如果场景不为空，且场景对应不只一行， 则发生条件一致性错误
                             obeyScenariosOfConsistency.add(s);
                             ArrayList<String> assign = new ArrayList<>();
-                            for (Integer line : ci.equivalentScenarioSet.get(i))
-                               assign.add(ci.outputRanges.get(line));
+                            for (long line : ci.equivalentScenarioSet.get(i))
+                               assign.add(ci.outputRanges.get((int) line));
                             obeyAssignmentOfConsistency.add(assign);
                         }
                         if (!s.containsZero() && ci.equivalentScenarioSet.get(i).size() == 0) { //如果场景不为空，且场景不对应任何行， 则发生条件完整性错误
@@ -81,7 +81,7 @@ public class AndOrConditionCheckImpl implements ConditionCheck {
                     }
                     isObeyConsistency = !obeyScenariosOfConsistency.isEmpty();
                     isObeyIntegrity = !obeyScenariosOfIntegrity.isEmpty();
-                } else { //判断同源但是不同输出的多个条件中是否具有多个永真式（如所有条件中均不涉及变量取值情况判断的话）
+                } else { //判断同源但是不同输出的多个条件中是否具有多个永真式（如所有条件中均不涉及变量取值情况判断的话），没有限定条件，则default退化为True
                     for (int i = 0; i < ci.nuclearTreeForEachRow.size(); i++) {
                         if (ci.nuclearTreeForEachRow.get(i).get(0).get(0).isTrue || ci.nuclearTreeForEachRow.get(i).get(0).get(0).isDefault)
                             tureConditionNum++;

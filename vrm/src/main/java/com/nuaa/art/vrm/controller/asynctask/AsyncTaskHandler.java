@@ -1,5 +1,6 @@
 package com.nuaa.art.vrm.controller.asynctask;
 
+import com.nuaa.art.common.EventLevelEnum;
 import com.nuaa.art.common.model.SocketMessage;
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.PathUtils;
@@ -14,6 +15,7 @@ import com.nuaa.art.vrm.service.handler.RequirementDataHandler;
 import jakarta.annotation.Resource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 
@@ -44,26 +46,30 @@ public class AsyncTaskHandler {
 
     @Async("AsyncTask")
     public void readLocal(Integer systemId, String fileName) throws IOException, InterruptedException {
-        webSocketService.sendMsg(SocketMessage.asText("vrm-model","解析模型文件中"));
+        webSocketService.sendProgressMsg("解析模型文件中");
         Thread.sleep(1000);
-        HVRM vrm = (HVRM) modelObjectCreate.modelFile(systemId, fileName);
-        webSocketService.sendMsg(SocketMessage.asObject("vrm-model", vrm));
-        webSocketService.sendMsg(SocketMessage.asText("打开模型文件："+vrm.getSystem().getSystemName()));
+        try{
+            HVRM vrm = (HVRM) modelObjectCreate.modelFile(systemId, fileName);
+            webSocketService.sendObject("vrm-model", vrm);
+            webSocketService.sendProgressMsg("打开模型文件："+vrm.getSystem().getSystemName(), EventLevelEnum.SUCCESS);
+        } catch (Exception e){
+            webSocketService.sendProgressMsg("打开模型文件失败"+fileName, EventLevelEnum.ERROR);
+        }
     }
 
     @Async("AsyncTask")
-    public void createlocal(Integer systemId) throws IOException {
+    public void createlocal(Integer systemId) {
         try {
-            webSocketService.sendMsg(SocketMessage.asText("vrm-model","开始创建模型"));
+            webSocketService.sendProgressMsg("开始创建模型");
             LogUtils.info("开始创建模型");
             Thread.sleep(1000);
             HVRM model = (HVRM)modelXmlCreate.createModel(systemId);
             LogUtils.info("模型创建结束");
-            webSocketService.sendMsg(SocketMessage.asText("vrm-model","模型创建结束"));
-            webSocketService.sendMsg(SocketMessage.asText(model.getDate()));
-            webSocketService.sendMsg(SocketMessage.asObject("vrm-model", model));
+            webSocketService.sendProgressMsg("模型%s创建结束".formatted(model.getSystem().getSystemName()), EventLevelEnum.SUCCESS);
+            webSocketService.sendObject("vrm-model", model);
         } catch (InterruptedException e) {
             LogUtils.error(e.getMessage());
+            webSocketService.sendProgressMsg("模型创建失败", EventLevelEnum.ERROR);
         }
     }
 
@@ -72,43 +78,46 @@ public class AsyncTaskHandler {
         try {
             SystemProject system = daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId);
             String fileName = PathUtils.DefaultPath() + system.getSystemName() + "ExportModel.xml";
-            webSocketService.sendMsg(SocketMessage.asText("model-file", "可导出文件生成中"));
+            webSocketService.sendProgressMsg("可导出文件生成中");
             LogUtils.info("开始创建模型");
             Thread.sleep(1000);
             String fileUrl = (String) modelXmlCreate.modelFile(systemId, fileName);
             LogUtils.info("模型创建结束");
             if (fileUrl != null || fileUrl.isBlank()) {
-                webSocketService.sendMsg(SocketMessage.asText("model-file", "可导出文件生成完毕"));
-                webSocketService.sendMsg(SocketMessage.asText("model-file", ""));
-                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl));
+                webSocketService.sendProgressMsg("可导出模型文件生成完毕", EventLevelEnum.SUCCESS);
+                webSocketService.sendObject("file", fileUrl);
             } else {
-                webSocketService.sendMsg(SocketMessage.asText("model-file", "可导出文件生成失败"));
+                webSocketService.sendProgressMsg("可导出模型文件生成失败", EventLevelEnum.ERROR);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText("model-file", "可导出文件生成失败"));
+            webSocketService.sendProgressMsg("可导出模型文件生成失败", EventLevelEnum.ERROR);
         }
     }
 
-    @Resource
+    @Resource(name = "projectV2")
     ProjectDataHandler projectDataHandler;
 
     @Async("AsyncTask")
     public void creatFile(int systemId){
         try {
-            webSocketService.sendMsg(SocketMessage.asText("project", "生成可导出的工程文件中..."));
+            webSocketService.sendProgressMsg("生成可导出的工程文件中...");
             String fileUrl = projectDataHandler.exportProjectToFile(systemId);
             if(fileUrl != null){
-                webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成完毕"));
-                webSocketService.sendMsg(SocketMessage.asText("project", "")); //发送空消息，关闭前端进度条
-                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl)); //返回对应工程文件的地址
+                webSocketService.sendProgressMsg("可导出的工程文件生成完毕",EventLevelEnum.SUCCESS);
+                webSocketService.sendObject("file", fileUrl); //返回对应工程文件的地址
             } else {
-                webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
+                webSocketService.sendProgressMsg("可导出的工程文件生成失败",EventLevelEnum.ERROR);
             }
         } catch (Exception e){
             e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText("project", "可导出的工程文件生成失败"));
+            webSocketService.sendProgressMsg("可导出的工程文件生成失败",EventLevelEnum.ERROR);
         }
+    }
+
+    @Async("AsyncTask")
+    public void importProject(String systemName, String fileUrl){
+        projectDataHandler.importProjectFromFile(systemName,fileUrl);
     }
 
     @Resource
@@ -119,19 +128,18 @@ public class AsyncTaskHandler {
         try {
             String system = daoHandler.getDaoService(SystemProjectService.class).getSystemProjectById(systemId).getSystemName();
             String fileUrl = PathUtils.DefaultPath()+system+"Requirement.xlsx";
-            webSocketService.sendMsg(SocketMessage.asText("requirement", "生成可导出的工程文件中..."));
+            webSocketService.sendProgressMsg("生成可导出的工程文件中...");
             sleep(1000);
             int count = requirementDataHandler.exportToFile(systemId, fileUrl);
             if (count > 0){
-                webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成完毕"));
-                webSocketService.sendMsg(SocketMessage.asText("requirement", "")); //发送空消息，关闭前端进度条
-                webSocketService.sendMsg(SocketMessage.asObject("file", fileUrl)); //返回对应工程文件的地址
+                webSocketService.sendProgressMsg("可导出的工程文件生成完毕");
+                webSocketService.sendObject("file", fileUrl); //返回对应工程文件的地址
             } else {
-                webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成失败"));
+                webSocketService.sendProgressMsg("可导出的工程文件生成失败",EventLevelEnum.ERROR);
             }
         } catch (Exception e){
             e.printStackTrace();
-            webSocketService.sendMsg(SocketMessage.asText("requirement", "可导出的工程文件生成失败"));
+            webSocketService.sendProgressMsg("可导出的工程文件生成失败",EventLevelEnum.ERROR);
         }
     }
 }

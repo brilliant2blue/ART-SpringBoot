@@ -79,7 +79,7 @@ public class ConceptRelateRequirementServiceImpl extends ServiceImpl<ConceptRela
     @Override
     public boolean insertRelationOfConcept(ConceptLibrary conceptLibrary) {
         String ids = conceptLibrary.getSourceReqId();
-        if(ids.equals("null")) {
+        if(ids!=null && ids.equals("null")) {
             ids = "";
         }
         ConceptRelateRequirement item = new ConceptRelateRequirement();

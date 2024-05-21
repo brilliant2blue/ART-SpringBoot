@@ -103,7 +103,7 @@ public class OutputCheckImpl implements OutputCheck {
             isValueInformal = !informalValues.isEmpty();
             if (isValueInformal) {
                 OutputErrorRefresh(errorReporter);
-                String outputString = "错误定位：表格" + table.getName() + "\n错误内容：该表格的输出值";
+                String outputString = "错误定位：表格" + table.getName()+ "\n系统："+vrmModel.getSystem().getSystemName() + "\n错误内容：该表格的输出值";
                 for (String informalValue : informalValues) {
                     outputString += informalValue + "、";
                 }
@@ -132,7 +132,7 @@ public class OutputCheckImpl implements OutputCheck {
 
             if (isValueInconsidered) {
                 OutputErrorRefresh(errorReporter);
-                String outputString = "错误定位：表格" + table.getName() + "\n错误内容：该表格变量值域中的值";
+                String outputString = "错误定位：表格" + table.getName()+ "\n系统："+vrmModel.getSystem().getSystemName() + "\n错误内容：该表格变量值域中的值";
                 for (String inconsideredValue : inconsideredValues) {
                     outputString += inconsideredValue + "、";
                 }
@@ -145,7 +145,7 @@ public class OutputCheckImpl implements OutputCheck {
             }
             if (isValueInformal == true) {
                 OutputErrorRefresh(errorReporter);
-                String outputString = "错误定位：表格" + table.getName() + "\n错误内容：该表格的输出值";
+                String outputString = "错误定位：表格" + table.getName()+ "\n系统："+vrmModel.getSystem().getSystemName() + "\n错误内容：该表格的输出值";
                 for (String informalValue : informalValues) {
                     outputString += informalValue + "、";
                 }

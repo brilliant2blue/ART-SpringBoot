@@ -3,6 +3,7 @@ package com.nuaa.art.common.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nuaa.art.common.EventLevelEnum;
 import com.nuaa.art.common.utils.LogUtils;
 import lombok.Data;
 import org.springframework.web.socket.TextMessage;
@@ -11,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 public class SocketMessage<T> {
     String messageType;
     String dataType;
+    Integer level;
     T data;
 
     public SocketMessage() {
@@ -20,6 +22,14 @@ public class SocketMessage<T> {
     public SocketMessage(String messageType, String dataType, T data){
         this.messageType = messageType;
         this.dataType = dataType;
+        this.level = EventLevelEnum.INFO.ordinal();
+        this.data = data;
+    }
+
+    public SocketMessage(String messageType, String dataType, EventLevelEnum level, T data){
+        this.messageType = messageType;
+        this.dataType = dataType;
+        this.level = level.ordinal();
         this.data = data;
     }
 
@@ -42,6 +52,28 @@ public class SocketMessage<T> {
     }
     public static TextMessage asText(String type, String data){
         SocketMessage<String> msg = new SocketMessage<>("msg", type, data);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return new TextMessage(mapper.writeValueAsString(msg));
+        } catch (JsonProcessingException e) {
+            LogUtils.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public static TextMessage asText(String type, EventLevelEnum level , String data){
+        SocketMessage<String> msg = new SocketMessage<>("msg", type, level, data);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return new TextMessage(mapper.writeValueAsString(msg));
+        } catch (JsonProcessingException e) {
+            LogUtils.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public static TextMessage asText(String messageType, String dataType,EventLevelEnum level , String data){
+        SocketMessage<String> msg = new SocketMessage<>(messageType, dataType, level, data);
         ObjectMapper mapper = new ObjectMapper();
         try {
             return new TextMessage(mapper.writeValueAsString(msg));

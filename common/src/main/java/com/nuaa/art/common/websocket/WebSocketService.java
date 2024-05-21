@@ -1,12 +1,11 @@
 package com.nuaa.art.common.websocket;
 
+import com.nuaa.art.common.EventLevelEnum;
+import com.nuaa.art.common.model.SocketMessage;
 import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.common.utils.ServletUtils;
 import com.nuaa.art.common.utils.ThreadLocalUtils;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -76,5 +75,77 @@ public class WebSocketService {
         for (WebSocketSession session : WebSocketSessionManager.SESSION_POOL.values()) {
             session.sendMessage(new TextMessage(text));
         }
+    }
+
+    /**
+     * 推送普通消息
+     * @param info
+     * @param level
+     */
+    public void sendNormalMsg(String info, EventLevelEnum level){
+        this.sendMsg(SocketMessage.asText("msg", "string", level, info));
+    }
+
+    /**
+     * 推送普通消息， 默认INFO等级
+     * @param info
+     */
+    public void sendNormalMsg(String info){
+        this.sendMsg(SocketMessage.asText("msg", "string", EventLevelEnum.INFO, info));
+    }
+
+    /**
+     * 推送进度条消息， 前端将显示一个进度条
+     * @param info
+     * @param level
+     */
+    public void sendProgressMsg(String info, EventLevelEnum level){
+        this.sendMsg(SocketMessage.asText("prg", "string", level, info));
+    }
+
+    /**
+     * 推送进度条消息,默认INFO等级， 前端将显示一个进度条
+     * @param info
+     */
+    public void sendProgressMsg(String info){
+        this.sendMsg(SocketMessage.asText("prg", "string", EventLevelEnum.INFO, info));
+    }
+
+    /**
+     * 推送弹窗消息， 前端将显示一个对话弹窗
+     * @param info
+     * @param level
+     */
+    public void sendDialogMsg(String info, EventLevelEnum level){
+        this.sendMsg(SocketMessage.asText("pop", "string", level, info));
+    }
+
+    /**
+     * 推送弹窗消息，自行设定子类型 前端将显示一个对话弹窗
+     * @param info
+     * @param level
+     */
+    public void sendDialogMsg(String type, String info, EventLevelEnum level){
+        this.sendMsg(SocketMessage.asText("pop", type, level, info));
+    }
+
+    /**
+     * 推送弹窗消息，默认INFO等级, 前端将显示一个对话弹窗
+     * @param info
+     */
+    public void sendDialogMsg(String info){
+        this.sendMsg(SocketMessage.asText("pop", "string", EventLevelEnum.INFO, info));
+    }
+
+
+
+    /**
+     * 推送一个对象
+     * @param type
+     * @param data
+     * @param <T>
+     */
+    public <T> void sendObject(String type,T data){
+        this.sendMsg(SocketMessage.asObject(type, data));
     }
 }

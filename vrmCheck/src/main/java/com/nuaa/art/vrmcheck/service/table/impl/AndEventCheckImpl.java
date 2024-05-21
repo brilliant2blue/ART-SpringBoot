@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service("AndEvent")
+//@Service("AndEvent")
+// 废弃代码
 public class AndEventCheckImpl implements EventCheck {
     @Resource
     EventParser eventParser;
