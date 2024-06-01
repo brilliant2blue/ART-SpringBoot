@@ -45,8 +45,12 @@ public class Vrm2SmvHandler {
     private Set<String> modeClassesSet = new HashSet<>();
     private Map<String, TableOfVRM> vars2CTMap = new HashMap<>(); // 中间/输出变量与条件表映射
     private Map<String, TableOfVRM> vars2ETMap = new HashMap<>(); // 中间/输出变量与事件表映射
-    private Map<String, Set<String>> paramsOfVarsMap = new HashMap<>(); //中间/输出变量关联的变量
-    private Map<String, Set<String>> paramsOfModeClassesMap = new HashMap<>(); //模式集关联的变量
+    private Map<String, Set<String>> paramsOfVarsMap = new HashMap<>(); // 中间/输出变量关联的变量
+    private Map<String, Set<String>> paramsOfModeClassesMap = new HashMap<>(); // 模式集关联的变量
+    private Map<String, String[]> vars2TypeAndInitVal = new HashMap<>(); // 变量与其类型和初始值的映射
+    private Set<String> copyVars = new HashSet<>(); // 需要提前声明副本的变量
+    private Set<String> needInstantiationVars = new HashSet<>(); // 还未实例化的变量
+    private List<String> instantiationOrder = new ArrayList<>(); // 模块实例化顺序
 
     public Vrm2SmvHandler(HVRM model, String systemName, String user){
         this.model = model;
@@ -65,6 +69,8 @@ public class Vrm2SmvHandler {
         preHandle();
         // 添加额外信息
         smvStr.append(genExtraInfo());
+        // 拓扑排序得到模块实例化顺序并消除循环依赖
+        genInstantiationOrder();
         // 生成中间/输出变量模块
         smvStr.append("\n").append(genTermsAndOutputsModules());
         // 生成模式集模块
@@ -154,6 +160,10 @@ public class Vrm2SmvHandler {
                         var.setConceptDatatype("{" + conceptRange + "}");
                     }
                 }
+            }
+            if(flag != 0){
+                needInstantiationVars.add(name);
+                vars2TypeAndInitVal.put(name, new String[]{ var.getConceptDatatype(), var.getConceptValue()});
             }
         }
     }
@@ -276,11 +286,23 @@ public class Vrm2SmvHandler {
                 mc.getModeClass().setModeClassName(name);
             }
             modeClassesSet.add(name);
-            for (Mode mode : mc.getModes()) {
+            StringBuilder dataType = new StringBuilder("{");
+            String initialMode = null;
+            List<Mode> modes = mc.getModes();
+            for (int i = 0; i < modes.size(); i++) {
+                Mode mode = modes.get(i);
+                dataType.append(mode.getModeName());
+                if(i < modes.size() - 1)
+                    dataType.append(",");
+                if(mode.getInitialStatus() == 1)
+                    initialMode = mode.getModeName();
                 String modeName = mode.getModeName();
                 if(SMV_KEYWORDS_SET.contains(modeName))
                     mode.setModeName("_" + modeName);
             }
+            dataType.append("}");
+            needInstantiationVars.add(name);
+            vars2TypeAndInitVal.put(name, new String[]{ dataType.toString(), initialMode});
             Set<String> args = new HashSet<>();
             ArrayList<StateMachine> newModeTrans = new ArrayList<>();
             for (StateMachine modeTran : mc.getModeTrans()) {
@@ -347,6 +369,55 @@ public class Vrm2SmvHandler {
     }
 
     /**
+     * 拓扑排序得到模块实例化顺序并消除循环依赖
+     */
+    private void genInstantiationOrder(){
+        int n = needInstantiationVars.size();   // (n + 1) * n / 2
+        int i = 0;
+        while(!needInstantiationVars.isEmpty()){
+            Iterator<String> iterator = needInstantiationVars.iterator();
+            while(iterator.hasNext()){
+                String name = iterator.next();
+                if(!isDependable(!modeClassesSet.contains(name), name)){
+                    instantiationOrder.add(name);
+                    iterator.remove();
+                }
+                i++;
+            }
+            if(i >= (n + 1) * n / 2 && !needInstantiationVars.isEmpty()){ // 集合不为空，则存在循环依赖
+                String name = needInstantiationVars.iterator().next();
+                Map<String, Set<String>> paramsSet = modeClassesSet.contains(name) ? paramsOfModeClassesMap : paramsOfVarsMap;
+                for (String param : paramsSet.get(name)) {
+                    if(needInstantiationVars.contains(param))
+                        copyVars.add(param);
+                }
+                needInstantiationVars.remove(name);
+                instantiationOrder.add(name);
+                n = needInstantiationVars.size();
+                i = 0;
+            }
+        }
+    }
+
+    /**
+     * 判断模块是否有对未实例化模块的依赖
+     * @param isVariable
+     * @param name
+     * @return
+     */
+    private boolean isDependable(boolean isVariable, String name){
+        Map<String, Set<String>> paramsMap = isVariable ? paramsOfVarsMap : paramsOfModeClassesMap;
+        Set<String> paramsSet = paramsMap.get(name);
+        if(paramsSet == null)
+            return false;
+        for (String param : paramsSet) {
+            if(needInstantiationVars.contains(param))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * 生成中间/输出变量模块字符串
      * @return
      */
@@ -379,7 +450,10 @@ public class Vrm2SmvHandler {
                 .append("(\n");
         Iterator<String> iterator = paramsOfVarsMap.get(name).iterator();
         while(iterator.hasNext()){
-            moduleStatement.append("\t").append(iterator.next());
+            String param = iterator.next();
+            if(copyVars.contains(param))
+                param = "c_" + param;
+            moduleStatement.append("\t").append(param);
             if(iterator.hasNext())
                 moduleStatement.append(",\n");
         }
@@ -515,7 +589,11 @@ public class Vrm2SmvHandler {
                     break;
                 int end = i - 1;
                 String v = result.substring(start, end);
-                if(termsSet.contains(v) || outputsSet.contains(v) || modeClassesSet.contains(v)){
+                if(copyVars.contains(v)){
+                    result.insert(start, "c_");
+                    i++;
+                }
+                else if(termsSet.contains(v) || outputsSet.contains(v) || modeClassesSet.contains(v)){
                     result.insert(end, ".result");
                     i += 6;
                 }
@@ -641,13 +719,13 @@ public class Vrm2SmvHandler {
 
         result.append("MODULE main\n");
         // 输入变量声明及赋初始值
-        result.append(genVarOfInputs());
-        // 中间变量声明
-        result.append("\n").append(genVarOfTermsOrOutputs(true));
-        // 输出变量声明
-        result.append("\n").append(genVarOfTermsOrOutputs(false));
-        // 模式集声明
-        result.append("\n").append(genVarOfModeClasses());
+        result.append(stateInputVars());
+        // 副本变量声明
+        result.append(stateCopyVars());
+        // 中间/输出变量、模式集按顺序声明
+        result.append(stateLeftVarsByOrder());
+        // 副本变量赋值
+        result.append(assignCopyVars());
 
         return result.toString();
     }
@@ -656,9 +734,8 @@ public class Vrm2SmvHandler {
      * 生成输入变量在main模块中的声明及初始化
      * @return
      */
-    private String genVarOfInputs(){
+    private String stateInputVars(){
         StringBuilder result = new StringBuilder();
-
         if(model.inputs != null && !model.inputs.isEmpty()){
             for (VariableWithPort input : model.inputs) {
                 String name = input.getConceptName();
@@ -675,71 +752,78 @@ public class Vrm2SmvHandler {
             }
 
         }
-
         return result.toString();
     }
 
     /**
-     * 生成中间/输出变量在main模块中的声明
-     * @param isTerm
+     * 副本变量声明
      * @return
      */
-    private String genVarOfTermsOrOutputs(boolean isTerm){
+    private String stateCopyVars(){
+        if(copyVars.isEmpty())
+            return "";
         StringBuilder result = new StringBuilder();
-
-        List<VariableWithPort> vars = isTerm ? model.terms : model.outputs;
-        if(vars == null || vars.isEmpty())
-            return result.toString();
         result.append("VAR\n");
-        for (VariableWithPort var : vars) {
-            String name = var.getConceptName();
+        for (String copyVar : copyVars) {
+            result.append("\tc_")
+                    .append(copyVar)
+                    .append(" : ")
+                    .append(vars2TypeAndInitVal.get(copyVar)[0])
+                    .append(";\n");
+        }
+        result.append("\n");
+        return result.toString();
+    }
+
+    /**
+     * 中间/输出变量、模式集按顺序声明
+     * @return
+     */
+    private String stateLeftVarsByOrder(){
+        if(instantiationOrder.isEmpty())
+            return "";
+        StringBuilder result = new StringBuilder("VAR\n");
+        for (String name : instantiationOrder) {
             result.append("\t")
                     .append(name)
-                    .append(" :\n\t\t")
+                    .append(" : \n\t\t")
                     .append("m_")
                     .append(name)
                     .append("(\n");
-            Iterator<String> iterator = paramsOfVarsMap.get(name).iterator();
-            while(iterator.hasNext()){
-                result.append("\t\t\t")
-                        .append(iterator.next());
+            Map<String, Set<String>> paramsMap = modeClassesSet.contains(name) ? paramsOfModeClassesMap : paramsOfVarsMap;
+            Iterator<String> iterator = paramsMap.get(name).iterator();
+            while (iterator.hasNext()){
+                String param = iterator.next();
+                if(copyVars.contains(param))
+                    param = "c_" + param;
+                result.append("\t\t\t").append(param);
                 if(iterator.hasNext())
                     result.append(",\n");
             }
             result.append(");\n\n");
         }
-
         return result.toString();
     }
 
     /**
-     * 生成模式集在main模块中的声明
+     * 副本变量赋值
      * @return
      */
-    private String genVarOfModeClasses(){
-        StringBuilder result = new StringBuilder();
-
-        if(model.modeClass == null || model.modeClass.isEmpty())
-            return result.toString();
-        result.append("VAR\n");
-        for (ModeClassOfVRM mc : model.modeClass) {
-            String name = mc.getModeClass().getModeClassName();
-            result.append("\t")
-                    .append(name)
-                    .append(" :\n\t\t")
-                    .append("m_")
-                    .append(name)
-                    .append("(\n");
-            Iterator<String> iterator = paramsOfModeClassesMap.get(name).iterator();
-            while(iterator.hasNext()){
-                result.append("\t\t\t")
-                        .append(iterator.next());
-                if(iterator.hasNext())
-                    result.append(",\n");
-            }
-            result.append(");\n\n");
+    private String assignCopyVars(){
+        if(copyVars.isEmpty())
+            return "";
+        StringBuilder result = new StringBuilder("ASSIGN\n");
+        for (String copyVar : copyVars) {
+            result.append("\tinit(c_")
+                    .append(copyVar)
+                    .append(") := ")
+                    .append(vars2TypeAndInitVal.get(copyVar)[1])
+                    .append(";\n\tnext(c_")
+                    .append(copyVar)
+                    .append(") := next(")
+                    .append(copyVar)
+                    .append(".result);\n\n");
         }
-
         return result.toString();
     }
 

@@ -2,6 +2,7 @@ package com.nuaa.art.vrmverify.service;
 
 import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -27,5 +28,11 @@ public interface ModelVerifyService {
      * @return
      */
     public ReturnVerifyResult verifyModelFromSmvStr(String systemName, String smvStr, boolean addProperties, List<String> properties) ;
+
+    /**
+     * 中止当前验证进程
+     * @return
+     */
+    public boolean killCurVerifyProcess() throws IOException;
 
 }

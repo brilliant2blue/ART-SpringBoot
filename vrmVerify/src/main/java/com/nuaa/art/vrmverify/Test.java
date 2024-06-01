@@ -20,6 +20,10 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,14 +63,15 @@ public class Test {
 //    }
 
     public static void main(String[] args) {
-        String condition = "(iv_Elevator_Valid=2&iv_Flap_Valid=2&iv_MFS_Valid=2&iv_Rudder_Valid=Valid&iv_Horizontal_Stabilizer_Valid=Valid&iv_ACES_Mode_In_FCM_Command=4&iv_Engine_Valid=1&iv_Engine_Valid>1)";
-        String event = "{@T((mcAP=mEngage&tv_Any_Vertical_Mode_Engage=False)||(tv_Any_Vertical_Mode_Engage=False&mcLateral_Mode=mROLL)||(mcVertical_Mode=mASEL&!iv_ALT_Knob_Value=0)||(mcVertical_Mode=mALT&iv_Is_PSP_Engage=False)||(!mcAP=mEngage&mcVertical_Mode=mFLC&iv_Is_ASP_Engage=True)||(mcAP=mEngage&mcVertical_Mode=mGS&iv_APPR_Request_Value=True&iv_Is_Autoland_Engage=False)||(mcVertical_Mode=mGS&iv_APPR_Request_Value=True&!mcLateral_Mode=mROLL&iv_Is_Autoland_Engage=False))}||{@T((mcVertical_Mode=mGS&mcAP=mEngage))WHEN((mcLateral_Mode=mLOC))}";
-//        String[] split = event.substring(1, event.length() - 1).split("}\\|\\|\\{");
-//        for (String s : split) {
-//            System.out.println(s);
-//        }
+        
+    }
 
-        event.replaceAll("\\{", "");
-        System.out.println(event);
+    private static String readStream(InputStream inputStream) throws IOException {
+        StringBuilder res = new StringBuilder();
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        while((line = br.readLine()) != null)
+            res.append(line).append(System.lineSeparator());
+        return res.toString();
     }
 }

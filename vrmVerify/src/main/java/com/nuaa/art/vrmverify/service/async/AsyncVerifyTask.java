@@ -43,6 +43,8 @@ public class AsyncVerifyTask {
     @Resource
     private WebSocketService webSocketService;
 
+    private boolean isInterrupted = false;
+
     /**
      * 异步模型检查（smv文件）
      * @param smvFileWIthProperties
@@ -50,11 +52,16 @@ public class AsyncVerifyTask {
     @Async("AsyncTask")
     public void asyncSmvFileVerify(SmvFileWIthProperties smvFileWIthProperties) {
         try {
-            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
+            webSocketService.sendProgressMsg("模型验证中...");
             ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvFile(
                     smvFileWIthProperties.getSmvFilePath(),
                     smvFileWIthProperties.getPropertyCount() > 0,
                     smvFileWIthProperties.getProperties());
+            if(isInterrupted){
+                isInterrupted = false;
+                return;
+            }
+            webSocketService.sendProgressMsg("模型验证完成！",EventLevelEnum.SUCCESS);
             webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
         }catch (Exception e){
             e.printStackTrace();
@@ -71,17 +78,23 @@ public class AsyncVerifyTask {
     @Async("AsyncTask")
     public void asyncSmvStrVerify(VrmModelWithProperties vrmModelWithProperties, String user){
         try {
-            webSocketService.sendMsg(SocketMessage.asText("model_verify", "vrm模型转为smv模型中..."));
+            webSocketService.sendProgressMsg("vrm模型转为smv模型中...");
             String smvStr = vrm2SmvService.transformVrm2Smv(
                     vrmModelWithProperties.getSystemId(),
                     vrmModelWithProperties.getSystemName(),
                     user);
-            webSocketService.sendMsg(SocketMessage.asText("model_verify", "模型检查中..."));
+            webSocketService.sendProgressMsg("模型转换完成！",EventLevelEnum.SUCCESS);
+            webSocketService.sendProgressMsg("模型验证中...");
             ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
                     vrmModelWithProperties.getSystemName(),
                     smvStr,
                     vrmModelWithProperties.getPropertyCount() > 0,
                     vrmModelWithProperties.getProperties());
+            if(isInterrupted){
+                isInterrupted = false;
+                return;
+            }
+            webSocketService.sendProgressMsg("模型验证完成！",EventLevelEnum.SUCCESS);
             webSocketService.sendMsg(SocketMessage.asObject("model_verify", returnVerifyResult));
         }catch (Exception e){
             e.printStackTrace();
@@ -99,7 +112,7 @@ public class AsyncVerifyTask {
     @Async("AsyncTask")
     public void asyncHandleCx(VerifyResult verifyResult, Integer type, String name){
         try{
-            webSocketService.sendMsg(SocketMessage.asText("cx_handle", "反例分析及可视化中..."));
+            webSocketService.sendProgressMsg("反例分析及可视化中...");
             List<VariableTable> variableTableList = cxHandlerService.computeVariableTables(verifyResult);
             if(variableTableList != null && !variableTableList.isEmpty()) {
                 List<CTLFormula> ctlFormulaList = new ArrayList<>();
@@ -125,6 +138,7 @@ public class AsyncVerifyTask {
                         highlightedPropertiesList,
                         variableTableList,
                         causeSetList);
+                webSocketService.sendProgressMsg("反例解析完成！",EventLevelEnum.SUCCESS);
                 webSocketService.sendMsg(SocketMessage.asObject("cx_handle", returnExplainResult));
             }
         }catch (Exception e){
@@ -132,6 +146,14 @@ public class AsyncVerifyTask {
             LogUtils.error(e.getMessage());
             webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
+    }
+
+    public void setInterrupted(){
+        this.isInterrupted = true;
+    }
+
+    public void cancelInterrupted(){
+        this.isInterrupted = false;
     }
 
 }

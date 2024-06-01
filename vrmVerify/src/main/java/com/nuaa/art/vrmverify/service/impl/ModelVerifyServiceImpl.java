@@ -11,6 +11,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -35,6 +36,8 @@ public class ModelVerifyServiceImpl implements ModelVerifyService {
             }
             String verifyResultStr = SmvVerifyHandler.doCMDFromSmvFile(smvFilePath, addProperties, properties);
             VerifyResult verifyResult = SmvVerifyHandler.handleVerifyRes(verifyResultStr);
+            if(verifyResult == null)
+                throw new RuntimeException(Msg.UNKNOWN_ERROR);
             if(verifyResult.isHasError())
                 throw new RuntimeException(verifyResult.getErrMsg() + " " + verifyResult.getDetails());
             String fileName = new File(smvFilePath).getName();
@@ -73,6 +76,20 @@ public class ModelVerifyServiceImpl implements ModelVerifyService {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    /**
+     * 中止当前验证进程
+     * @return
+     */
+    @Override
+    public boolean killCurVerifyProcess() throws IOException {
+        // 中止nuxmv.exe进程
+        if(SmvVerifyHandler.killNuxmvProcess())
+            return true;
+        // 中止异步线程
+
+        return false;
     }
 
     /**

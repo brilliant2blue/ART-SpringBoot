@@ -72,7 +72,7 @@ public class SocketMessage<T> {
         return null;
     }
 
-    public static TextMessage asText(String messageType, String dataType,EventLevelEnum level , String data){
+    public static TextMessage asText(String messageType, String dataType, EventLevelEnum level , String data){
         SocketMessage<String> msg = new SocketMessage<>(messageType, dataType, level, data);
         ObjectMapper mapper = new ObjectMapper();
         try {

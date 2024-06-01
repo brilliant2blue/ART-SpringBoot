@@ -1,6 +1,7 @@
 package com.nuaa.art.vrmverify.handler;
 
 import com.nuaa.art.vrmverify.common.Msg;
+import com.nuaa.art.vrmverify.common.utils.CmdUtils;
 import com.nuaa.art.vrmverify.common.utils.PathUtils;
 import com.nuaa.art.vrmverify.model.Counterexample;
 import com.nuaa.art.vrmverify.model.VerifyResult;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 对选择的 smv 文件进行验证，并对结果进行处理
+ * 处理smv模型验证
  * @author djl
  * @date 2024-03-25
  */
@@ -23,6 +24,16 @@ public class SmvVerifyHandler {
 
     public static String VERIFY_OPTIONS = " -coi -df ";
     public static String PROPERTY_TYPE = "CTLSPEC ";
+    public static String KILL_NUXMV_CMD_WIN = "taskkill /f /t /im nuxmv.exe";
+
+    /**
+     * 若存在nuxmv进程，则终止
+     * @return
+     */
+    public static boolean killNuxmvProcess() throws IOException {
+        String res = CmdUtils.execute(KILL_NUXMV_CMD_WIN);
+        return !res.contains("错误: 没有找到进程");
+    }
 
     /**
      * 对验证结果进行处理，并返回结果对象
@@ -30,16 +41,20 @@ public class SmvVerifyHandler {
      * @return
      */
     public static VerifyResult handleVerifyRes(String result){
-        if(result == null)
+        if(result == null || result.isEmpty())
             return null;
 
         String[] lines = result.split("\n");
+
         int propertyCount = 0;  // 记录验证属性的个数
         List<Counterexample> cxList = new ArrayList<>();
         VerifyResult vr = new VerifyResult();
 
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
+            if(line.startsWith("***"))
+                continue;
+
             // 报错
             if(line.contains("file")){
                 vr.setHasError(true);
@@ -144,7 +159,7 @@ public class SmvVerifyHandler {
      * @throws IOException
      */
     public static String doCMDFromSmvFile(String originalFilePath, boolean addProperties, List<String> properties) throws IOException {
-        return execute(generateVerifyCmdFromSmvFile(originalFilePath, addProperties, properties));
+        return CmdUtils.execute(generateVerifyCmdFromSmvFile(originalFilePath, addProperties, properties));
     }
 
     /**
@@ -157,7 +172,7 @@ public class SmvVerifyHandler {
      * @throws IOException
      */
     public static String doCMDFromSmvStr(String systemName, String smvStr, boolean addProperties, List<String> properties) throws IOException {
-        return execute(generateVerifyCmdFromSmvStr(systemName, smvStr, addProperties, properties));
+        return CmdUtils.execute(generateVerifyCmdFromSmvStr(systemName, smvStr, addProperties, properties));
     }
 
     /**
@@ -168,34 +183,6 @@ public class SmvVerifyHandler {
      */
     public static String getResultFromFile(String filePath) throws IOException {
         return Files.readString(new File(filePath).toPath(), StandardCharsets.UTF_8);
-    }
-
-    /**
-     * 执行验证命令，并将验证结果以字符串形式返回
-     * @param verifyCmd
-     * @return
-     * @throws IOException
-     */
-    private static String execute(String verifyCmd) throws IOException {
-        if(verifyCmd == null)
-            return null;
-
-        Process process = Runtime.getRuntime().exec(verifyCmd);
-
-        // 用于读取执行结果流
-        InputStream is = process.getInputStream();
-        InputStream es = process.getErrorStream();
-        SequenceInputStream sis = new SequenceInputStream(is, es);
-        BufferedInputStream bis = new BufferedInputStream(sis);
-        Reader reader = new InputStreamReader(bis, getDefaultEncoding());
-        BufferedReader bufReader = new BufferedReader(reader);
-
-        // 读取执行结果
-        StringBuilder execRes = new StringBuilder();
-        String line;
-        while((line = bufReader.readLine()) != null)
-            execRes.append(line).append("\n");
-        return execRes.toString();
     }
 
     /**
@@ -289,18 +276,6 @@ public class SmvVerifyHandler {
         return copiedSmvFilePath;
     }
 
-
-    /**
-     * 根据操作系统获取默认编码
-     * @return
-     */
-    private static String getDefaultEncoding(){
-        if (getOS().trim().toLowerCase().startsWith("win"))
-            return "GBK";
-        else
-            return "UTF-8";
-    }
-
     /**
      * 获取操作系统名称
      * @return
@@ -308,4 +283,5 @@ public class SmvVerifyHandler {
     private static String getOS(){
         return System.getProperty("os.name");
     }
+
 }
