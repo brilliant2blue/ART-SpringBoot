@@ -78,10 +78,10 @@ public class CxHandlerServiceImpl implements CxHandlerService {
         return CxExplanationHandler.computeCauseSet(vt, 0, f, false);
     }
 
-
     /**
-     * 解析得 CTL 公式
+     * 解析并纠正得 CTL 公式
      * @param propertyStr
+     * @param values
      * @param isSimplified
      * @return
      */

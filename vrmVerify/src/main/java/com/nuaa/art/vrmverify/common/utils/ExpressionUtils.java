@@ -16,7 +16,7 @@ public class ExpressionUtils {
     public final static int TRUE_MODE = 1;
     public final static int OTHER_MODE = 2;
 
-    public final static String TRUE_STYLE = "color: blue; font-weight: bold";
+    public final static String TRUE_STYLE = "color: blue; font-weight: 700";
     public final static String VARIABLE_STYLE = "background-color: lightgrey;";
     public final static String CAUSE_STYLE = "border: 2px solid red;";
 

@@ -15,6 +15,7 @@ import com.nuaa.art.vrmverify.model.Counterexample;
 import com.nuaa.art.vrmverify.model.VerifyResult;
 import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;
 import com.nuaa.art.vrmverify.model.visualization.VariableTable;
+import com.nuaa.art.vrmverify.service.impl.Vrm2SmvServiceImpl;
 import jakarta.annotation.Resource;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -63,15 +64,7 @@ public class Test {
 //    }
 
     public static void main(String[] args) {
-        
+        // System.out.println(Vrm2SmvServiceImpl.KMP("AG ((mcAP=mDisengage & tv_When_AP_Available=FALSE & AX(tv_When_AP_Available=TRUE)) -> AX(mcAP=mAvailable))", "mcAP"));
     }
 
-    private static String readStream(InputStream inputStream) throws IOException {
-        StringBuilder res = new StringBuilder();
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        while((line = br.readLine()) != null)
-            res.append(line).append(System.lineSeparator());
-        return res.toString();
-    }
 }

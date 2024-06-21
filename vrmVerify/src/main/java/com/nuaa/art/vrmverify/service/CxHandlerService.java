@@ -40,7 +40,7 @@ public interface CxHandlerService {
     public Set<Cause> explainCx(VariableTable vt, CTLFormula f);
 
     /**
-     * 解析得 CTL 公式
+     * 解析并纠正得 CTL 公式
      * @param propertyStr
      * @param values
      * @param isSimplified

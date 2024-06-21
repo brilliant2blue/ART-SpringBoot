@@ -66,6 +66,7 @@ public class AsyncVerifyTask {
         }catch (Exception e){
             e.printStackTrace();
             LogUtils.error(e.getMessage());
+            webSocketService.sendProgressMsg("模型验证失败！", EventLevelEnum.ERROR);
             webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
     }
@@ -85,11 +86,14 @@ public class AsyncVerifyTask {
                     user);
             webSocketService.sendProgressMsg("模型转换完成！",EventLevelEnum.SUCCESS);
             webSocketService.sendProgressMsg("模型验证中...");
+            List<String> properties = vrmModelWithProperties.getProperties();
+            if(properties != null)
+                properties = vrm2SmvService.rectifyCTLFormulas(properties, vrmModelWithProperties.getSystemId());
             ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
                     vrmModelWithProperties.getSystemName(),
                     smvStr,
                     vrmModelWithProperties.getPropertyCount() > 0,
-                    vrmModelWithProperties.getProperties());
+                    properties);
             if(isInterrupted){
                 isInterrupted = false;
                 return;
@@ -99,6 +103,7 @@ public class AsyncVerifyTask {
         }catch (Exception e){
             e.printStackTrace();
             LogUtils.error(e.getMessage());
+            webSocketService.sendProgressMsg("模型验证失败！", EventLevelEnum.ERROR);
             webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
     }
@@ -144,6 +149,7 @@ public class AsyncVerifyTask {
         }catch (Exception e){
             e.printStackTrace();
             LogUtils.error(e.getMessage());
+            webSocketService.sendProgressMsg("反例解析失败！", EventLevelEnum.ERROR);
             webSocketService.sendDialogMsg(e.getMessage(), EventLevelEnum.ERROR);
         }
     }

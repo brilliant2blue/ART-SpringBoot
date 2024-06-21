@@ -436,8 +436,12 @@ public class CxExplanationHandler {
             switch (name) {
                 case "!" ->
                     res = !subRes;
-                case CTLSignal.AX, CTLSignal.EX ->
-                    res = computeOneStepFormulaValues(argument, vt, index + 1, false);
+                case CTLSignal.AX, CTLSignal.EX -> {
+                    if(index < vt.getTraceLength() - 1)
+                        res = computeOneStepFormulaValues(argument, vt, index + 1, false);
+                    else
+                        res = false;
+                }
                 case CTLSignal.AF, CTLSignal.EF  -> {
                     res = false;
                     for (int i = index; i < vt.getTraceLength(); i++) {

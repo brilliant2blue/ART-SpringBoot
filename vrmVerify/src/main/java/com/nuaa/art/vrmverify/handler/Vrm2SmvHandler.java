@@ -2,6 +2,7 @@ package com.nuaa.art.vrmverify.handler;
 
 import com.nuaa.art.vrm.entity.Mode;
 import com.nuaa.art.vrm.entity.StateMachine;
+import com.nuaa.art.vrm.entity.Type;
 import com.nuaa.art.vrm.model.hvrm.HVRM;
 import com.nuaa.art.vrm.model.hvrm.TableOfModule;
 import com.nuaa.art.vrm.model.hvrm.VariableWithPort;
@@ -105,6 +106,10 @@ public class Vrm2SmvHandler {
         preHandleCT();
         // 事件表预处理
         preHandleET();
+        // 删除无用的中间/输出变量
+        clearUselessVars();
+//        // 返回模型中用到的变量
+//        getUsedVars();
         // 模式集预处理
         preHandleModeClasses();
     }
@@ -123,6 +128,10 @@ public class Vrm2SmvHandler {
             case 1 -> model.terms;
             default -> model.outputs;
         };
+        Map<String, String> dataTypeMap = new HashMap<>();
+        for (Type type : model.types) {
+            dataTypeMap.put(type.getTypeName(), type.getDataType());
+        }
         for (VariableWithPort var : vars) {
             String name = var.getConceptName();
             if(SMV_KEYWORDS_SET.contains(name)){
@@ -133,33 +142,25 @@ public class Vrm2SmvHandler {
                 termsSet.add(name);
             if(flag == 2)
                 outputsSet.add(name);
-            String datatype = var.getConceptDatatype();
+            String datatype = dataTypeMap.get(var.getConceptDatatype());
             String conceptRange = var.getConceptRange();
             String value = var.getConceptValue();
             switch (datatype) {
-                case "Boolean" -> {
+                case "boolean" -> {
                     var.setConceptDatatype("boolean");
                     var.setConceptValue(value.toUpperCase());
                 }
-                case "Integer" -> var.setConceptDatatype("integer");
-                case "Float" -> var.setConceptDatatype("real");
-                default -> {
-                    if (conceptRange.contains("..")){
-                        String[] split = conceptRange.split("\\.\\.");
-                        if(split[0].matches("^(0|-?[1-9]\\\\d*)$"))
-                            var.setConceptDatatype(conceptRange);
-                        else
-                            var.setConceptDatatype("real");
+                case "integer", "unsigned" -> var.setConceptDatatype(conceptRange);
+                case "float", "double" -> var.setConceptDatatype("real");
+                case "enumerated" -> {
+                    String[] split = conceptRange.split(",");
+                    for (String s : split) {
+                        if(SMV_KEYWORDS_SET.contains(s))
+                            conceptRange = conceptRange.replace(s, "_" + s);
                     }
-                    else{
-                        String[] split = conceptRange.split(",");
-                        for (String s : split) {
-                            if(SMV_KEYWORDS_SET.contains(s))
-                                conceptRange = conceptRange.replace(s, "_" + s);
-                        }
-                        var.setConceptDatatype("{" + conceptRange + "}");
-                    }
+                    var.setConceptDatatype("{" + conceptRange + "}");
                 }
+                default -> throw new RuntimeException("未知类型错误，待解决！");
             }
             if(flag != 0){
                 needInstantiationVars.add(name);
@@ -227,6 +228,40 @@ public class Vrm2SmvHandler {
             }
             paramsOfVarsMap.put(name, args);
             et.setRows(newRows);
+        }
+    }
+
+    /**
+     * 删除无用的中间/输出变量
+     */
+    private void clearUselessVars(){
+        for (String term : termsSet) {
+            if(!paramsOfVarsMap.containsKey(term)){
+                needInstantiationVars.remove(term);
+                vars2TypeAndInitVal.remove(term);
+            }
+        }
+        for (String output : outputsSet) {
+            if(!paramsOfVarsMap.containsKey(output)){
+                needInstantiationVars.remove(output);
+                vars2TypeAndInitVal.remove(output);
+            }
+        }
+    }
+
+    private void getUsedVars(){
+        Set<String> usedVarsSet = new HashSet<>();
+        usedVarsSet.addAll(paramsOfVarsMap.keySet());
+        for (Set<String> value : paramsOfVarsMap.values()) {
+            usedVarsSet.addAll(value);
+        }
+        usedVarsSet.addAll(paramsOfModeClassesMap.keySet());
+        for (Set<String> value : paramsOfModeClassesMap.values()) {
+            usedVarsSet.addAll(value);
+        }
+        System.out.println("涉及变量：");
+        for (String s : usedVarsSet) {
+            System.out.println("\t" + s);
         }
     }
 
@@ -320,9 +355,9 @@ public class Vrm2SmvHandler {
                     if(SMV_KEYWORDS_SET.contains(endState))
                         endState = "_" + endState;
                     newModeTran.setEndState(endState);
+                    args.addAll(getVarsFromEvent(event));
                     event = modifyConditionAndEvent(event.replaceAll("\\{", "").replaceAll("}", ""));
                     newModeTran.setEvent(event);
-                    args.addAll(getVarsFromEvent(event));
                     newModeTrans.add(newModeTran);
                 }
             }
@@ -439,11 +474,14 @@ public class Vrm2SmvHandler {
      * @return
      */
     private String genSingleTermOrOutputModule(VariableWithPort var){
+        String name = var.getConceptName();
+        if(!paramsOfVarsMap.containsKey(name))
+            return "";
+
         StringBuilder result = new StringBuilder();
         StringBuilder moduleStatement = new StringBuilder();
         StringBuilder varStatement = new StringBuilder();
         StringBuilder varAssignment = new StringBuilder();
-        String name = var.getConceptName();
 
         moduleStatement.append("MODULE m_")
                 .append(name)
@@ -473,7 +511,7 @@ public class Vrm2SmvHandler {
         if(ct != null){
             for (TableRow row : ct.getRows()) {
                 varAssignment.append("\t\t\t")
-                        .append(injectDotToCaseCondition(row.getDetails()))
+                        .append(injectNextToCaseCondition(injectDotToCaseCondition(row.getDetails())))
                         .append(" : ")
                         .append(row.getAssignment())
                         .append(";\n");
@@ -512,6 +550,8 @@ public class Vrm2SmvHandler {
         boolean isReversal = conditions[0].equals("!");
         if(isReversal)
             result.append("!").append("(");
+        if(conditions[1].equals("(true)"))
+            conditions[1] = "TRUE";
         String condition1 = injectDotToCaseCondition(conditions[1]);
         String nextCondition1 = injectNextToCaseCondition(condition1);
         if(event.contains("@T")){
@@ -542,6 +582,8 @@ public class Vrm2SmvHandler {
                     .append("))");
         }
         if(conditions.length == 3){
+            if(conditions[2].equals("(true)"))
+                conditions[2] = "TRUE";
             String condition2 = injectDotToCaseCondition(conditions[2]);
             String nextCondition2 = injectNextToCaseCondition(condition2);
             if(event.contains("WHEN")){
@@ -549,14 +591,14 @@ public class Vrm2SmvHandler {
                         .append(condition2)
                         .append(")");
             }
-            else if(event.contains("WHILE")){
+            else if(event.contains("WHERE")){
                 result.append("&(")
                         .append(nextCondition2)
                         .append(")");
             }
-            else if(event.contains("WHERE")){
+            else if(event.contains("WHILE")){
                 result.append("&(")
-                        .append(nextCondition2)
+                        .append(condition2)
                         .append(")&(")
                         .append(nextCondition2)
                         .append(")");
@@ -663,7 +705,10 @@ public class Vrm2SmvHandler {
                 .append("(\n");
         Iterator<String> iterator = paramsOfModeClassesMap.get(name).iterator();
         while(iterator.hasNext()){
-            moduleStatement.append("\t").append(iterator.next());
+            String param = iterator.next();
+            if(copyVars.contains(param))
+                param = "c_" + param;
+            moduleStatement.append("\t").append(param);
             if(iterator.hasNext())
                 moduleStatement.append(",\n");
         }
@@ -750,7 +795,6 @@ public class Vrm2SmvHandler {
                         .append(value)
                         .append(";\n\n");
             }
-
         }
         return result.toString();
     }
@@ -820,9 +864,9 @@ public class Vrm2SmvHandler {
                     .append(vars2TypeAndInitVal.get(copyVar)[1])
                     .append(";\n\tnext(c_")
                     .append(copyVar)
-                    .append(") := next(")
+                    .append(") := ")
                     .append(copyVar)
-                    .append(".result);\n\n");
+                    .append(".result;\n\n");
         }
         return result.toString();
     }
