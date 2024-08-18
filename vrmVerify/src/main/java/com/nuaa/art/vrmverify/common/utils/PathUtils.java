@@ -12,6 +12,7 @@ public class PathUtils {
     private static final String NUXMV = "engines/nuxmv.exe";
     private static final String SMV_FILE = "smvFile";
     private static final String CX_FILE = "cxFile";
+    private static final String RECORDS = "records";
 
     /**
      * 获取 nuxmv 的绝对路径
@@ -43,6 +44,11 @@ public class PathUtils {
     public static String getCxFilePath(String fileName){
         String rootPath = System.getProperty("user.dir");
         return rootPath + "\\vrmVerify\\src\\main\\resources\\" + CX_FILE + "\\" + fileName;
+    }
+
+    public static String getRecordsPath(String fileName){
+        String rootPath = System.getProperty("user.dir");
+        return rootPath + "\\vrmVerify\\src\\main\\resources\\" + RECORDS + "\\" + fileName;
     }
 
 }

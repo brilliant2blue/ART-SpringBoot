@@ -22,6 +22,7 @@ public class Msg {
     public static final String UNKNOWN_UNARY_OPERATOR = "未知一元操作符：";
     public static final String UNKNOWN_BINARY_OPERATOR = "未知二元操作符：";
     public static final String NOT_CTL_FORMULA = "含有非CTL属性公式，无法解析！";
+    public static final String UNKNOWN_VARIABLE_TYPE = "未知变量类型";
 
 
 }

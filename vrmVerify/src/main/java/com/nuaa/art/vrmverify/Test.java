@@ -25,10 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author djl
@@ -64,7 +61,8 @@ public class Test {
 //    }
 
     public static void main(String[] args) {
-        // System.out.println(Vrm2SmvServiceImpl.KMP("AG ((mcAP=mDisengage & tv_When_AP_Available=FALSE & AX(tv_When_AP_Available=TRUE)) -> AX(mcAP=mAvailable))", "mcAP"));
+        System.out.println(CTLParseUtils.parseCTLStr("!E [((goat=wolf -> goat=ferrymen) & (goat=cabbage -> goat=ferrymen)) U (cabbage =TRUE & goat=TRUE & wolf=TRUE & ferrymen=TRUE)]").variableSet());
+
     }
 
 }

@@ -3,12 +3,14 @@ package com.nuaa.art.vrmverify.handler;
 import com.nuaa.art.vrm.entity.Mode;
 import com.nuaa.art.vrm.entity.StateMachine;
 import com.nuaa.art.vrm.entity.Type;
+import com.nuaa.art.vrm.model.VariableRelationModel;
 import com.nuaa.art.vrm.model.hvrm.HVRM;
 import com.nuaa.art.vrm.model.hvrm.TableOfModule;
 import com.nuaa.art.vrm.model.hvrm.VariableWithPort;
 import com.nuaa.art.vrm.model.vrm.ModeClassOfVRM;
 import com.nuaa.art.vrm.model.vrm.TableOfVRM;
 import com.nuaa.art.vrm.model.vrm.TableRow;
+import com.nuaa.art.vrmverify.common.utils.TableUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -20,7 +22,6 @@ import java.util.*;
  */
 public class Vrm2SmvHandler {
 
-    public static final String EVENT_SIGNAL = "@T|@F|@C|WHEN|WHILE|WHERE";
     public static Set<String> SMV_KEYWORDS_SET; //smv中保留关键字
 
     static {
@@ -183,7 +184,7 @@ public class Vrm2SmvHandler {
             Set<String> args = new HashSet<>();
             for (TableRow row : ct.getRows()) {
                 String condition = row.getDetails();
-                args.addAll(getVarsFromCondition(condition));
+                args.addAll(TableUtils.getVarsFromCondition(condition));
                 row.setDetails(modifyConditionAndEvent(condition));
                 String assignment = row.getAssignment();
                 if(assignment.equalsIgnoreCase("True") || assignment.equalsIgnoreCase("False"))
@@ -218,7 +219,7 @@ public class Vrm2SmvHandler {
                 for (String event : events){
                     TableRow newRow = new TableRow();
                     event = event.replaceAll("\\{", "").replaceAll("}", "");
-                    args.addAll(getVarsFromEvent(event));
+                    args.addAll(TableUtils.getVarsFromEvent(event));
                     newRow.setAssignment(assignment);
                     newRow.setDetails(modifyConditionAndEvent(event));
                     newRow.setMode(row.getMode());
@@ -355,7 +356,7 @@ public class Vrm2SmvHandler {
                     if(SMV_KEYWORDS_SET.contains(endState))
                         endState = "_" + endState;
                     newModeTran.setEndState(endState);
-                    args.addAll(getVarsFromEvent(event));
+                    args.addAll(TableUtils.getVarsFromEvent(event));
                     event = modifyConditionAndEvent(event.replaceAll("\\{", "").replaceAll("}", ""));
                     newModeTran.setEvent(event);
                     newModeTrans.add(newModeTran);
@@ -366,42 +367,10 @@ public class Vrm2SmvHandler {
         }
     }
 
-    /**
-     * 从条件中获取变量列表
-     * @param condition
-     */
-    private Set<String> getVarsFromCondition(String condition){
-        String[] exprs = condition
-                .replaceAll("!", "")
-                .replaceAll("\\(", "")
-                .replaceAll("\\)", "")
-                .split("&|\\|\\|");
-        Set<String> vars = new HashSet<>();
-        for (String expr : exprs) {
-            String var = expr.split(">|=|<")[0];
-            if(var.equalsIgnoreCase("True") || var.equalsIgnoreCase("False"))
-                continue;
-            vars.add(var);
-        }
-        return vars;
-    }
 
-    /**
-     * 从事件中获取变量列表
-     * @param event
-     * @return
-     */
-    private Set<String> getVarsFromEvent(String event){
-        String[] conditions = event
-                .replaceAll("\\{", "")
-                .replaceAll("}", "")
-                .split(EVENT_SIGNAL);
-        Set<String> vars = new HashSet<>();
-        for (int i = 1; i < conditions.length; i++) {
-            vars.addAll(getVarsFromCondition(conditions[i]));
-        }
-        return vars;
-    }
+
+
+
 
     /**
      * 拓扑排序得到模块实例化顺序并消除循环依赖
@@ -546,7 +515,7 @@ public class Vrm2SmvHandler {
         String[] conditions = event
                 .replaceAll("\\{", "")
                 .replaceAll("}", "")
-                .split(EVENT_SIGNAL);
+                .split(TableUtils.EVENT_SIGNAL);
         boolean isReversal = conditions[0].equals("!");
         if(isReversal)
             result.append("!").append("(");

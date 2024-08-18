@@ -7,10 +7,10 @@ import com.nuaa.art.common.websocket.WebSocketService;
 import com.nuaa.art.vrmverify.model.VerifyResult;
 import com.nuaa.art.vrmverify.model.explanation.Cause;
 import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;
-import com.nuaa.art.vrmverify.model.receive.SmvFileWIthProperties;
-import com.nuaa.art.vrmverify.model.receive.VrmModelWithProperties;
-import com.nuaa.art.vrmverify.model.send.ReturnExplainResult;
-import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
+import com.nuaa.art.vrmverify.model.dto.SmvFileWIthProperties;
+import com.nuaa.art.vrmverify.model.dto.VrmModelWithProperties;
+import com.nuaa.art.vrmverify.model.vo.ReturnExplainResult;
+import com.nuaa.art.vrmverify.model.vo.ReturnVerifyResult;
 import com.nuaa.art.vrmverify.model.visualization.VariableTable;
 import com.nuaa.art.vrmverify.service.CxHandlerService;
 import com.nuaa.art.vrmverify.service.ModelVerifyService;
@@ -79,6 +79,10 @@ public class AsyncVerifyTask {
     @Async("AsyncTask")
     public void asyncSmvStrVerify(VrmModelWithProperties vrmModelWithProperties, String user){
         try {
+            List<String> properties = vrmModelWithProperties.getProperties();
+            if(properties != null) {
+                properties = vrm2SmvService.checkAndRectifyCTLFormulas(properties, vrmModelWithProperties.getSystemId());
+            }
             webSocketService.sendProgressMsg("vrm模型转为smv模型中...");
             String smvStr = vrm2SmvService.transformVrm2Smv(
                     vrmModelWithProperties.getSystemId(),
@@ -86,9 +90,6 @@ public class AsyncVerifyTask {
                     user);
             webSocketService.sendProgressMsg("模型转换完成！",EventLevelEnum.SUCCESS);
             webSocketService.sendProgressMsg("模型验证中...");
-            List<String> properties = vrmModelWithProperties.getProperties();
-            if(properties != null)
-                properties = vrm2SmvService.rectifyCTLFormulas(properties, vrmModelWithProperties.getSystemId());
             ReturnVerifyResult returnVerifyResult = modelVerifyService.verifyModelFromSmvStr(
                     vrmModelWithProperties.getSystemName(),
                     smvStr,

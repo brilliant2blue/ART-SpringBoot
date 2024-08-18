@@ -54,8 +54,9 @@ MODULE main
                 TRUE: !ferrymen;
             esac;
 
-CTLSPEC !E [(((goat=wolf)->(goat=ferrymen)) & ((goat=cabbage)->(goat=ferrymen))) U (cabbage =TRUE & goat=TRUE & wolf=TRUE &ferrymen=TRUE)]
+    CTLSPEC !E [((goat=wolf -> goat=ferrymen) & (goat=cabbage -> goat=ferrymen))
+             U (cabbage =TRUE & goat=TRUE & wolf=TRUE & ferrymen=TRUE)]
 
-CTLSPEC AF (wolf=TRUE)
+    CTLSPEC AF (wolf=TRUE)
 
-LTLSPEC F wolf = TRUE
+    LTLSPEC F wolf = TRUE

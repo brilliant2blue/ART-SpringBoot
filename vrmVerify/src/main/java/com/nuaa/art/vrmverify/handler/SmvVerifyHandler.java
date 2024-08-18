@@ -1,5 +1,6 @@
 package com.nuaa.art.vrmverify.handler;
 
+import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrmverify.common.Msg;
 import com.nuaa.art.vrmverify.common.utils.CmdUtils;
 import com.nuaa.art.vrmverify.common.utils.PathUtils;
@@ -192,7 +193,7 @@ public class SmvVerifyHandler {
      * @param properties
      * @return
      */
-    private static String generateVerifyCmdFromSmvFile(String originalFilePath, boolean addProperties, List<String> properties){
+    private static String generateVerifyCmdFromSmvFile(String originalFilePath, boolean addProperties, List<String> properties) throws FileNotFoundException {
         String smvFilePath = copySmvFileFromFile(originalFilePath, addProperties, properties);
         if(smvFilePath == null)
             return null;
@@ -221,7 +222,7 @@ public class SmvVerifyHandler {
      * @param properties
      * @return
      */
-    private static String copySmvFileFromFile(String originalFilePath, boolean addProperties, List<String> properties) {
+    private static String copySmvFileFromFile(String originalFilePath, boolean addProperties, List<String> properties) throws FileNotFoundException {
         File originalSmvFile = new File(originalFilePath);
         if(originalSmvFile.isFile() && originalSmvFile.exists()){
             String copiedSmvFilePath = PathUtils.getSmvFilePath(originalSmvFile.getName());
@@ -234,18 +235,21 @@ public class SmvVerifyHandler {
                 if(addProperties){
                     FileOutputStream fos = new FileOutputStream(copiedSmvFile, true);
                     OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);
+                    BufferedWriter bw = new BufferedWriter(osw);
                     for (String property : properties)
-                        osw.write("\r\n" + PROPERTY_TYPE + property);
-                    osw.close();
+                        bw.write("\r\n" + PROPERTY_TYPE + property);
+                    bw.flush();
+                    bw.close();
                 }
             }
             catch (IOException e){
                 e.printStackTrace();
+                LogUtils.error(e.getMessage());
             }
             return copiedSmvFilePath;
         }
         else
-            return null;
+            throw new FileNotFoundException(Msg.FILE_NOT_FOUND);
     }
 
     /**

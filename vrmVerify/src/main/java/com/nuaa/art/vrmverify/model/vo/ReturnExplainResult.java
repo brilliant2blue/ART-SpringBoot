@@ -1,4 +1,4 @@
-package com.nuaa.art.vrmverify.model.send;
+package com.nuaa.art.vrmverify.model.vo;
 
 import com.nuaa.art.vrmverify.model.explanation.Cause;
 import com.nuaa.art.vrmverify.model.formula.ctl.CTLFormula;

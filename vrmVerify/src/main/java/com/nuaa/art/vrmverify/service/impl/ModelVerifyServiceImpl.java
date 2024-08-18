@@ -1,17 +1,20 @@
 package com.nuaa.art.vrmverify.service.impl;
 
-import com.nuaa.art.common.utils.LogUtils;
 import com.nuaa.art.vrmverify.common.Msg;
+import com.nuaa.art.vrmverify.common.utils.CTLParseUtils;
 import com.nuaa.art.vrmverify.common.utils.PathUtils;
 import com.nuaa.art.vrmverify.handler.SmvVerifyHandler;
 import com.nuaa.art.vrmverify.model.VerifyResult;
-import com.nuaa.art.vrmverify.model.send.ReturnVerifyResult;
+import com.nuaa.art.vrmverify.model.vo.ReturnVerifyResult;
 import com.nuaa.art.vrmverify.service.ModelVerifyService;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,6 +24,75 @@ import java.util.List;
  */
 @Service
 public class ModelVerifyServiceImpl implements ModelVerifyService {
+
+    /**
+     * 检查CTL公式是否合法
+     * @param ctlStr
+     */
+    @Override
+    public void checkCTLFormula(String ctlStr) {
+        CTLParseUtils.parseCTLStr(ctlStr);
+    }
+
+    /**
+     * 从文件中读取CTL公式
+     * @param fileName
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public List<String> readCTLFormulasFromFile(String fileName, InputStream in) throws IOException {
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        return switch (suffix) {
+            case ".txt" -> readCTLFormulasFromTxt(in);
+            case ".xlsx", ".xls" -> readCTLFormulasFromXlsx(in);
+            default -> throw new IOException(Msg.FILE_TYPE_ERROR);
+        };
+    }
+
+    /**
+     * 从txt文件中读取CTL公式
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    private List<String> readCTLFormulasFromTxt(InputStream in) throws IOException {
+        InputStreamReader isr = new InputStreamReader(in);
+        BufferedReader br = new BufferedReader(isr);
+        List<String> ctlFormulaList = new ArrayList<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            if(line.trim().isEmpty())
+                continue;
+            CTLParseUtils.parseCTLStr(line);
+            ctlFormulaList.add(line);
+        }
+        br.close();
+        isr.close();
+        return ctlFormulaList;
+    }
+
+    /**
+     * 从xlsx(xls)文件中读取CTL公式
+     * @param in
+     * @return
+     * @throws IOException
+     */
+    private List<String> readCTLFormulasFromXlsx(InputStream in) throws IOException {
+        List<String> ctlFormulaList = new ArrayList<>();
+        XSSFWorkbook workbook = new XSSFWorkbook(in);
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        for (Row row : sheet) {
+            String line = row.getCell(0).getStringCellValue();
+            if(line.trim().isEmpty())
+                continue;
+            CTLParseUtils.parseCTLStr(line);
+            ctlFormulaList.add(line);
+        }
+        workbook.close();
+        return ctlFormulaList;
+    }
 
     /**
      * 读取模型文件并对其进行验证

@@ -1,4 +1,4 @@
-package com.nuaa.art.vrmverify.model.receive;
+package com.nuaa.art.vrmverify.model.dto;
 
 import lombok.Data;
 

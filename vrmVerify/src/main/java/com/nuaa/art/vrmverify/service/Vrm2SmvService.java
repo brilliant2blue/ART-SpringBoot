@@ -26,10 +26,10 @@ public interface Vrm2SmvService {
     public String transformVrm2SmvWithHierarchy(Integer systemId);
 
     /**
-     * 纠正CTL公式
+     * 检查并纠正CTL公式
      * @param properties
      * @param systemId
      * @return
      */
-    public List<String> rectifyCTLFormulas(List<String> properties, Integer systemId);
+    public List<String> checkAndRectifyCTLFormulas(List<String> properties, Integer systemId);
 }
