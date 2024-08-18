@@ -3,6 +3,8 @@ name: CI-demo
 on:
   push:
     branches: [ djl-CI ]
+  pull_request:
+    branches: [ djl-CI ]
 
 jobs:
   build:
